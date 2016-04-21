@@ -5,6 +5,17 @@
               jucerVersion="4.2.1">
   <MAINGROUP id="zdBS2Z" name="JECT">
     <GROUP id="{05229AE6-9916-1D68-66B0-1214109EB6CD}" name="Source">
+      <GROUP id="{84F3BC3C-EF04-889F-BF39-120C06F7FF4F}" name="Libraries">
+        <GROUP id="{B20C513A-BB0A-2917-F680-6934E7ABA470}" name="KissFFT">
+          <FILE id="aYpIjV" name="_kiss_fft_guts.h" compile="0" resource="0"
+                file="Source/Libraries/KissFFT/_kiss_fft_guts.h"/>
+          <FILE id="nOHxud" name="kiss_fft.c" compile="1" resource="0" file="Source/Libraries/KissFFT/kiss_fft.c"/>
+          <FILE id="wgKGpn" name="kiss_fft.h" compile="0" resource="0" file="Source/Libraries/KissFFT/kiss_fft.h"/>
+          <FILE id="inFwIt" name="kiss_fftr.c" compile="1" resource="0" file="Source/Libraries/KissFFT/kiss_fftr.c"/>
+          <FILE id="GrcQuD" name="kiss_fftr.h" compile="0" resource="0" file="Source/Libraries/KissFFT/kiss_fftr.h"/>
+          <FILE id="kHpfmE" name="kissfft.hh" compile="0" resource="0" file="Source/Libraries/KissFFT/kissfft.hh"/>
+        </GROUP>
+      </GROUP>
       <FILE id="DmJdqe" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <FILE id="G1MVCi" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
@@ -19,7 +30,7 @@
     <VS2015 targetFolder="Builds/VisualStudio2015" extraDefs="JECT_FFT_KISS">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="1" optimisation="1" targetName="JECT" headerPath="../lib/kiss_fft130;../lib/kiss_fft130/tools"/>
+                       isDebug="1" optimisation="1" targetName="JECT" headerPath=""/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
                        isDebug="0" optimisation="3" targetName="JECT"/>
       </CONFIGURATIONS>

@@ -8,6 +8,12 @@
     <Filter Include="JECT\Source">
       <UniqueIdentifier>{3DDC74F9-9447-B33A-FB47-390809E182A9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="JECT\Source\Libraries">
+      <UniqueIdentifier>{4B12EC5C-AB09-0932-7B19-8FBEF48F5151}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="JECT\Source\Libraries\KissFFT">
+      <UniqueIdentifier>{5D7ED1FA-5FC8-D6DC-764A-2BCE67ABEA41}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Juce Modules">
       <UniqueIdentifier>{422C46B7-0467-2DB0-BF3C-16DFCAFD69AC}</UniqueIdentifier>
     </Filter>
@@ -367,6 +373,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\Libraries\KissFFT\kiss_fft.c">
+      <Filter>JECT\Source\Libraries\KissFFT</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Libraries\KissFFT\kiss_fftr.c">
+      <Filter>JECT\Source\Libraries\KissFFT</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Main.cpp">
       <Filter>JECT\Source</Filter>
     </ClCompile>
@@ -2097,6 +2109,18 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\Libraries\KissFFT\_kiss_fft_guts.h">
+      <Filter>JECT\Source\Libraries\KissFFT</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Libraries\KissFFT\kiss_fft.h">
+      <Filter>JECT\Source\Libraries\KissFFT</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Libraries\KissFFT\kiss_fftr.h">
+      <Filter>JECT\Source\Libraries\KissFFT</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Libraries\KissFFT\kissfft.hh">
+      <Filter>JECT\Source\Libraries\KissFFT</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\MainComponent.h">
       <Filter>JECT\Source</Filter>
     </ClInclude>
