@@ -17,10 +17,11 @@
   ==============================================================================
 */
 
+
 //[Headers] You can add your own extra header files here...
 #include <algorithm>
 
-#include <kiss_fftr.h>
+#include "Libraries/kiss_fft130/kiss_fftr.h"
 //[/Headers]
 
 #include "MainComponent.h"

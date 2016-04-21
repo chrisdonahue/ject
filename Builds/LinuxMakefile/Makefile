@@ -49,8 +49,8 @@ ifeq ($(CONFIG),Release)
 endif
 
 OBJECTS := \
-  $(OBJDIR)/kiss_fft_6642e5ab.o \
-  $(OBJDIR)/kiss_fftr_621ac8f1.o \
+  $(OBJDIR)/kiss_fft_cfe828c6.o \
+  $(OBJDIR)/kiss_fftr_2d1de936.o \
   $(OBJDIR)/Main_90ebc5c2.o \
   $(OBJDIR)/MainComponent_a6ffb4a5.o \
   $(OBJDIR)/WaveformComponent_3d0f1fa1.o \
@@ -86,12 +86,12 @@ strip:
 	@echo Stripping JECT
 	-@strip --strip-unneeded $(OUTDIR)/$(TARGET)
 
-$(OBJDIR)/kiss_fft_6642e5ab.o: ../../Source/Libraries/KissFFT/kiss_fft.c
+$(OBJDIR)/kiss_fft_cfe828c6.o: ../../Source/Libraries/kiss_fft130/kiss_fft.c
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling kiss_fft.c"
 	@$(CC) $(CFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/kiss_fftr_621ac8f1.o: ../../Source/Libraries/KissFFT/kiss_fftr.c
+$(OBJDIR)/kiss_fftr_2d1de936.o: ../../Source/Libraries/kiss_fft130/kiss_fftr.c
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling kiss_fftr.c"
 	@$(CC) $(CFLAGS) -o "$@" -c "$<"

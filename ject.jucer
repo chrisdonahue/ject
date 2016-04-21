@@ -6,14 +6,14 @@
   <MAINGROUP id="zdBS2Z" name="JECT">
     <GROUP id="{05229AE6-9916-1D68-66B0-1214109EB6CD}" name="Source">
       <GROUP id="{84F3BC3C-EF04-889F-BF39-120C06F7FF4F}" name="Libraries">
-        <GROUP id="{B20C513A-BB0A-2917-F680-6934E7ABA470}" name="KissFFT">
-          <FILE id="aYpIjV" name="_kiss_fft_guts.h" compile="0" resource="0"
-                file="Source/Libraries/KissFFT/_kiss_fft_guts.h"/>
-          <FILE id="nOHxud" name="kiss_fft.c" compile="1" resource="0" file="Source/Libraries/KissFFT/kiss_fft.c"/>
-          <FILE id="wgKGpn" name="kiss_fft.h" compile="0" resource="0" file="Source/Libraries/KissFFT/kiss_fft.h"/>
-          <FILE id="inFwIt" name="kiss_fftr.c" compile="1" resource="0" file="Source/Libraries/KissFFT/kiss_fftr.c"/>
-          <FILE id="GrcQuD" name="kiss_fftr.h" compile="0" resource="0" file="Source/Libraries/KissFFT/kiss_fftr.h"/>
-          <FILE id="kHpfmE" name="kissfft.hh" compile="0" resource="0" file="Source/Libraries/KissFFT/kissfft.hh"/>
+        <GROUP id="{7757FA70-EB2F-05CC-48EB-25039725FA32}" name="kiss_fft130">
+          <FILE id="L49RPt" name="_kiss_fft_guts.h" compile="0" resource="0"
+                file="Source/Libraries/kiss_fft130/_kiss_fft_guts.h"/>
+          <FILE id="t0puYc" name="kiss_fft.c" compile="1" resource="0" file="Source/Libraries/kiss_fft130/kiss_fft.c"/>
+          <FILE id="R0x3ts" name="kiss_fft.h" compile="0" resource="0" file="Source/Libraries/kiss_fft130/kiss_fft.h"/>
+          <FILE id="hdEM20" name="kiss_fftr.c" compile="1" resource="0" file="Source/Libraries/kiss_fft130/kiss_fftr.c"/>
+          <FILE id="YD6xcf" name="kiss_fftr.h" compile="0" resource="0" file="Source/Libraries/kiss_fft130/kiss_fftr.h"/>
+          <FILE id="HcY2a5" name="kissfft.hh" compile="0" resource="0" file="Source/Libraries/kiss_fft130/kissfft.hh"/>
         </GROUP>
       </GROUP>
       <FILE id="DmJdqe" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
