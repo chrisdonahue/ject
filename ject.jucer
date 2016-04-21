@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="rF2VYt" name="JECT" projectType="guiapp" version="1.0.0"
+              bundleIdentifier="com.yourcompany.ject" includeBinaryInAppConfig="1"
+              jucerVersion="4.2.1">
+  <MAINGROUP id="zdBS2Z" name="JECT">
+    <GROUP id="{05229AE6-9916-1D68-66B0-1214109EB6CD}" name="Source">
+      <FILE id="DmJdqe" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+      <FILE id="G1MVCi" name="MainComponent.cpp" compile="1" resource="0"
+            file="Source/MainComponent.cpp"/>
+      <FILE id="IJHmB9" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
+      <FILE id="zgDL8R" name="WaveformComponent.cpp" compile="1" resource="0"
+            file="Source/WaveformComponent.cpp"/>
+      <FILE id="uNBcA8" name="WaveformComponent.h" compile="0" resource="0"
+            file="Source/WaveformComponent.h"/>
+    </GROUP>
+  </MAINGROUP>
+  <EXPORTFORMATS>
+    <VS2015 targetFolder="Builds/VisualStudio2015" extraDefs="JECT_FFT_KISS">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="1" optimisation="1" targetName="JECT" headerPath="../lib/kiss_fft130;../lib/kiss_fft130/tools"/>
+        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="0" optimisation="3" targetName="JECT"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="../lib/JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../lib/JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../lib/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../lib/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../lib/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../lib/JUCE/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../lib/JUCE/modules"/>
+        <MODULEPATH id="juce_video" path="../lib/JUCE/modules"/>
+        <MODULEPATH id="juce_opengl" path="../lib/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../lib/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../lib/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../lib/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../lib/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../lib/JUCE/modules"/>
+      </MODULEPATHS>
+    </VS2015>
+    <LINUX_MAKE targetFolder="Builds/LinuxMakefile" extraDefs="JECT_FFT_KISS">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/" isDebug="1" optimisation="1"
+                       targetName="JECT"/>
+        <CONFIGURATION name="Release" libraryPath="/usr/X11R6/lib/" isDebug="0" optimisation="3"
+                       targetName="JECT"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path=""/>
+        <MODULEPATH id="juce_events" path=""/>
+        <MODULEPATH id="juce_graphics" path=""/>
+        <MODULEPATH id="juce_data_structures" path=""/>
+        <MODULEPATH id="juce_gui_basics" path=""/>
+        <MODULEPATH id="juce_gui_extra" path=""/>
+        <MODULEPATH id="juce_cryptography" path=""/>
+        <MODULEPATH id="juce_video" path=""/>
+        <MODULEPATH id="juce_opengl" path=""/>
+        <MODULEPATH id="juce_audio_basics" path=""/>
+        <MODULEPATH id="juce_audio_devices" path=""/>
+        <MODULEPATH id="juce_audio_formats" path=""/>
+        <MODULEPATH id="juce_audio_processors" path=""/>
+        <MODULEPATH id="juce_audio_utils" path=""/>
+      </MODULEPATHS>
+    </LINUX_MAKE>
+    <XCODE_MAC targetFolder="Builds/MacOSX">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="JECT"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="JECT"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_video" path="../lib/JUCE/modules"/>
+        <MODULEPATH id="juce_opengl" path="../lib/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../lib/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../lib/JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../lib/JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../lib/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../lib/JUCE/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../lib/JUCE/modules"/>
+        <MODULEPATH id="juce_core" path="../lib/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../lib/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../lib/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../lib/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../lib/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../lib/JUCE/modules"/>
+      </MODULEPATHS>
+    </XCODE_MAC>
+  </EXPORTFORMATS>
+  <MODULES>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_cryptography" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_video" showAllCode="1" useLocalCopy="1"/>
+  </MODULES>
+  <JUCEOPTIONS/>
+  <LIVE_SETTINGS>
+    <WINDOWS/>
+  </LIVE_SETTINGS>
+</JUCERPROJECT>
