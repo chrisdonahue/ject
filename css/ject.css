@@ -1,0 +1,28 @@
+section {
+	clear: both;
+}
+
+section div.title {
+    font-weight: bold;
+    font-size: 200%;
+    border-bottom: 2px solid #000000;
+    margin-bottom: 10px;
+}
+
+section div.text {
+	
+}
+
+section#intro div.text {
+	margin-left: 320px;
+}
+
+section div#ss {
+    float: left;
+}
+
+section div#ss img {
+    display: block;
+    width: 300px;
+    height: 350px;
+}
