@@ -109,7 +109,7 @@ MainContentComponent::MainContentComponent ()
     gainLabel->setColour (TextEditor::textColourId, Colours::black);
     gainLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (convComponent = new WaveformComponent ("Press convolve"));
+    addAndMakeVisible (waveformComponent = new WaveformComponent ("LEL"));
 
     addAndMakeVisible (prBehaviorLabel = new Label (String(),
                                                     TRANS("P/R Behavior")));
@@ -173,20 +173,19 @@ MainContentComponent::MainContentComponent ()
     saveButton->setButtonText (TRANS("Save"));
     saveButton->addListener (this);
 
-    addAndMakeVisible (sLabel2 = new Label (String(),
-                                            TRANS("S")));
-    sLabel2->setFont (Font (15.00f, Font::plain));
-    sLabel2->setJustificationType (Justification::centredLeft);
-    sLabel2->setEditable (false, false, false);
-    sLabel2->setColour (TextEditor::textColourId, Colours::black);
-    sLabel2->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    addAndMakeVisible (sLabel = new Label (String(),
+                                           TRANS("S")));
+    sLabel->setFont (Font (15.00f, Font::plain));
+    sLabel->setJustificationType (Justification::centredLeft);
+    sLabel->setEditable (false, false, false);
+    sLabel->setColour (TextEditor::textColourId, Colours::black);
+    sLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (rComponent = new PolygonSliderComponent());
 
-    addAndMakeVisible (component2 = new PolygonSliderComponent());
-    component2->setName ("new component");
+    addAndMakeVisible (pComponent = new PolygonSliderComponent());
 
-    addAndMakeVisible (inputListComponent = new ListBox());
+    addAndMakeVisible (inputFileListComponent = new ListBox());
 
     addAndMakeVisible (inputRemoveButton = new TextButton (String()));
     inputRemoveButton->setButtonText (TRANS("Remove"));
@@ -198,6 +197,13 @@ MainContentComponent::MainContentComponent ()
 
 
     //[UserPreSize]
+	inputFileListComponent->setModel(&inputFileList);
+	inputFileList.addChangeListener(this);
+
+	pComponent->addChangeListener(this);
+	rComponent->addChangeListener(this);
+
+
 	//timerCallback();
 	soundChanged(dontSendNotification);
 	setUiFromParams(dontSendNotification);
@@ -232,7 +238,7 @@ MainContentComponent::~MainContentComponent()
     settingsButton = nullptr;
     gainSlider = nullptr;
     gainLabel = nullptr;
-    convComponent = nullptr;
+    waveformComponent = nullptr;
     prBehaviorLabel = nullptr;
     prBehaviorComboBox = nullptr;
     playButton = nullptr;
@@ -244,10 +250,10 @@ MainContentComponent::~MainContentComponent()
     nfftSlider = nullptr;
     nfftLabel = nullptr;
     saveButton = nullptr;
-    sLabel2 = nullptr;
+    sLabel = nullptr;
     rComponent = nullptr;
-    component2 = nullptr;
-    inputListComponent = nullptr;
+    pComponent = nullptr;
+    inputFileListComponent = nullptr;
     inputRemoveButton = nullptr;
     inputAddButton = nullptr;
 
@@ -286,7 +292,7 @@ void MainContentComponent::resized()
     settingsButton->setBounds (8, 520, 224, 24);
     gainSlider->setBounds (352, 184, 456, 24);
     gainLabel->setBounds (256, 184, 88, 24);
-    convComponent->setBounds (256, 24, 552, 152);
+    waveformComponent->setBounds (256, 24, 552, 152);
     prBehaviorLabel->setBounds (256, 280, 88, 24);
     prBehaviorComboBox->setBounds (352, 280, 232, 24);
     playButton->setBounds (616, 32, 56, 24);
@@ -298,10 +304,10 @@ void MainContentComponent::resized()
     nfftSlider->setBounds (352, 248, 240, 24);
     nfftLabel->setBounds (256, 248, 88, 24);
     saveButton->setBounds (744, 136, 56, 24);
-    sLabel2->setBounds (552, 352, 24, 24);
+    sLabel->setBounds (552, 352, 24, 24);
     rComponent->setBounds (552, 384, 256, 176);
-    component2->setBounds (256, 384, 256, 176);
-    inputListComponent->setBounds (24, 56, 192, 440);
+    pComponent->setBounds (256, 384, 256, 176);
+    inputFileListComponent->setBounds (24, 56, 192, 440);
     inputRemoveButton->setBounds (128, 24, 88, 24);
     inputAddButton->setBounds (24, 24, 88, 24);
     //[UserResized] Add your own custom resize handling here..
@@ -493,8 +499,8 @@ void MainContentComponent::buttonClicked (Button* buttonThatWasClicked)
 			// copy to UI
 			{
 				const ScopedLock wdl(waveformDisplayLock);
-				convComponent->setSound(&conv);
-				convComponent->repaint();
+				waveformComponent->setSound(&conv);
+				waveformComponent->repaint();
 			}
 
 			setPlayheadUiEnabled(true);
@@ -771,11 +777,24 @@ void MainContentComponent::filesDropped(const StringArray& files, int x, int y) 
 	}
 }
 
+void MainContentComponent::changeListenerCallback(ChangeBroadcaster* source) {
+	if (source == &inputFileList) {
+		const int index = inputFileListComponent->getSelectedRow();
+		waveformComponent->repaint();
+	}
+	else if (source == pComponent) {
+
+	}
+	else if (source == rComponent) {
+
+	}
+}
+
 void MainContentComponent::timerCallback() {
 	const ScopedLock wdl(waveformDisplayLock);
 
-	convComponent->setPlayhead(playheadAudioSamplesCompleted);
-	convComponent->repaint();
+	waveformComponent->setPlayhead(playheadAudioSamplesCompleted);
+	waveformComponent->repaint();
 
 	//setUiFromParams(dontSendNotification);
 }
@@ -789,9 +808,9 @@ void MainContentComponent::setPlayheadUiEnabled(bool playheadUiEnabled) {
 
 void MainContentComponent::setUiFromParams(NotificationType notificationType) {
 	gainSlider->setValue(static_cast<double>(gainParam.get()), notificationType);
-	pSlider->setValue(static_cast<double>(pParam.get()), notificationType);
+	//pSlider->setValue(static_cast<double>(pParam.get()), notificationType);
 	qSlider->setValue(static_cast<double>(qParam.get()), notificationType);
-	rSlider->setValue(static_cast<double>(rParam.get()), notificationType);
+	//rSlider->setValue(static_cast<double>(rParam.get()), notificationType);
 	sSlider->setValue(static_cast<double>(sParam.get()), notificationType);
 	prBehaviorComboBox->setSelectedId(prBehavior, notificationType);
 }
@@ -831,7 +850,7 @@ void MainContentComponent::fftFree() {
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="MainContentComponent" componentName=""
-                 parentClasses="public AudioAppComponent, public FileDragAndDropTarget, public Timer"
+                 parentClasses="public AudioAppComponent, public FileDragAndDropTarget, public Timer, public ChangeListener"
                  constructorParams="" variableInitialisers="gainParam(0.5),&#10;nfftParam(0),&#10;pParam(0.5),&#10;qParam(1.0),&#10;rParam(0.5),&#10;sParam(1.0),&#10;prBehavior(PrBehavior::independent),&#10;waveformDisplayLock(),&#10;conv(0, 0),&#10;convDirty(true),&#10;playheadAudioLock(),&#10;playheadState(PlayheadState::stopped),&#10;playheadAudio(0, 0),&#10;playheadAudioSamplesCompleted(0)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="1" initialWidth="832" initialHeight="584">
@@ -876,9 +895,9 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="Gain" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
          bold="0" italic="0" justification="33"/>
-  <GENERICCOMPONENT name="" id="5da17034a15a2c26" memberName="convComponent" virtualName=""
-                    explicitFocusOrder="0" pos="256 24 552 152" class="WaveformComponent"
-                    params="&quot;Press convolve&quot;"/>
+  <GENERICCOMPONENT name="" id="5da17034a15a2c26" memberName="waveformComponent"
+                    virtualName="" explicitFocusOrder="0" pos="256 24 552 152" class="WaveformComponent"
+                    params="&quot;LEL&quot;"/>
   <LABEL name="" id="df0c2bbfcc27d23b" memberName="prBehaviorLabel" virtualName=""
          explicitFocusOrder="0" pos="256 280 88 24" edTextCol="ff000000"
          edBkgCol="0" labelText="P/R Behavior" editableSingleClick="0"
@@ -920,7 +939,7 @@ BEGIN_JUCER_METADATA
   <TEXTBUTTON name="" id="5349946cfc445d79" memberName="saveButton" virtualName=""
               explicitFocusOrder="0" pos="744 136 56 24" buttonText="Save"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
-  <LABEL name="" id="676135372bd3b95b" memberName="sLabel2" virtualName=""
+  <LABEL name="" id="676135372bd3b95b" memberName="sLabel" virtualName=""
          explicitFocusOrder="0" pos="552 352 24 24" edTextCol="ff000000"
          edBkgCol="0" labelText="S" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
@@ -928,10 +947,10 @@ BEGIN_JUCER_METADATA
   <GENERICCOMPONENT name="" id="c5b31d19af3a5454" memberName="rComponent" virtualName=""
                     explicitFocusOrder="0" pos="552 384 256 176" class="PolygonSliderComponent"
                     params=""/>
-  <GENERICCOMPONENT name="new component" id="6b2b891fb1909c36" memberName="component2"
-                    virtualName="" explicitFocusOrder="0" pos="256 384 256 176" class="PolygonSliderComponent"
+  <GENERICCOMPONENT name="" id="6b2b891fb1909c36" memberName="pComponent" virtualName=""
+                    explicitFocusOrder="0" pos="256 384 256 176" class="PolygonSliderComponent"
                     params=""/>
-  <GENERICCOMPONENT name="" id="7617b55e4d758efa" memberName="inputListComponent"
+  <GENERICCOMPONENT name="" id="7617b55e4d758efa" memberName="inputFileListComponent"
                     virtualName="" explicitFocusOrder="0" pos="24 56 192 440" class="ListBox"
                     params=""/>
   <TEXTBUTTON name="" id="ce8360a29a7e1323" memberName="inputRemoveButton"

@@ -29,6 +29,7 @@
 
 #include "JuceHeader.h"
 
+#include "InputFileList.h"
 #include "PolygonSliderComponent.h"
 #include "WaveformComponent.h"
 
@@ -51,6 +52,7 @@ ApplicationProperties& getAppProperties();
 class MainContentComponent  : public AudioAppComponent,
                               public FileDragAndDropTarget,
                               public Timer,
+                              public ChangeListener,
                               public SliderListener,
                               public ButtonListener,
                               public ComboBoxListener
@@ -68,6 +70,7 @@ public:
 
 	bool isInterestedInFileDrag(const StringArray& files) override;
 	void filesDropped(const StringArray& files, int x, int y) override;
+	void changeListenerCallback(ChangeBroadcaster* source) override;
 
 	void timerCallback() override;
     //[/UserMethods]
@@ -121,6 +124,8 @@ private:
 	void setUiFromParams(NotificationType notificationType);
 	void soundChanged(NotificationType notificationType);
 	void fftFree();
+
+	InputFileList inputFileList;
     //[/UserVariables]
 
     //==============================================================================
@@ -136,7 +141,7 @@ private:
     ScopedPointer<TextButton> settingsButton;
     ScopedPointer<Slider> gainSlider;
     ScopedPointer<Label> gainLabel;
-    ScopedPointer<WaveformComponent> convComponent;
+    ScopedPointer<WaveformComponent> waveformComponent;
     ScopedPointer<Label> prBehaviorLabel;
     ScopedPointer<ComboBox> prBehaviorComboBox;
     ScopedPointer<TextButton> playButton;
@@ -148,10 +153,10 @@ private:
     ScopedPointer<Slider> nfftSlider;
     ScopedPointer<Label> nfftLabel;
     ScopedPointer<TextButton> saveButton;
-    ScopedPointer<Label> sLabel2;
+    ScopedPointer<Label> sLabel;
     ScopedPointer<PolygonSliderComponent> rComponent;
-    ScopedPointer<PolygonSliderComponent> component2;
-    ScopedPointer<ListBox> inputListComponent;
+    ScopedPointer<PolygonSliderComponent> pComponent;
+    ScopedPointer<ListBox> inputFileListComponent;
     ScopedPointer<TextButton> inputRemoveButton;
     ScopedPointer<TextButton> inputAddButton;
 

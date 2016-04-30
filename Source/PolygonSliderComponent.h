@@ -16,16 +16,23 @@
 //==============================================================================
 /*
 */
-class PolygonSliderComponent    : public Component
+class PolygonSliderComponent    : public Component, public MouseListener, public ChangeBroadcaster
 {
 public:
     PolygonSliderComponent();
     ~PolygonSliderComponent();
 
-    void paint (Graphics&);
-    void resized();
+	void paint(Graphics&) override;
+
+	void mouseDrag(const MouseEvent &event) override;
+
+	void addVertex(int id, String name);
+	void removeVertex(int id);
+	const HashMap<int, float>& getValues();
 
 private:
+	HashMap<int, String> idToName;
+	HashMap<int, float> idToValue;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PolygonSliderComponent)
 };
 

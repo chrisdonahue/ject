@@ -25,27 +25,39 @@ PolygonSliderComponent::~PolygonSliderComponent()
 
 void PolygonSliderComponent::paint (Graphics& g)
 {
-    /* This demo code just fills the component's background and
-       draws some placeholder text to get you started.
+	//g.fillAll(Colours::white);
+	g.setColour(Colours::grey);
+	g.drawRect(getLocalBounds(), 1);
+	g.setColour(Colours::lightblue);
+	g.setFont(14.0f);
 
-       You should replace everything in this method with your own
-       drawing code..
-    */
-
-    g.fillAll (Colours::white);   // clear the background
-
-    g.setColour (Colours::grey);
-    g.drawRect (getLocalBounds(), 1);   // draw an outline around the component
-
-    g.setColour (Colours::lightblue);
-    g.setFont (14.0f);
-    g.drawText ("PolygonSliderComponent", getLocalBounds(),
-                Justification::centred, true);   // draw some placeholder text
+	int numVertices = idToValue.size();
+	if (numVertices == 0) {
+		g.drawText("Add some sounds!", getLocalBounds(), Justification::centred, true);
+	}
+	else if (numVertices == 1) {
+		g.drawText("Add more sounds!", getLocalBounds(), Justification::centred, true);
+	}
+	else if (numVertices == 2) {
+	}
+	else {
+	}
 }
 
-void PolygonSliderComponent::resized()
-{
-    // This method is where you should set the bounds of any child
-    // components that your component contains..
+void PolygonSliderComponent::mouseDrag(const MouseEvent &event) {
+	sendChangeMessage();
+}
 
+void PolygonSliderComponent::addVertex(int id, String name) {
+	idToName.set(id, name);
+	idToValue.set(id, 1.0f);
+}
+
+void PolygonSliderComponent::removeVertex(int id) {
+	idToName.remove(id);
+	idToValue.remove(id);
+}
+
+const HashMap<int, float>& PolygonSliderComponent::getValues() {
+	return idToValue;
 }
