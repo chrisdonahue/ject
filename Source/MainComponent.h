@@ -29,6 +29,7 @@
 
 #include "JuceHeader.h"
 
+#include "PolygonSliderComponent.h"
 #include "WaveformComponent.h"
 
 using std::vector;
@@ -105,10 +106,6 @@ private:
 	PrBehavior prBehavior;
 	CriticalSection waveformDisplayLock;
 
-	// loaded sounds state
-	AudioBuffer<float> s0;
-	AudioBuffer<float> s1;
-
 	// conv state
 	CriticalSection convLock;
 	AudioBuffer<float> conv;
@@ -156,6 +153,7 @@ private:
     ScopedPointer<PolygonSliderComponent> component2;
     ScopedPointer<ListBox> inputListComponent;
     ScopedPointer<TextButton> inputRemoveButton;
+    ScopedPointer<TextButton> inputAddButton;
 
 
     //==============================================================================

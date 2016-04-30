@@ -16,10 +16,17 @@
           <FILE id="HcY2a5" name="kissfft.hh" compile="0" resource="0" file="Source/Libraries/kiss_fft130/kissfft.hh"/>
         </GROUP>
       </GROUP>
+      <FILE id="DY26MH" name="InputFileList.cpp" compile="1" resource="0"
+            file="Source/InputFileList.cpp"/>
+      <FILE id="RFOcVL" name="InputFileList.h" compile="0" resource="0" file="Source/InputFileList.h"/>
       <FILE id="DmJdqe" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <FILE id="G1MVCi" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
       <FILE id="IJHmB9" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
+      <FILE id="DtvtyQ" name="PolygonSliderComponent.cpp" compile="1" resource="0"
+            file="Source/PolygonSliderComponent.cpp"/>
+      <FILE id="rBaqF7" name="PolygonSliderComponent.h" compile="0" resource="0"
+            file="Source/PolygonSliderComponent.h"/>
       <FILE id="zgDL8R" name="WaveformComponent.cpp" compile="1" resource="0"
             file="Source/WaveformComponent.cpp"/>
       <FILE id="uNBcA8" name="WaveformComponent.h" compile="0" resource="0"

@@ -131,8 +131,10 @@
   <ItemGroup>
     <ClCompile Include="..\..\Source\Libraries\kiss_fft130\kiss_fft.c"/>
     <ClCompile Include="..\..\Source\Libraries\kiss_fft130\kiss_fftr.c"/>
+    <ClCompile Include="..\..\Source\InputFileList.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
+    <ClCompile Include="..\..\Source\PolygonSliderComponent.cpp"/>
     <ClCompile Include="..\..\Source\WaveformComponent.cpp"/>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
@@ -1708,7 +1710,9 @@
     <ClInclude Include="..\..\Source\Libraries\kiss_fft130\kiss_fft.h"/>
     <ClInclude Include="..\..\Source\Libraries\kiss_fft130\kiss_fftr.h"/>
     <ClInclude Include="..\..\Source\Libraries\kiss_fft130\kissfft.hh"/>
+    <ClInclude Include="..\..\Source\InputFileList.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>
+    <ClInclude Include="..\..\Source\PolygonSliderComponent.h"/>
     <ClInclude Include="..\..\Source\WaveformComponent.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioSampleBuffer.h"/>

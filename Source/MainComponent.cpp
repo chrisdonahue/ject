@@ -39,8 +39,6 @@ MainContentComponent::MainContentComponent ()
       sParam(1.0),
       prBehavior(PrBehavior::independent),
       waveformDisplayLock(),
-      s0(0, 0),
-      s1(0, 0),
       conv(0, 0),
       convDirty(true),
       playheadAudioLock(),
@@ -191,8 +189,12 @@ MainContentComponent::MainContentComponent ()
     addAndMakeVisible (inputListComponent = new ListBox());
 
     addAndMakeVisible (inputRemoveButton = new TextButton (String()));
-    inputRemoveButton->setButtonText (TRANS("Remove Selected"));
+    inputRemoveButton->setButtonText (TRANS("Remove"));
     inputRemoveButton->addListener (this);
+
+    addAndMakeVisible (inputAddButton = new TextButton (String()));
+    inputAddButton->setButtonText (TRANS("Add"));
+    inputAddButton->addListener (this);
 
 
     //[UserPreSize]
@@ -247,6 +249,7 @@ MainContentComponent::~MainContentComponent()
     component2 = nullptr;
     inputListComponent = nullptr;
     inputRemoveButton = nullptr;
+    inputAddButton = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -299,7 +302,8 @@ void MainContentComponent::resized()
     rComponent->setBounds (552, 384, 256, 176);
     component2->setBounds (256, 384, 256, 176);
     inputListComponent->setBounds (24, 56, 192, 440);
-    inputRemoveButton->setBounds (24, 24, 192, 24);
+    inputRemoveButton->setBounds (128, 24, 88, 24);
+    inputAddButton->setBounds (24, 24, 88, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -588,6 +592,11 @@ void MainContentComponent::buttonClicked (Button* buttonThatWasClicked)
         //[UserButtonCode_inputRemoveButton] -- add your button handler code here..
         //[/UserButtonCode_inputRemoveButton]
     }
+    else if (buttonThatWasClicked == inputAddButton)
+    {
+        //[UserButtonCode_inputAddButton] -- add your button handler code here..
+        //[/UserButtonCode_inputAddButton]
+    }
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
@@ -823,7 +832,7 @@ BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="MainContentComponent" componentName=""
                  parentClasses="public AudioAppComponent, public FileDragAndDropTarget, public Timer"
-                 constructorParams="" variableInitialisers="gainParam(0.5),&#10;nfftParam(0),&#10;pParam(0.5),&#10;qParam(1.0),&#10;rParam(0.5),&#10;sParam(1.0),&#10;prBehavior(PrBehavior::independent),&#10;waveformDisplayLock(),&#10;s0(0, 0),&#10;s1(0, 0),&#10;conv(0, 0),&#10;convDirty(true),&#10;playheadAudioLock(),&#10;playheadState(PlayheadState::stopped),&#10;playheadAudio(0, 0),&#10;playheadAudioSamplesCompleted(0)"
+                 constructorParams="" variableInitialisers="gainParam(0.5),&#10;nfftParam(0),&#10;pParam(0.5),&#10;qParam(1.0),&#10;rParam(0.5),&#10;sParam(1.0),&#10;prBehavior(PrBehavior::independent),&#10;waveformDisplayLock(),&#10;conv(0, 0),&#10;convDirty(true),&#10;playheadAudioLock(),&#10;playheadState(PlayheadState::stopped),&#10;playheadAudio(0, 0),&#10;playheadAudioSamplesCompleted(0)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="1" initialWidth="832" initialHeight="584">
   <BACKGROUND backgroundColour="ffffffff"/>
@@ -926,8 +935,11 @@ BEGIN_JUCER_METADATA
                     virtualName="" explicitFocusOrder="0" pos="24 56 192 440" class="ListBox"
                     params=""/>
   <TEXTBUTTON name="" id="ce8360a29a7e1323" memberName="inputRemoveButton"
-              virtualName="" explicitFocusOrder="0" pos="24 24 192 24" buttonText="Remove Selected"
+              virtualName="" explicitFocusOrder="0" pos="128 24 88 24" buttonText="Remove"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+  <TEXTBUTTON name="" id="dcb4b995c383b4ef" memberName="inputAddButton" virtualName=""
+              explicitFocusOrder="0" pos="24 24 88 24" buttonText="Add" connectedEdges="0"
+              needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
