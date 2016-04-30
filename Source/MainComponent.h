@@ -127,41 +127,35 @@ private:
     //[/UserVariables]
 
     //==============================================================================
+    ScopedPointer<GroupComponent> inputGroupBox;
     ScopedPointer<GroupComponent> convGroupBox;
-    ScopedPointer<GroupComponent> controlGroupBox;
-    ScopedPointer<GroupComponent> s1GroupBox;
-    ScopedPointer<GroupComponent> s0GroupBox;
-    ScopedPointer<Slider> pSlider;
+    ScopedPointer<GroupComponent> phaseComboBox;
+    ScopedPointer<GroupComponent> magniComboBox;
+    ScopedPointer<GroupComponent> waveformGroupBox;
     ScopedPointer<Slider> qSlider;
-    ScopedPointer<Label> pLabel;
     ScopedPointer<Label> qLabel;
     ScopedPointer<TextButton> convButton;
     ScopedPointer<Label> authorLabel;
-    ScopedPointer<Label> titleLabel;
-    ScopedPointer<WaveformComponent> s0Component;
-    ScopedPointer<WaveformComponent> s1Component;
     ScopedPointer<TextButton> settingsButton;
     ScopedPointer<Slider> gainSlider;
     ScopedPointer<Label> gainLabel;
     ScopedPointer<WaveformComponent> convComponent;
-    ScopedPointer<Label> rLabel;
-    ScopedPointer<Slider> rSlider;
     ScopedPointer<Label> prBehaviorLabel;
     ScopedPointer<ComboBox> prBehaviorComboBox;
     ScopedPointer<TextButton> playButton;
     ScopedPointer<TextButton> loopButton;
     ScopedPointer<TextButton> stopButton;
-    ScopedPointer<TextButton> pDefaultButton;
-    ScopedPointer<TextButton> rDefaultButton;
     ScopedPointer<TextButton> qDefaultButton;
     ScopedPointer<Slider> sSlider;
-    ScopedPointer<Label> sLabel;
     ScopedPointer<TextButton> sDefaultButton;
     ScopedPointer<Slider> nfftSlider;
     ScopedPointer<Label> nfftLabel;
-    ScopedPointer<TextButton> clear1Button;
-    ScopedPointer<TextButton> clear0Button;
     ScopedPointer<TextButton> saveButton;
+    ScopedPointer<Label> sLabel2;
+    ScopedPointer<PolygonSliderComponent> rComponent;
+    ScopedPointer<PolygonSliderComponent> component2;
+    ScopedPointer<ListBox> inputListComponent;
+    ScopedPointer<TextButton> inputRemoveButton;
 
 
     //==============================================================================

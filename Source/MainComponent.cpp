@@ -17,7 +17,6 @@
   ==============================================================================
 */
 
-
 //[Headers] You can add your own extra header files here...
 #include <algorithm>
 
@@ -52,38 +51,27 @@ MainContentComponent::MainContentComponent ()
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
+    addAndMakeVisible (inputGroupBox = new GroupComponent (String(),
+                                                           TRANS("Input")));
+
     addAndMakeVisible (convGroupBox = new GroupComponent (String(),
                                                           TRANS("Convolution")));
 
-    addAndMakeVisible (controlGroupBox = new GroupComponent (String(),
-                                                             TRANS("Controls")));
+    addAndMakeVisible (phaseComboBox = new GroupComponent (String(),
+                                                           TRANS("Phase")));
 
-    addAndMakeVisible (s1GroupBox = new GroupComponent (String(),
-                                                        TRANS("Sound 2")));
+    addAndMakeVisible (magniComboBox = new GroupComponent (String(),
+                                                           TRANS("Magnitude")));
 
-    addAndMakeVisible (s0GroupBox = new GroupComponent (String(),
-                                                        TRANS("Sound 1")));
-
-    addAndMakeVisible (pSlider = new Slider (String()));
-    pSlider->setRange (0, 1, 0.01);
-    pSlider->setSliderStyle (Slider::LinearHorizontal);
-    pSlider->setTextBoxStyle (Slider::TextBoxLeft, false, 80, 20);
-    pSlider->addListener (this);
+    addAndMakeVisible (waveformGroupBox = new GroupComponent (String(),
+                                                              TRANS("Waveform")));
 
     addAndMakeVisible (qSlider = new Slider (String()));
     qSlider->setRange (0, 8, 0.01);
     qSlider->setSliderStyle (Slider::LinearHorizontal);
-    qSlider->setTextBoxStyle (Slider::TextBoxLeft, false, 80, 20);
+    qSlider->setTextBoxStyle (Slider::TextBoxLeft, false, 40, 20);
     qSlider->addListener (this);
     qSlider->setSkewFactor (0.4);
-
-    addAndMakeVisible (pLabel = new Label (String(),
-                                           TRANS("P")));
-    pLabel->setFont (Font (15.00f, Font::plain));
-    pLabel->setJustificationType (Justification::centredLeft);
-    pLabel->setEditable (false, false, false);
-    pLabel->setColour (TextEditor::textColourId, Colours::black);
-    pLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (qLabel = new Label (String(),
                                            TRANS("Q")));
@@ -105,18 +93,6 @@ MainContentComponent::MainContentComponent ()
     authorLabel->setColour (TextEditor::textColourId, Colours::black);
     authorLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (titleLabel = new Label (String(),
-                                               TRANS("JUCE Extended Convolution Techniques (JECT)")));
-    titleLabel->setFont (Font (15.00f, Font::plain));
-    titleLabel->setJustificationType (Justification::centredLeft);
-    titleLabel->setEditable (false, false, false);
-    titleLabel->setColour (TextEditor::textColourId, Colours::black);
-    titleLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
-
-    addAndMakeVisible (s0Component = new WaveformComponent ("Drag and drop a sound file"));
-
-    addAndMakeVisible (s1Component = new WaveformComponent ("Drag and drop a sound file"));
-
     addAndMakeVisible (settingsButton = new TextButton (String()));
     settingsButton->setButtonText (TRANS("Audio Settings"));
     settingsButton->addListener (this);
@@ -136,20 +112,6 @@ MainContentComponent::MainContentComponent ()
     gainLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (convComponent = new WaveformComponent ("Press convolve"));
-
-    addAndMakeVisible (rLabel = new Label (String(),
-                                           TRANS("R")));
-    rLabel->setFont (Font (15.00f, Font::plain));
-    rLabel->setJustificationType (Justification::centredLeft);
-    rLabel->setEditable (false, false, false);
-    rLabel->setColour (TextEditor::textColourId, Colours::black);
-    rLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
-
-    addAndMakeVisible (rSlider = new Slider (String()));
-    rSlider->setRange (0, 1, 0.01);
-    rSlider->setSliderStyle (Slider::LinearHorizontal);
-    rSlider->setTextBoxStyle (Slider::TextBoxLeft, false, 80, 20);
-    rSlider->addListener (this);
 
     addAndMakeVisible (prBehaviorLabel = new Label (String(),
                                                     TRANS("P/R Behavior")));
@@ -181,14 +143,6 @@ MainContentComponent::MainContentComponent ()
     stopButton->setButtonText (TRANS("Stop"));
     stopButton->addListener (this);
 
-    addAndMakeVisible (pDefaultButton = new TextButton (String()));
-    pDefaultButton->setButtonText (TRANS("Default"));
-    pDefaultButton->addListener (this);
-
-    addAndMakeVisible (rDefaultButton = new TextButton (String()));
-    rDefaultButton->setButtonText (TRANS("Default"));
-    rDefaultButton->addListener (this);
-
     addAndMakeVisible (qDefaultButton = new TextButton (String()));
     qDefaultButton->setButtonText (TRANS("Default"));
     qDefaultButton->addListener (this);
@@ -196,16 +150,8 @@ MainContentComponent::MainContentComponent ()
     addAndMakeVisible (sSlider = new Slider (String()));
     sSlider->setRange (0, 15, 0.01);
     sSlider->setSliderStyle (Slider::LinearHorizontal);
-    sSlider->setTextBoxStyle (Slider::TextBoxLeft, false, 80, 20);
+    sSlider->setTextBoxStyle (Slider::TextBoxLeft, false, 40, 20);
     sSlider->addListener (this);
-
-    addAndMakeVisible (sLabel = new Label (String(),
-                                           TRANS("S")));
-    sLabel->setFont (Font (15.00f, Font::plain));
-    sLabel->setJustificationType (Justification::centredLeft);
-    sLabel->setEditable (false, false, false);
-    sLabel->setColour (TextEditor::textColourId, Colours::black);
-    sLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (sDefaultButton = new TextButton (String()));
     sDefaultButton->setButtonText (TRANS("Default"));
@@ -225,17 +171,28 @@ MainContentComponent::MainContentComponent ()
     nfftLabel->setColour (TextEditor::textColourId, Colours::black);
     nfftLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (clear1Button = new TextButton (String()));
-    clear1Button->setButtonText (TRANS("Clear"));
-    clear1Button->addListener (this);
-
-    addAndMakeVisible (clear0Button = new TextButton (String()));
-    clear0Button->setButtonText (TRANS("Clear"));
-    clear0Button->addListener (this);
-
     addAndMakeVisible (saveButton = new TextButton (String()));
     saveButton->setButtonText (TRANS("Save"));
     saveButton->addListener (this);
+
+    addAndMakeVisible (sLabel2 = new Label (String(),
+                                            TRANS("S")));
+    sLabel2->setFont (Font (15.00f, Font::plain));
+    sLabel2->setJustificationType (Justification::centredLeft);
+    sLabel2->setEditable (false, false, false);
+    sLabel2->setColour (TextEditor::textColourId, Colours::black);
+    sLabel2->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    addAndMakeVisible (rComponent = new PolygonSliderComponent());
+
+    addAndMakeVisible (component2 = new PolygonSliderComponent());
+    component2->setName ("new component");
+
+    addAndMakeVisible (inputListComponent = new ListBox());
+
+    addAndMakeVisible (inputRemoveButton = new TextButton (String()));
+    inputRemoveButton->setButtonText (TRANS("Remove Selected"));
+    inputRemoveButton->addListener (this);
 
 
     //[UserPreSize]
@@ -246,7 +203,7 @@ MainContentComponent::MainContentComponent ()
 	convButton->setEnabled(false);
     //[/UserPreSize]
 
-    setSize (600, 700);
+    setSize (832, 584);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -261,41 +218,35 @@ MainContentComponent::~MainContentComponent()
 	fftFree();
     //[/Destructor_pre]
 
+    inputGroupBox = nullptr;
     convGroupBox = nullptr;
-    controlGroupBox = nullptr;
-    s1GroupBox = nullptr;
-    s0GroupBox = nullptr;
-    pSlider = nullptr;
+    phaseComboBox = nullptr;
+    magniComboBox = nullptr;
+    waveformGroupBox = nullptr;
     qSlider = nullptr;
-    pLabel = nullptr;
     qLabel = nullptr;
     convButton = nullptr;
     authorLabel = nullptr;
-    titleLabel = nullptr;
-    s0Component = nullptr;
-    s1Component = nullptr;
     settingsButton = nullptr;
     gainSlider = nullptr;
     gainLabel = nullptr;
     convComponent = nullptr;
-    rLabel = nullptr;
-    rSlider = nullptr;
     prBehaviorLabel = nullptr;
     prBehaviorComboBox = nullptr;
     playButton = nullptr;
     loopButton = nullptr;
     stopButton = nullptr;
-    pDefaultButton = nullptr;
-    rDefaultButton = nullptr;
     qDefaultButton = nullptr;
     sSlider = nullptr;
-    sLabel = nullptr;
     sDefaultButton = nullptr;
     nfftSlider = nullptr;
     nfftLabel = nullptr;
-    clear1Button = nullptr;
-    clear0Button = nullptr;
     saveButton = nullptr;
+    sLabel2 = nullptr;
+    rComponent = nullptr;
+    component2 = nullptr;
+    inputListComponent = nullptr;
+    inputRemoveButton = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -320,41 +271,35 @@ void MainContentComponent::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    convGroupBox->setBounds (8, 186, 584, 184);
-    controlGroupBox->setBounds (8, 376, 584, 320);
-    s1GroupBox->setBounds (304, 0, 288, 184);
-    s0GroupBox->setBounds (8, 0, 288, 184);
-    pSlider->setBounds (208, 496, 368, 24);
-    qSlider->setBounds (208, 560, 368, 24);
-    pLabel->setBounds (24, 496, 112, 24);
-    qLabel->setBounds (24, 560, 112, 24);
-    convButton->setBounds (424, 656, 150, 24);
-    authorLabel->setBounds (24, 656, 160, 24);
-    titleLabel->setBounds (24, 624, 272, 24);
-    s0Component->setBounds (16, 16, 272, 160);
-    s1Component->setBounds (312, 16, 272, 160);
-    settingsButton->setBounds (264, 656, 150, 24);
-    gainSlider->setBounds (120, 400, 456, 24);
-    gainLabel->setBounds (24, 400, 88, 24);
-    convComponent->setBounds (16, 200, 568, 160);
-    rLabel->setBounds (24, 528, 112, 24);
-    rSlider->setBounds (208, 528, 368, 24);
-    prBehaviorLabel->setBounds (24, 464, 96, 24);
-    prBehaviorComboBox->setBounds (120, 464, 450, 24);
-    playButton->setBounds (392, 208, 56, 24);
-    loopButton->setBounds (520, 208, 56, 24);
-    stopButton->setBounds (456, 208, 56, 24);
-    pDefaultButton->setBounds (144, 496, 56, 24);
-    rDefaultButton->setBounds (144, 528, 56, 24);
-    qDefaultButton->setBounds (144, 560, 56, 24);
-    sSlider->setBounds (208, 592, 368, 24);
-    sLabel->setBounds (24, 592, 112, 24);
-    sDefaultButton->setBounds (144, 592, 56, 24);
-    nfftSlider->setBounds (120, 432, 456, 24);
-    nfftLabel->setBounds (24, 432, 88, 24);
-    clear1Button->setBounds (520, 24, 56, 24);
-    clear0Button->setBounds (224, 24, 56, 24);
-    saveButton->setBounds (520, 328, 56, 24);
+    inputGroupBox->setBounds (8, 0, 224, 512);
+    convGroupBox->setBounds (240, 224, 584, 96);
+    phaseComboBox->setBounds (536, 328, 288, 248);
+    magniComboBox->setBounds (240, 328, 288, 248);
+    waveformGroupBox->setBounds (240, 2, 584, 214);
+    qSlider->setBounds (344, 352, 168, 24);
+    qLabel->setBounds (256, 352, 24, 24);
+    convButton->setBounds (600, 248, 208, 56);
+    authorLabel->setBounds (48, 552, 136, 24);
+    settingsButton->setBounds (8, 520, 224, 24);
+    gainSlider->setBounds (352, 184, 456, 24);
+    gainLabel->setBounds (256, 184, 88, 24);
+    convComponent->setBounds (256, 24, 552, 152);
+    prBehaviorLabel->setBounds (256, 280, 88, 24);
+    prBehaviorComboBox->setBounds (352, 280, 232, 24);
+    playButton->setBounds (616, 32, 56, 24);
+    loopButton->setBounds (744, 32, 56, 24);
+    stopButton->setBounds (680, 32, 56, 24);
+    qDefaultButton->setBounds (280, 352, 56, 24);
+    sSlider->setBounds (640, 352, 168, 24);
+    sDefaultButton->setBounds (576, 352, 56, 24);
+    nfftSlider->setBounds (352, 248, 240, 24);
+    nfftLabel->setBounds (256, 248, 88, 24);
+    saveButton->setBounds (744, 136, 56, 24);
+    sLabel2->setBounds (552, 352, 24, 24);
+    rComponent->setBounds (552, 384, 256, 176);
+    component2->setBounds (256, 384, 256, 176);
+    inputListComponent->setBounds (24, 56, 192, 440);
+    inputRemoveButton->setBounds (24, 24, 192, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -364,31 +309,7 @@ void MainContentComponent::sliderValueChanged (Slider* sliderThatWasMoved)
     //[UsersliderValueChanged_Pre]
     //[/UsersliderValueChanged_Pre]
 
-    if (sliderThatWasMoved == pSlider)
-    {
-        //[UserSliderCode_pSlider] -- add your slider handling code here..
-		float p = static_cast<float>(pSlider->getValue());
-		pParam.set(p);
-
-		switch (prBehavior) {
-		case PrBehavior::independent:
-			break;
-		case PrBehavior::linked:
-			rSlider->setValue(p, dontSendNotification);
-			rParam.set(p);
-			break;
-		case PrBehavior::inverse:
-			rSlider->setValue((1.0f - p), dontSendNotification);
-			rParam.set((1.0f - p));
-			break;
-		default:
-			jassertfalse;
-		}
-
-		convDirty = true;
-        //[/UserSliderCode_pSlider]
-    }
-    else if (sliderThatWasMoved == qSlider)
+    if (sliderThatWasMoved == qSlider)
     {
         //[UserSliderCode_qSlider] -- add your slider handling code here..
 		qParam.set(static_cast<float>(qSlider->getValue()));
@@ -400,30 +321,6 @@ void MainContentComponent::sliderValueChanged (Slider* sliderThatWasMoved)
         //[UserSliderCode_gainSlider] -- add your slider handling code here..
 		gainParam.set(static_cast<float>(gainSlider->getValue()));
         //[/UserSliderCode_gainSlider]
-    }
-    else if (sliderThatWasMoved == rSlider)
-    {
-        //[UserSliderCode_rSlider] -- add your slider handling code here..
-		float r = static_cast<float>(rSlider->getValue());
-		rParam.set(r);
-
-		switch (prBehavior) {
-		case PrBehavior::independent:
-			break;
-		case PrBehavior::linked:
-			pSlider->setValue(r, dontSendNotification);
-			pParam.set(r);
-			break;
-		case PrBehavior::inverse:
-			pSlider->setValue((1.0f - r), dontSendNotification);
-			pParam.set((1.0f - r));
-			break;
-		default:
-			jassertfalse;
-		}
-
-		convDirty = true;
-        //[/UserSliderCode_rSlider]
     }
     else if (sliderThatWasMoved == sSlider)
     {
@@ -655,18 +552,6 @@ void MainContentComponent::buttonClicked (Button* buttonThatWasClicked)
 		playheadAudioSamplesCompleted = 0;
         //[/UserButtonCode_stopButton]
     }
-    else if (buttonThatWasClicked == pDefaultButton)
-    {
-        //[UserButtonCode_pDefaultButton] -- add your button handler code here..
-		pSlider->setValue(0.5);
-        //[/UserButtonCode_pDefaultButton]
-    }
-    else if (buttonThatWasClicked == rDefaultButton)
-    {
-        //[UserButtonCode_rDefaultButton] -- add your button handler code here..
-		rSlider->setValue(0.5);
-        //[/UserButtonCode_rDefaultButton]
-    }
     else if (buttonThatWasClicked == qDefaultButton)
     {
         //[UserButtonCode_qDefaultButton] -- add your button handler code here..
@@ -678,30 +563,6 @@ void MainContentComponent::buttonClicked (Button* buttonThatWasClicked)
         //[UserButtonCode_sDefaultButton] -- add your button handler code here..
 		sSlider->setValue(1.0);
         //[/UserButtonCode_sDefaultButton]
-    }
-    else if (buttonThatWasClicked == clear1Button)
-    {
-        //[UserButtonCode_clear1Button] -- add your button handler code here..
-		s1.setSize(0, 0);
-
-		const ScopedLock wdl(waveformDisplayLock);
-		s1Component->setSound(nullptr);
-		s1Component->repaint();
-
-		soundChanged(dontSendNotification);
-        //[/UserButtonCode_clear1Button]
-    }
-    else if (buttonThatWasClicked == clear0Button)
-    {
-        //[UserButtonCode_clear0Button] -- add your button handler code here..
-		s0.setSize(0, 0);
-
-		const ScopedLock wdl(waveformDisplayLock);
-		s0Component->setSound(nullptr);
-		s0Component->repaint();
-
-		soundChanged(dontSendNotification);
-        //[/UserButtonCode_clear0Button]
     }
     else if (buttonThatWasClicked == saveButton)
     {
@@ -721,6 +582,11 @@ void MainContentComponent::buttonClicked (Button* buttonThatWasClicked)
 			}
 		}
         //[/UserButtonCode_saveButton]
+    }
+    else if (buttonThatWasClicked == inputRemoveButton)
+    {
+        //[UserButtonCode_inputRemoveButton] -- add your button handler code here..
+        //[/UserButtonCode_inputRemoveButton]
     }
 
     //[UserbuttonClicked_Post]
@@ -959,135 +825,108 @@ BEGIN_JUCER_METADATA
                  parentClasses="public AudioAppComponent, public FileDragAndDropTarget, public Timer"
                  constructorParams="" variableInitialisers="gainParam(0.5),&#10;nfftParam(0),&#10;pParam(0.5),&#10;qParam(1.0),&#10;rParam(0.5),&#10;sParam(1.0),&#10;prBehavior(PrBehavior::independent),&#10;waveformDisplayLock(),&#10;s0(0, 0),&#10;s1(0, 0),&#10;conv(0, 0),&#10;convDirty(true),&#10;playheadAudioLock(),&#10;playheadState(PlayheadState::stopped),&#10;playheadAudio(0, 0),&#10;playheadAudioSamplesCompleted(0)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="1" initialWidth="600" initialHeight="700">
+                 fixedSize="1" initialWidth="832" initialHeight="584">
   <BACKGROUND backgroundColour="ffffffff"/>
-  <GROUPCOMPONENT name="" id="7c21d6435b394a3c" memberName="convGroupBox" virtualName=""
-                  explicitFocusOrder="0" pos="8 186 584 184" title="Convolution"/>
-  <GROUPCOMPONENT name="" id="d29ea4e3198c885f" memberName="controlGroupBox" virtualName=""
-                  explicitFocusOrder="0" pos="8 376 584 320" title="Controls"/>
-  <GROUPCOMPONENT name="" id="7f4de84a2a2d0de8" memberName="s1GroupBox" virtualName=""
-                  explicitFocusOrder="0" pos="304 0 288 184" title="Sound 2"/>
-  <GROUPCOMPONENT name="" id="936ab3959f78b732" memberName="s0GroupBox" virtualName=""
-                  explicitFocusOrder="0" pos="8 0 288 184" title="Sound 1"/>
-  <SLIDER name="" id="b734202570349ef7" memberName="pSlider" virtualName=""
-          explicitFocusOrder="0" pos="208 496 368 24" min="0" max="1" int="0.010000000000000000208"
-          style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
-          textBoxWidth="80" textBoxHeight="20" skewFactor="1" needsCallback="1"/>
+  <GROUPCOMPONENT name="" id="5b5e49932e4cad01" memberName="inputGroupBox" virtualName=""
+                  explicitFocusOrder="0" pos="8 0 224 512" title="Input"/>
+  <GROUPCOMPONENT name="" id="251b2a29053ccce1" memberName="convGroupBox" virtualName=""
+                  explicitFocusOrder="0" pos="240 224 584 96" title="Convolution"/>
+  <GROUPCOMPONENT name="" id="575ce3c3d9a50031" memberName="phaseComboBox" virtualName=""
+                  explicitFocusOrder="0" pos="536 328 288 248" title="Phase"/>
+  <GROUPCOMPONENT name="" id="21c1f2698d79584b" memberName="magniComboBox" virtualName=""
+                  explicitFocusOrder="0" pos="240 328 288 248" title="Magnitude"/>
+  <GROUPCOMPONENT name="" id="7c21d6435b394a3c" memberName="waveformGroupBox" virtualName=""
+                  explicitFocusOrder="0" pos="240 2 584 214" title="Waveform"/>
   <SLIDER name="" id="5d8042d5cba6f5af" memberName="qSlider" virtualName=""
-          explicitFocusOrder="0" pos="208 560 368 24" min="0" max="8" int="0.010000000000000000208"
+          explicitFocusOrder="0" pos="344 352 168 24" min="0" max="8" int="0.010000000000000000208"
           style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
-          textBoxWidth="80" textBoxHeight="20" skewFactor="0.4000000000000000222"
+          textBoxWidth="40" textBoxHeight="20" skewFactor="0.4000000000000000222"
           needsCallback="1"/>
-  <LABEL name="" id="5a92a1c0c61b5c41" memberName="pLabel" virtualName=""
-         explicitFocusOrder="0" pos="24 496 112 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="P" editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
-         bold="0" italic="0" justification="33"/>
   <LABEL name="" id="8c32c3818b630f5" memberName="qLabel" virtualName=""
-         explicitFocusOrder="0" pos="24 560 112 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="256 352 24 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Q" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
          bold="0" italic="0" justification="33"/>
   <TEXTBUTTON name="" id="1b9a996260e602ac" memberName="convButton" virtualName=""
-              explicitFocusOrder="0" pos="424 656 150 24" buttonText="Convolve"
+              explicitFocusOrder="0" pos="600 248 208 56" buttonText="Convolve"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <LABEL name="" id="45a3ca5fc03eb3c6" memberName="authorLabel" virtualName=""
-         explicitFocusOrder="0" pos="24 656 160 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="48 552 136 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Chris Donahue 2016" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
-  <LABEL name="" id="45188882c1412d7c" memberName="titleLabel" virtualName=""
-         explicitFocusOrder="0" pos="24 624 272 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="JUCE Extended Convolution Techniques (JECT)"
-         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
-  <GENERICCOMPONENT name="" id="377e700af803a7e6" memberName="s0Component" virtualName=""
-                    explicitFocusOrder="0" pos="16 16 272 160" class="WaveformComponent"
-                    params="&quot;Drag and drop a sound file&quot;"/>
-  <GENERICCOMPONENT name="" id="5b0b3104156858db" memberName="s1Component" virtualName=""
-                    explicitFocusOrder="0" pos="312 16 272 160" class="WaveformComponent"
-                    params="&quot;Drag and drop a sound file&quot;"/>
   <TEXTBUTTON name="" id="8a40cfbb6678ded1" memberName="settingsButton" virtualName=""
-              explicitFocusOrder="0" pos="264 656 150 24" buttonText="Audio Settings"
+              explicitFocusOrder="0" pos="8 520 224 24" buttonText="Audio Settings"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <SLIDER name="" id="4e9f7543cb949220" memberName="gainSlider" virtualName=""
-          explicitFocusOrder="0" pos="120 400 456 24" min="0" max="1" int="0.010000000000000000208"
+          explicitFocusOrder="0" pos="352 184 456 24" min="0" max="1" int="0.010000000000000000208"
           style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1" needsCallback="1"/>
   <LABEL name="" id="617675cab679ff64" memberName="gainLabel" virtualName=""
-         explicitFocusOrder="0" pos="24 400 88 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="256 184 88 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Gain" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
          bold="0" italic="0" justification="33"/>
   <GENERICCOMPONENT name="" id="5da17034a15a2c26" memberName="convComponent" virtualName=""
-                    explicitFocusOrder="0" pos="16 200 568 160" class="WaveformComponent"
+                    explicitFocusOrder="0" pos="256 24 552 152" class="WaveformComponent"
                     params="&quot;Press convolve&quot;"/>
-  <LABEL name="" id="445a0c5c9d3f6ec3" memberName="rLabel" virtualName=""
-         explicitFocusOrder="0" pos="24 528 112 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="R" editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
-         bold="0" italic="0" justification="33"/>
-  <SLIDER name="" id="a14a93f161aeeefb" memberName="rSlider" virtualName=""
-          explicitFocusOrder="0" pos="208 528 368 24" min="0" max="1" int="0.010000000000000000208"
-          style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
-          textBoxWidth="80" textBoxHeight="20" skewFactor="1" needsCallback="1"/>
   <LABEL name="" id="df0c2bbfcc27d23b" memberName="prBehaviorLabel" virtualName=""
-         explicitFocusOrder="0" pos="24 464 96 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="256 280 88 24" edTextCol="ff000000"
          edBkgCol="0" labelText="P/R Behavior" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
   <COMBOBOX name="" id="e3ce100f165f7ce9" memberName="prBehaviorComboBox"
-            virtualName="" explicitFocusOrder="0" pos="120 464 450 24" editable="0"
+            virtualName="" explicitFocusOrder="0" pos="352 280 232 24" editable="0"
             layout="33" items="Independent&#10;Linked&#10;Inverse" textWhenNonSelected=""
             textWhenNoItems="(no choices)"/>
   <TEXTBUTTON name="" id="ae50f5bf4f928bae" memberName="playButton" virtualName=""
-              explicitFocusOrder="0" pos="392 208 56 24" buttonText="Play"
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              explicitFocusOrder="0" pos="616 32 56 24" buttonText="Play" connectedEdges="0"
+              needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="bc50acff95e14f9c" memberName="loopButton" virtualName=""
-              explicitFocusOrder="0" pos="520 208 56 24" buttonText="Loop"
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              explicitFocusOrder="0" pos="744 32 56 24" buttonText="Loop" connectedEdges="0"
+              needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="ee7f76320bc5ba72" memberName="stopButton" virtualName=""
-              explicitFocusOrder="0" pos="456 208 56 24" buttonText="Stop"
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
-  <TEXTBUTTON name="" id="a6a8906cf722d7da" memberName="pDefaultButton" virtualName=""
-              explicitFocusOrder="0" pos="144 496 56 24" buttonText="Default"
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
-  <TEXTBUTTON name="" id="c2e4b33c06a7012" memberName="rDefaultButton" virtualName=""
-              explicitFocusOrder="0" pos="144 528 56 24" buttonText="Default"
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              explicitFocusOrder="0" pos="680 32 56 24" buttonText="Stop" connectedEdges="0"
+              needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="458e93826aa283d" memberName="qDefaultButton" virtualName=""
-              explicitFocusOrder="0" pos="144 560 56 24" buttonText="Default"
+              explicitFocusOrder="0" pos="280 352 56 24" buttonText="Default"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <SLIDER name="" id="234c4909ac1ef82e" memberName="sSlider" virtualName=""
-          explicitFocusOrder="0" pos="208 592 368 24" min="0" max="15"
+          explicitFocusOrder="0" pos="640 352 168 24" min="0" max="15"
           int="0.010000000000000000208" style="LinearHorizontal" textBoxPos="TextBoxLeft"
-          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1"
+          textBoxEditable="1" textBoxWidth="40" textBoxHeight="20" skewFactor="1"
           needsCallback="1"/>
-  <LABEL name="" id="6cc43f6f86e31c23" memberName="sLabel" virtualName=""
-         explicitFocusOrder="0" pos="24 592 112 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="S" editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
-         bold="0" italic="0" justification="33"/>
   <TEXTBUTTON name="" id="6b491d9785461117" memberName="sDefaultButton" virtualName=""
-              explicitFocusOrder="0" pos="144 592 56 24" buttonText="Default"
+              explicitFocusOrder="0" pos="576 352 56 24" buttonText="Default"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <SLIDER name="" id="2ccccb8c8ed630bf" memberName="nfftSlider" virtualName=""
-          explicitFocusOrder="0" pos="120 432 456 24" min="0" max="24"
+          explicitFocusOrder="0" pos="352 248 240 24" min="0" max="24"
           int="1" style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1" needsCallback="1"/>
   <LABEL name="" id="9b09e8ab97220128" memberName="nfftLabel" virtualName=""
-         explicitFocusOrder="0" pos="24 432 88 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="256 248 88 24" edTextCol="ff000000"
          edBkgCol="0" labelText="NFFT" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
          bold="0" italic="0" justification="33"/>
-  <TEXTBUTTON name="" id="b854313eefa4be50" memberName="clear1Button" virtualName=""
-              explicitFocusOrder="0" pos="520 24 56 24" buttonText="Clear"
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
-  <TEXTBUTTON name="" id="d7e64cf27208ed92" memberName="clear0Button" virtualName=""
-              explicitFocusOrder="0" pos="224 24 56 24" buttonText="Clear"
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="5349946cfc445d79" memberName="saveButton" virtualName=""
-              explicitFocusOrder="0" pos="520 328 56 24" buttonText="Save"
+              explicitFocusOrder="0" pos="744 136 56 24" buttonText="Save"
+              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+  <LABEL name="" id="676135372bd3b95b" memberName="sLabel2" virtualName=""
+         explicitFocusOrder="0" pos="552 352 24 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="S" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
+         bold="0" italic="0" justification="33"/>
+  <GENERICCOMPONENT name="" id="c5b31d19af3a5454" memberName="rComponent" virtualName=""
+                    explicitFocusOrder="0" pos="552 384 256 176" class="PolygonSliderComponent"
+                    params=""/>
+  <GENERICCOMPONENT name="new component" id="6b2b891fb1909c36" memberName="component2"
+                    virtualName="" explicitFocusOrder="0" pos="256 384 256 176" class="PolygonSliderComponent"
+                    params=""/>
+  <GENERICCOMPONENT name="" id="7617b55e4d758efa" memberName="inputListComponent"
+                    virtualName="" explicitFocusOrder="0" pos="24 56 192 440" class="ListBox"
+                    params=""/>
+  <TEXTBUTTON name="" id="ce8360a29a7e1323" memberName="inputRemoveButton"
+              virtualName="" explicitFocusOrder="0" pos="24 24 192 24" buttonText="Remove Selected"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 
