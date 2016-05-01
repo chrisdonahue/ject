@@ -44,7 +44,8 @@ MainContentComponent::MainContentComponent ()
       playheadAudioLock(),
       playheadState(PlayheadState::stopped),
       playheadAudio(0, 0),
-      playheadAudioSamplesCompleted(0)
+      playheadAudioSamplesCompleted(0),
+      fileIdNext(0)
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
@@ -198,6 +199,8 @@ MainContentComponent::MainContentComponent ()
 
     //[UserPreSize]
 	inputFileListComponent->setModel(&inputFileList);
+	inputFileListComponent->setColour(ListBox::backgroundColourId, Colours::lightgrey);
+	inputFileListComponent->setClickingTogglesRowSelection(true);
 	inputFileList.addChangeListener(this);
 
 	pComponent->addChangeListener(this);
@@ -205,7 +208,7 @@ MainContentComponent::MainContentComponent ()
 
 
 	//timerCallback();
-	soundChanged(dontSendNotification);
+	inputFilesChanged(dontSendNotification);
 	setUiFromParams(dontSendNotification);
 	setPlayheadUiEnabled(false);
 	convButton->setEnabled(false);
@@ -223,7 +226,16 @@ MainContentComponent::MainContentComponent ()
 MainContentComponent::~MainContentComponent()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
+	{
+		const ScopedLock fl(fileListLock);
+		for (auto i : fileIdToAttrs) {
+			delete std::get<FileAttr::fileBuffer>(i.second);
+		}
+	}
 	fftFree();
+	inputFileList.removeChangeListener(this);
+	pComponent->removeChangeListener(this);
+	rComponent->removeChangeListener(this);
     //[/Destructor_pre]
 
     inputGroupBox = nullptr;
@@ -322,7 +334,8 @@ void MainContentComponent::sliderValueChanged (Slider* sliderThatWasMoved)
     if (sliderThatWasMoved == qSlider)
     {
         //[UserSliderCode_qSlider] -- add your slider handling code here..
-		qParam.set(static_cast<float>(qSlider->getValue()));
+		const ScopedLock pl(paramLock);
+		qParam = static_cast<float>(qSlider->getValue());
 		convDirty = true;
         //[/UserSliderCode_qSlider]
     }
@@ -335,14 +348,16 @@ void MainContentComponent::sliderValueChanged (Slider* sliderThatWasMoved)
     else if (sliderThatWasMoved == sSlider)
     {
         //[UserSliderCode_sSlider] -- add your slider handling code here..
-		sParam.set(static_cast<float>(sSlider->getValue()));
+		const ScopedLock pl(paramLock);
+		sParam = static_cast<float>(sSlider->getValue());
 		convDirty = true;
         //[/UserSliderCode_sSlider]
     }
     else if (sliderThatWasMoved == nfftSlider)
     {
         //[UserSliderCode_nfftSlider] -- add your slider handling code here..
-		nfftParam.set(static_cast<int>(nfftSlider->getValue()));
+		const ScopedLock pl(paramLock);
+		nfftParam = static_cast<int>(nfftSlider->getValue());
 		convDirty = true;
         //[/UserSliderCode_nfftSlider]
     }
@@ -359,8 +374,8 @@ void MainContentComponent::buttonClicked (Button* buttonThatWasClicked)
     if (buttonThatWasClicked == convButton)
     {
         //[UserButtonCode_convButton] -- add your button handler code here..
+		/*
 		const ScopedLock cl(convLock);
-
 		if (convDirty) {
 			if (s0.getNumSamples() == 0 && s1.getNumSamples() == 0) {
 				AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Error", "You must assign at least one sound before convolving.");
@@ -507,6 +522,7 @@ void MainContentComponent::buttonClicked (Button* buttonThatWasClicked)
 
 			convDirty = false;
 		}
+		*/
         //[/UserButtonCode_convButton]
     }
     else if (buttonThatWasClicked == settingsButton)
@@ -539,7 +555,6 @@ void MainContentComponent::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == playButton)
     {
         //[UserButtonCode_playButton] -- add your button handler code here..
-		const ScopedLock cl(convLock);
 		const ScopedLock pal(playheadAudioLock);
 		playheadState = PlayheadState::playing;
 		playheadAudioSamplesCompleted = 0;
@@ -548,7 +563,6 @@ void MainContentComponent::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == loopButton)
     {
         //[UserButtonCode_loopButton] -- add your button handler code here..
-		const ScopedLock cl(convLock);
 		const ScopedLock pal(playheadAudioLock);
 		playheadState = PlayheadState::looping;
         //[/UserButtonCode_loopButton]
@@ -556,7 +570,6 @@ void MainContentComponent::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == stopButton)
     {
         //[UserButtonCode_stopButton] -- add your button handler code here..
-		const ScopedLock cl(convLock);
 		const ScopedLock pal(playheadAudioLock);
 		playheadState = PlayheadState::stopped;
 		playheadAudioSamplesCompleted = 0;
@@ -577,17 +590,17 @@ void MainContentComponent::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == saveButton)
     {
         //[UserButtonCode_saveButton] -- add your button handler code here..
-		const ScopedLock cl(convLock);
+		const ScopedLock pal(playheadAudioLock);
 
-		if (conv.getNumChannels() > 0 && conv.getNumSamples() > 0) {
+		if (playheadAudio.getNumChannels() > 0 && playheadAudio.getNumSamples() > 0) {
 			FileChooser fileChooser("Save as...", File::nonexistent, "*.wav", true);
 			if (fileChooser.browseForFileToSave(true)) {
 				File outputFile = fileChooser.getResult();
 				outputFile.deleteFile();
 				WavAudioFormat wavFormat;
 				ScopedPointer<FileOutputStream> outputFileStream = outputFile.createOutputStream();
-				ScopedPointer<AudioFormatWriter> writer = wavFormat.createWriterFor(outputFileStream, 44100.0, conv.getNumChannels(), 16, StringPairArray(), 0);
-				writer->writeFromAudioSampleBuffer(conv, 0, conv.getNumSamples());
+				ScopedPointer<AudioFormatWriter> writer = wavFormat.createWriterFor(outputFileStream, 44100.0, playheadAudio.getNumChannels(), 16, StringPairArray(), 0);
+				writer->writeFromAudioSampleBuffer(playheadAudio, 0, playheadAudio.getNumSamples());
 				outputFileStream.release();
 			}
 		}
@@ -596,11 +609,15 @@ void MainContentComponent::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == inputRemoveButton)
     {
         //[UserButtonCode_inputRemoveButton] -- add your button handler code here..
+		jassert(fileIdToAttrs.size() == inputFileList.getNumRows());
+		const ScopedLock fl(fileListLock);
         //[/UserButtonCode_inputRemoveButton]
     }
     else if (buttonThatWasClicked == inputAddButton)
     {
         //[UserButtonCode_inputAddButton] -- add your button handler code here..
+		jassert(fileIdToAttrs.size() == inputFileList.getNumRows());
+		const ScopedLock fl(fileListLock);
         //[/UserButtonCode_inputAddButton]
     }
 
@@ -712,15 +729,13 @@ void MainContentComponent::getNextAudioBlock (const AudioSourceChannelInfo& buff
 }
 
 bool MainContentComponent::isInterestedInFileDrag(const StringArray& files) {
-	return files.size() <= 2;
+	return true;
 }
 
-void MainContentComponent::filesDropped(const StringArray& files, int x, int y) {
-	y;
+void MainContentComponent::filesDropped(const StringArray& filePaths, int x, int y) {
+	x; y;
 
-	auto loadFile = [](const String& filePath) {
-		File droppedFile(filePath);
-
+	auto loadFile = [](const File& droppedFile) {
 		AudioFormatManager formatManager;
 		formatManager.registerFormat(new WavAudioFormat(), true);
 		formatManager.registerFormat(new AiffAudioFormat(), false);
@@ -734,59 +749,54 @@ void MainContentComponent::filesDropped(const StringArray& files, int x, int y) 
 		}
 		return samples;
 	};
+	auto nameFile = [](const String& filePath) {
+		File droppedFile(filePath);
+		return droppedFile.getFileName();
+	};
 
-	bool loadSucceeded = false;
-	if (files.size() == 1) {
-		AudioBuffer<float>* sf = loadFile(files[0]);
-		if (sf != nullptr) {
-			AudioBuffer<float>& s = x < getWidth() / 2 ? s0 : s1;
-			s.makeCopyOf(*sf);
-
-			const ScopedLock wdl(waveformDisplayLock);
-			WaveformComponent* sComponent = x < getWidth() / 2 ? s0Component : s1Component;
-			sComponent->setSound(&s);
-			sComponent->repaint();
-			loadSucceeded = true;
+	const ScopedLock fl(fileListLock);
+	int succeeded = 0;
+	for (int i = 0; i < filePaths.size(); ++i) {
+		String filePath = filePaths[i];
+		File file(filePath);
+		String fileName = file.getFileName();
+		AudioBuffer<float>* fileBuffer = loadFile(file);
+		if (fileBuffer != nullptr) {
+			int fileId = fileIdNext++;
+			fileIdToAttrs[fileId] = std::make_tuple(filePath, fileName, fileBuffer);
+			succeeded++;
 		}
-		delete sf;
-	}
-	else if (files.size() == 2) {
-		AudioBuffer<float>* sf0 = loadFile(files[0]);
-		AudioBuffer<float>* sf1 = loadFile(files[1]);
-		if (sf0 != nullptr && sf1 != nullptr) {
-			s0.makeCopyOf(*sf0);
-			s1.makeCopyOf(*sf1);
-
-			const ScopedLock wdl(waveformDisplayLock);
-			s0Component->setSound(&s0);
-			s0Component->repaint();
-			s1Component->setSound(&s1);
-			s1Component->repaint();
-			loadSucceeded = true;
-		}
-		delete sf0;
-		delete sf1;
 	}
 
-	if (loadSucceeded) {
-		soundChanged(dontSendNotification);
+	if (succeeded > 0) {
 		convDirty = true;
+		inputFilesChanged(dontSendNotification);
 	}
-	else {
-		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Invalid file(s)", "Must be a valid WAV or AIFF file(s).");
+	if (succeeded < filePaths.size()) {
+		AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Invalid file(s)", "One or more files failed to load.");
 	}
 }
 
 void MainContentComponent::changeListenerCallback(ChangeBroadcaster* source) {
 	if (source == &inputFileList) {
-		const int index = inputFileListComponent->getSelectedRow();
-		waveformComponent->repaint();
+		const ScopedLock fl(fileListLock);
+		const int lastSelected = inputFileListComponent->getLastRowSelected();
+		if (lastSelected >= 0) {
+			AudioBuffer<float>* selectedBuffer = std::get<FileAttr::fileBuffer>(fileIdToAttrs[rowToFileId[lastSelected]]);
+			setPlayheadAudio(selectedBuffer);
+		}
+		else {
+			const ScopedLock cl(convLock);
+			setPlayheadAudio(&conv);
+		}
 	}
 	else if (source == pComponent) {
-
+		const ScopedLock pl(paramLock);
+		jassert(fileIdToAttrs.size() == pParam.size());
 	}
 	else if (source == rComponent) {
-
+		const ScopedLock pl(paramLock);
+		jassert(fileIdToAttrs.size() == rParam.size());
 	}
 }
 
@@ -806,23 +816,52 @@ void MainContentComponent::setPlayheadUiEnabled(bool playheadUiEnabled) {
 	saveButton->setEnabled(playheadUiEnabled);
 }
 
+void MainContentComponent::setPlayheadAudio(AudioBuffer<float>* playheadAudioNew) {
+	if (playheadAudioNew != nullptr && (playheadAudioNew->getNumChannels() == 0 || playheadAudioNew->getNumSamples() == 0)) {
+		playheadAudioNew == nullptr;
+	}
+
+	// update display
+	{
+		const ScopedLock wdl(waveformDisplayLock);
+		waveformComponent->setSound(playheadAudioNew);
+		waveformComponent->repaint();
+	}
+
+	// update playhead audio
+	if (playheadAudioNew != nullptr) {
+		const ScopedLock pal(playheadAudioLock);
+		if (playheadAudioNew->getNumSamples() != playheadAudio.getNumSamples()) {
+			playheadState = PlayheadState::stopped;
+			playheadAudioSamplesCompleted = 0;
+		}
+		playheadAudio.makeCopyOf(*playheadAudioNew);
+	}
+
+	// update playhead UI
+	setPlayheadUiEnabled(playheadAudioNew != nullptr);
+}
+
 void MainContentComponent::setUiFromParams(NotificationType notificationType) {
 	gainSlider->setValue(static_cast<double>(gainParam.get()), notificationType);
 	//pSlider->setValue(static_cast<double>(pParam.get()), notificationType);
-	qSlider->setValue(static_cast<double>(qParam.get()), notificationType);
+	qSlider->setValue(static_cast<double>(qParam), notificationType);
 	//rSlider->setValue(static_cast<double>(rParam.get()), notificationType);
-	sSlider->setValue(static_cast<double>(sParam.get()), notificationType);
+	sSlider->setValue(static_cast<double>(sParam), notificationType);
 	prBehaviorComboBox->setSelectedId(prBehavior, notificationType);
 }
 
-void MainContentComponent::soundChanged(NotificationType notificationType) {
-	int n = s0.getNumSamples();
-	int m = s1.getNumSamples();
-	clear0Button->setEnabled(n > 0);
-	clear1Button->setEnabled(m > 0);
-	if (n > 0 || m > 0) {
-		int n2 = static_cast<int>(std::ceil(std::log2(m + n - 1)));
-		nfftSlider->setRange(static_cast<double>(n2), 24, 1.0);
+void MainContentComponent::inputFilesChanged(NotificationType notificationType) {
+	int filesNum = fileIdToAttrs.size();
+	int samplesNum = 0;
+	for (auto i : fileIdToAttrs) {
+		AudioBuffer<float>* fileBuffer = std::get<FileAttr::fileBuffer>(i.second);
+		samplesNum += fileBuffer->getNumSamples();
+	}
+
+	if (samplesNum > 0) {
+		int n2 = static_cast<int>(std::ceil(std::log2(samplesNum - (filesNum - 1))));
+		nfftSlider->setRange(static_cast<double>(n2), 28, 1.0);
 		nfftSlider->setValue(static_cast<double>(n2));
 		nfftSlider->setEnabled(true);
 		convButton->setEnabled(true);
@@ -831,6 +870,18 @@ void MainContentComponent::soundChanged(NotificationType notificationType) {
 		nfftSlider->setEnabled(false);
 		convButton->setEnabled(false);
 	}
+
+	StringArray fileNames;
+	int row = 0;
+	rowToFileId.clear();
+	for (auto i : fileIdToAttrs) {
+		int fileId = i.first;
+		String fileName = std::get<FileAttr::fileName>(i.second);
+		rowToFileId[row++] = fileId;
+		fileNames.add(fileName);
+	}
+	inputFileList.updateFileNames(fileNames);
+	inputFileListComponent->updateContent();
 }
 
 void MainContentComponent::fftFree() {
@@ -851,7 +902,7 @@ BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="MainContentComponent" componentName=""
                  parentClasses="public AudioAppComponent, public FileDragAndDropTarget, public Timer, public ChangeListener"
-                 constructorParams="" variableInitialisers="gainParam(0.5),&#10;nfftParam(0),&#10;pParam(0.5),&#10;qParam(1.0),&#10;rParam(0.5),&#10;sParam(1.0),&#10;prBehavior(PrBehavior::independent),&#10;waveformDisplayLock(),&#10;conv(0, 0),&#10;convDirty(true),&#10;playheadAudioLock(),&#10;playheadState(PlayheadState::stopped),&#10;playheadAudio(0, 0),&#10;playheadAudioSamplesCompleted(0)"
+                 constructorParams="" variableInitialisers="gainParam(0.5),&#10;nfftParam(0),&#10;pParam(0.5),&#10;qParam(1.0),&#10;rParam(0.5),&#10;sParam(1.0),&#10;prBehavior(PrBehavior::independent),&#10;waveformDisplayLock(),&#10;conv(0, 0),&#10;convDirty(true),&#10;playheadAudioLock(),&#10;playheadState(PlayheadState::stopped),&#10;playheadAudio(0, 0),&#10;playheadAudioSamplesCompleted(0),&#10;fileIdNext(0)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="1" initialWidth="832" initialHeight="584">
   <BACKGROUND backgroundColour="ffffffff"/>

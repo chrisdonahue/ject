@@ -24,7 +24,9 @@
 #define JECT_CHANNELS_NUM 2
 #define JECT_FPS 30
 
+#include <tuple>
 #include <vector>
+#include <unordered_map>
 #include <utility>
 
 #include "JuceHeader.h"
@@ -35,6 +37,8 @@
 
 using std::vector;
 using std::pair;
+using std::tuple;
+using std::unordered_map;
 
 ApplicationProperties& getAppProperties();
 //[/Headers]
@@ -98,12 +102,12 @@ private:
 	};
 
 	// audio parameters
-	Atomic<float> gainParam;
-	Atomic<int> nfftParam;
-	Atomic<float> pParam;
-	Atomic<float> qParam;
-	Atomic<float> rParam;
-	Atomic<float> sParam;
+	CriticalSection paramLock;
+	int nfftParam;
+	HashMap<int, float> pParam;
+	float qParam;
+	HashMap<int, float> rParam;
+	float sParam;
 
 	// ui state
 	PrBehavior prBehavior;
@@ -115,17 +119,29 @@ private:
 	bool convDirty;
 
 	// audio playback state
+	Atomic<float> gainParam;
 	CriticalSection playheadAudioLock;
 	PlayheadState playheadState;
 	AudioBuffer<float> playheadAudio;
 	int playheadAudioSamplesCompleted;
 
-	void setPlayheadUiEnabled(bool playheadUiEnabled);
-	void setUiFromParams(NotificationType notificationType);
-	void soundChanged(NotificationType notificationType);
-	void fftFree();
-
+	// file list state
+	enum FileAttr {
+		filePath=0,
+		fileName,
+		fileBuffer
+	};
+	CriticalSection fileListLock;
 	InputFileList inputFileList;
+	int fileIdNext;
+	unordered_map<int, tuple<String, String, AudioBuffer<float>*>> fileIdToAttrs;
+	unordered_map<int, int> rowToFileId;
+
+	void setPlayheadUiEnabled(bool playheadUiEnabled);
+	void setPlayheadAudio(AudioBuffer<float>* playheadAudio);
+	void setUiFromParams(NotificationType notificationType);
+	void inputFilesChanged(NotificationType notificationType);
+	void fftFree();
     //[/UserVariables]
 
     //==============================================================================

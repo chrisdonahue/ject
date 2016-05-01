@@ -38,9 +38,10 @@ void PolygonSliderComponent::paint (Graphics& g)
 	else if (numVertices == 1) {
 		g.drawText("Add more sounds!", getLocalBounds(), Justification::centred, true);
 	}
-	else if (numVertices == 2) {
-	}
 	else {
+		float width = static_cast<float>(getWidth());
+		float height = static_cast<float>(getHeight());
+		float r = width > height ? width / 2.0f : height / 2.0f;
 	}
 }
 
