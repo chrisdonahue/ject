@@ -379,9 +379,6 @@
     <ClCompile Include="..\..\Source\Libraries\kiss_fft130\kiss_fftr.c">
       <Filter>JECT\Source\Libraries\kiss_fft130</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\InputFileTableListBoxModel.cpp">
-      <Filter>JECT\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Main.cpp">
       <Filter>JECT\Source</Filter>
     </ClCompile>
@@ -2123,9 +2120,6 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Libraries\kiss_fft130\kissfft.hh">
       <Filter>JECT\Source\Libraries\kiss_fft130</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\InputFileTableListBoxModel.h">
-      <Filter>JECT\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\InputFileTableListBox.h">
       <Filter>JECT\Source</Filter>

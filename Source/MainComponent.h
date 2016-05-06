@@ -31,7 +31,7 @@
 
 #include "JuceHeader.h"
 
-#include "InputFileList.h"
+#include "InputFileTableListBox.h"
 #include "ParameterSliderTableListBox.h"
 #include "WaveformComponent.h"
 
@@ -132,7 +132,6 @@ private:
 		fileBuffer
 	};
 	CriticalSection fileListLock;
-	InputFileList inputFileList;
 	int fileIdNext;
 	unordered_map<int, tuple<String, String, AudioBuffer<float>*>> fileIdToAttrs;
 	unordered_map<int, int> rowToFileId;

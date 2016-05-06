@@ -198,17 +198,9 @@ MainContentComponent::MainContentComponent ()
 
 
     //[UserPreSize]
-	inputFileListComponent->setModel(&inputFileList);
-	inputFileListComponent->setColour(ListBox::outlineColourId, Colours::grey);
-	inputFileListComponent->setClickingTogglesRowSelection(true);
-	inputFileListComponent->setMultipleSelectionEnabled(true);
-	inputFileListComponent->getHeader().addColumn("Name", InputFileList::Column::name, 32, 32, -1, TableHeaderComponent::visible);
-	inputFileListComponent->getHeader().addColumn("Use", InputFileList::Column::include, 32, 32, -1, TableHeaderComponent::visible);
-	inputFileList.addChangeListener(this);
-
+	inputFileListComponent->addChangeListener(this);
 	pComponent->addChangeListener(this);
 	rComponent->addChangeListener(this);
-
 
 	//timerCallback();
 	inputFilesChanged(dontSendNotification);
@@ -236,7 +228,7 @@ MainContentComponent::~MainContentComponent()
 		}
 	}
 	fftFree();
-	inputFileList.removeChangeListener(this);
+	inputFileListComponent->removeChangeListener(this);
 	pComponent->removeChangeListener(this);
 	rComponent->removeChangeListener(this);
     //[/Destructor_pre]
@@ -326,9 +318,6 @@ void MainContentComponent::resized()
     inputRemoveButton->setBounds (128, 24, 88, 24);
     inputAddButton->setBounds (24, 24, 88, 24);
     //[UserResized] Add your own custom resize handling here..
-	int toggleButtonComponentWidth = 32;
-	inputFileListComponent->getHeader().setColumnWidth(InputFileList::Column::name, inputFileListComponent->getWidth() - toggleButtonComponentWidth);
-	inputFileListComponent->getHeader().setColumnWidth(InputFileList::Column::include, toggleButtonComponentWidth);
     //[/UserResized]
 }
 
@@ -615,14 +604,14 @@ void MainContentComponent::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == inputRemoveButton)
     {
         //[UserButtonCode_inputRemoveButton] -- add your button handler code here..
-		jassert(fileIdToAttrs.size() == inputFileList.getNumRows());
+		//jassert(fileIdToAttrs.size() == inputFileList.getNumRows());
 		const ScopedLock fl(fileListLock);
         //[/UserButtonCode_inputRemoveButton]
     }
     else if (buttonThatWasClicked == inputAddButton)
     {
         //[UserButtonCode_inputAddButton] -- add your button handler code here..
-		jassert(fileIdToAttrs.size() == inputFileList.getNumRows());
+		//jassert(fileIdToAttrs.size() == inputFileList.getNumRows());
 		const ScopedLock fl(fileListLock);
         //[/UserButtonCode_inputAddButton]
     }
@@ -784,7 +773,7 @@ void MainContentComponent::filesDropped(const StringArray& filePaths, int x, int
 }
 
 void MainContentComponent::changeListenerCallback(ChangeBroadcaster* source) {
-	if (source == &inputFileList) {
+	if (source == inputFileListComponent) {
 		const ScopedLock fl(fileListLock);
 		const int lastSelected = inputFileListComponent->getLastRowSelected();
 		if (lastSelected >= 0) {

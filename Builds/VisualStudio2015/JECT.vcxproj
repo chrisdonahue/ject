@@ -131,7 +131,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\Source\Libraries\kiss_fft130\kiss_fft.c"/>
     <ClCompile Include="..\..\Source\Libraries\kiss_fft130\kiss_fftr.c"/>
-    <ClCompile Include="..\..\Source\InputFileTableListBoxModel.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
     <ClCompile Include="..\..\Source\WaveformComponent.cpp"/>
@@ -1709,7 +1708,6 @@
     <ClInclude Include="..\..\Source\Libraries\kiss_fft130\kiss_fft.h"/>
     <ClInclude Include="..\..\Source\Libraries\kiss_fft130\kiss_fftr.h"/>
     <ClInclude Include="..\..\Source\Libraries\kiss_fft130\kissfft.hh"/>
-    <ClInclude Include="..\..\Source\InputFileTableListBoxModel.h"/>
     <ClInclude Include="..\..\Source\InputFileTableListBox.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>
     <ClInclude Include="..\..\Source\ParameterSliderTableListBox.h"/>

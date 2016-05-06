@@ -51,7 +51,6 @@ endif
 OBJECTS := \
   $(OBJDIR)/kiss_fft_cfe828c6.o \
   $(OBJDIR)/kiss_fftr_2d1de936.o \
-  $(OBJDIR)/InputFileTableListBoxModel_39e52d8d.o \
   $(OBJDIR)/Main_90ebc5c2.o \
   $(OBJDIR)/MainComponent_a6ffb4a5.o \
   $(OBJDIR)/WaveformComponent_3d0f1fa1.o \
@@ -96,11 +95,6 @@ $(OBJDIR)/kiss_fftr_2d1de936.o: ../../Source/Libraries/kiss_fft130/kiss_fftr.c
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling kiss_fftr.c"
 	@$(CC) $(CFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/InputFileTableListBoxModel_39e52d8d.o: ../../Source/InputFileTableListBoxModel.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling InputFileTableListBoxModel.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/Main_90ebc5c2.o: ../../Source/Main.cpp
 	-@mkdir -p $(OBJDIR)
