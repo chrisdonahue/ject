@@ -379,19 +379,13 @@
     <ClCompile Include="..\..\Source\Libraries\kiss_fft130\kiss_fftr.c">
       <Filter>JECT\Source\Libraries\kiss_fft130</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\InputFileList.cpp">
+    <ClCompile Include="..\..\Source\InputFileTableListBoxModel.cpp">
       <Filter>JECT\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Main.cpp">
       <Filter>JECT\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\MainComponent.cpp">
-      <Filter>JECT\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\ParameterSliderTableListBox.cpp">
-      <Filter>JECT\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\PolygonSliderComponent.cpp">
       <Filter>JECT\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\WaveformComponent.cpp">
@@ -2130,16 +2124,16 @@
     <ClInclude Include="..\..\Source\Libraries\kiss_fft130\kissfft.hh">
       <Filter>JECT\Source\Libraries\kiss_fft130</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\InputFileList.h">
+    <ClInclude Include="..\..\Source\InputFileTableListBoxModel.h">
+      <Filter>JECT\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\InputFileTableListBox.h">
       <Filter>JECT\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\MainComponent.h">
       <Filter>JECT\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ParameterSliderTableListBox.h">
-      <Filter>JECT\Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\PolygonSliderComponent.h">
       <Filter>JECT\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\WaveformComponent.h">

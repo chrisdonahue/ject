@@ -32,7 +32,7 @@
 #include "JuceHeader.h"
 
 #include "InputFileList.h"
-#include "PolygonSliderComponent.h"
+#include "ParameterSliderTableListBox.h"
 #include "WaveformComponent.h"
 
 using std::vector;
@@ -172,7 +172,7 @@ private:
     ScopedPointer<Label> sLabel;
     ScopedPointer<ParameterSliderTableListBox> rComponent;
     ScopedPointer<ParameterSliderTableListBox> pComponent;
-    ScopedPointer<TableListBox> inputFileListComponent;
+    ScopedPointer<InputFileTableListBox> inputFileListComponent;
     ScopedPointer<TextButton> inputRemoveButton;
     ScopedPointer<TextButton> inputAddButton;
 

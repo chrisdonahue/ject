@@ -182,11 +182,11 @@ MainContentComponent::MainContentComponent ()
     sLabel->setColour (TextEditor::textColourId, Colours::black);
     sLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (rComponent = new ParameterSliderTableListBox());
+    addAndMakeVisible (rComponent = new ParameterSliderTableListBox ("R"));
 
-    addAndMakeVisible (pComponent = new ParameterSliderTableListBox());
+    addAndMakeVisible (pComponent = new ParameterSliderTableListBox ("P"));
 
-    addAndMakeVisible (inputFileListComponent = new TableListBox());
+    addAndMakeVisible (inputFileListComponent = new InputFileTableListBox());
 
     addAndMakeVisible (inputRemoveButton = new TextButton (String()));
     inputRemoveButton->setButtonText (TRANS("Remove"));
@@ -1003,12 +1003,12 @@ BEGIN_JUCER_METADATA
          bold="0" italic="0" justification="33"/>
   <GENERICCOMPONENT name="" id="c5b31d19af3a5454" memberName="rComponent" virtualName=""
                     explicitFocusOrder="0" pos="552 384 256 176" class="ParameterSliderTableListBox"
-                    params=""/>
+                    params="&quot;R&quot;"/>
   <GENERICCOMPONENT name="" id="6b2b891fb1909c36" memberName="pComponent" virtualName=""
                     explicitFocusOrder="0" pos="256 384 256 176" class="ParameterSliderTableListBox"
-                    params=""/>
+                    params="&quot;P&quot;"/>
   <GENERICCOMPONENT name="" id="7617b55e4d758efa" memberName="inputFileListComponent"
-                    virtualName="" explicitFocusOrder="0" pos="24 56 192 440" class="TableListBox"
+                    virtualName="" explicitFocusOrder="0" pos="24 56 192 440" class="InputFileTableListBox"
                     params=""/>
   <TEXTBUTTON name="" id="ce8360a29a7e1323" memberName="inputRemoveButton"
               virtualName="" explicitFocusOrder="0" pos="128 24 88 24" buttonText="Remove"
