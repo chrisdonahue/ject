@@ -13,17 +13,26 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-class InputFileList : public ListBoxModel, public ChangeBroadcaster
+class InputFileList : public TableListBoxModel, public ChangeBroadcaster, public ButtonListener
 {
 public:
 	InputFileList();
 
 	int getNumRows() override;
-	void paintListBoxItem(int row, Graphics& g, int w, int h, bool rowIsSelected) override;
+	void paintRowBackground(Graphics& g, int rowNumber, int width, int height, bool rowIsSelected) override;
+	void paintCell(Graphics& g, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override;
+	Component* refreshComponentForCell(int rowNumber, int columnId, bool isRowSelected, Component *existingComponentToUpdate) override;
+	void sortOrderChanged(int newSortColumnId, bool isForwards) override;
 	void selectedRowsChanged(int lastRowSelected) override;
+	void buttonClicked(Button* buttonThatWasClicked) override;
 
 	String getName(int row);
 	void updateFileNames(const StringArray& rows);
+
+	enum Column {
+		name=1,
+		include
+	};
 
 private:
 	StringArray fileNames;

@@ -182,11 +182,11 @@ MainContentComponent::MainContentComponent ()
     sLabel->setColour (TextEditor::textColourId, Colours::black);
     sLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (rComponent = new PolygonSliderComponent());
+    addAndMakeVisible (rComponent = new ParameterSliderTableListBox());
 
-    addAndMakeVisible (pComponent = new PolygonSliderComponent());
+    addAndMakeVisible (pComponent = new ParameterSliderTableListBox());
 
-    addAndMakeVisible (inputFileListComponent = new ListBox());
+    addAndMakeVisible (inputFileListComponent = new TableListBox());
 
     addAndMakeVisible (inputRemoveButton = new TextButton (String()));
     inputRemoveButton->setButtonText (TRANS("Remove"));
@@ -199,8 +199,11 @@ MainContentComponent::MainContentComponent ()
 
     //[UserPreSize]
 	inputFileListComponent->setModel(&inputFileList);
-	inputFileListComponent->setColour(ListBox::backgroundColourId, Colours::lightgrey);
+	inputFileListComponent->setColour(ListBox::outlineColourId, Colours::grey);
 	inputFileListComponent->setClickingTogglesRowSelection(true);
+	inputFileListComponent->setMultipleSelectionEnabled(true);
+	inputFileListComponent->getHeader().addColumn("Name", InputFileList::Column::name, 32, 32, -1, TableHeaderComponent::visible);
+	inputFileListComponent->getHeader().addColumn("Use", InputFileList::Column::include, 32, 32, -1, TableHeaderComponent::visible);
 	inputFileList.addChangeListener(this);
 
 	pComponent->addChangeListener(this);
@@ -323,6 +326,9 @@ void MainContentComponent::resized()
     inputRemoveButton->setBounds (128, 24, 88, 24);
     inputAddButton->setBounds (24, 24, 88, 24);
     //[UserResized] Add your own custom resize handling here..
+	int toggleButtonComponentWidth = 32;
+	inputFileListComponent->getHeader().setColumnWidth(InputFileList::Column::name, inputFileListComponent->getWidth() - toggleButtonComponentWidth);
+	inputFileListComponent->getHeader().setColumnWidth(InputFileList::Column::include, toggleButtonComponentWidth);
     //[/UserResized]
 }
 
@@ -996,13 +1002,13 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
          bold="0" italic="0" justification="33"/>
   <GENERICCOMPONENT name="" id="c5b31d19af3a5454" memberName="rComponent" virtualName=""
-                    explicitFocusOrder="0" pos="552 384 256 176" class="PolygonSliderComponent"
+                    explicitFocusOrder="0" pos="552 384 256 176" class="ParameterSliderTableListBox"
                     params=""/>
   <GENERICCOMPONENT name="" id="6b2b891fb1909c36" memberName="pComponent" virtualName=""
-                    explicitFocusOrder="0" pos="256 384 256 176" class="PolygonSliderComponent"
+                    explicitFocusOrder="0" pos="256 384 256 176" class="ParameterSliderTableListBox"
                     params=""/>
   <GENERICCOMPONENT name="" id="7617b55e4d758efa" memberName="inputFileListComponent"
-                    virtualName="" explicitFocusOrder="0" pos="24 56 192 440" class="ListBox"
+                    virtualName="" explicitFocusOrder="0" pos="24 56 192 440" class="TableListBox"
                     params=""/>
   <TEXTBUTTON name="" id="ce8360a29a7e1323" memberName="inputRemoveButton"
               virtualName="" explicitFocusOrder="0" pos="128 24 88 24" buttonText="Remove"

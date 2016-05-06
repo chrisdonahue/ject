@@ -23,6 +23,10 @@
       <FILE id="G1MVCi" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
       <FILE id="IJHmB9" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
+      <FILE id="LPAc0K" name="ParameterSliderTableListBox.cpp" compile="1"
+            resource="0" file="Source/ParameterSliderTableListBox.cpp"/>
+      <FILE id="NUY6oe" name="ParameterSliderTableListBox.h" compile="0"
+            resource="0" file="Source/ParameterSliderTableListBox.h"/>
       <FILE id="DtvtyQ" name="PolygonSliderComponent.cpp" compile="1" resource="0"
             file="Source/PolygonSliderComponent.cpp"/>
       <FILE id="rBaqF7" name="PolygonSliderComponent.h" compile="0" resource="0"

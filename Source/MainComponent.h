@@ -170,9 +170,9 @@ private:
     ScopedPointer<Label> nfftLabel;
     ScopedPointer<TextButton> saveButton;
     ScopedPointer<Label> sLabel;
-    ScopedPointer<PolygonSliderComponent> rComponent;
-    ScopedPointer<PolygonSliderComponent> pComponent;
-    ScopedPointer<ListBox> inputFileListComponent;
+    ScopedPointer<ParameterSliderTableListBox> rComponent;
+    ScopedPointer<ParameterSliderTableListBox> pComponent;
+    ScopedPointer<TableListBox> inputFileListComponent;
     ScopedPointer<TextButton> inputRemoveButton;
     ScopedPointer<TextButton> inputAddButton;
 

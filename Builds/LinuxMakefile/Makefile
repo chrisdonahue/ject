@@ -54,6 +54,7 @@ OBJECTS := \
   $(OBJDIR)/InputFileList_745fb85.o \
   $(OBJDIR)/Main_90ebc5c2.o \
   $(OBJDIR)/MainComponent_a6ffb4a5.o \
+  $(OBJDIR)/ParameterSliderTableListBox_8b7c18a.o \
   $(OBJDIR)/PolygonSliderComponent_d6051f0b.o \
   $(OBJDIR)/WaveformComponent_3d0f1fa1.o \
   $(OBJDIR)/juce_audio_basics_6b797ca1.o \
@@ -111,6 +112,11 @@ $(OBJDIR)/Main_90ebc5c2.o: ../../Source/Main.cpp
 $(OBJDIR)/MainComponent_a6ffb4a5.o: ../../Source/MainComponent.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling MainComponent.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ParameterSliderTableListBox_8b7c18a.o: ../../Source/ParameterSliderTableListBox.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ParameterSliderTableListBox.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/PolygonSliderComponent_d6051f0b.o: ../../Source/PolygonSliderComponent.cpp
