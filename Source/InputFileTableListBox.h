@@ -15,12 +15,47 @@ Author:  Chris
 
 class InputFileTableListBox : public TableListBox, public ChangeListener, public ChangeBroadcaster {
 private:
+	 class EditableTextCustomComponent  : public Label
+    {
+    public:
+        EditableTextCustomComponent (TableDemoComponent& td)  : owner (td)
+        {
+            // double click to edit the label text; single click handled below
+            setEditable (false, true, false);
+            setColour (textColourId, Colours::black);
+        }
+
+        void mouseDown (const MouseEvent& event) override
+        {
+            // single click on the label should simply select the row
+            owner.table.selectRowsBasedOnModifierKeys (row, event.mods, false);
+
+            Label::mouseDown (event);
+        }
+
+        void textWasEdited() override
+        {
+            owner.setText (columnId, row, getText());
+        }
+
+        // Our demo code will call this when we may need to update our contents
+        void setRowAndColumn (const int newRow, const int newColumn)
+        {
+            row = newRow;
+            columnId = newColumn;
+            setText (owner.getText(columnId, row), dontSendNotification);
+        }
+
+    private:
+        TableDemoComponent& owner;
+        int row, columnId;
+    };
+
 	enum Column {
-		name = 1,
-		include
+		name = 1
 	};
 
-	class InputFileTableListBoxModel : public TableListBoxModel, public ChangeBroadcaster, public ButtonListener {
+	class InputFileTableListBoxModel : public TableListBoxModel, public ChangeBroadcaster {
 	public:
 		InputFileTableListBoxModel() {};
 
@@ -48,17 +83,6 @@ private:
 
 				return label;
 			}
-			else if (columnId == Column::include) {
-				ToggleButton* toggleButton = static_cast<ToggleButton*>(existingComponentToUpdate);
-
-				if (toggleButton == nullptr) {
-					toggleButton = new ToggleButton();
-					toggleButton->setToggleState(true, dontSendNotification);
-					toggleButton->addListener(this);
-				}
-
-				return toggleButton;
-			}
 			else {
 				jassertfalse;
 				return nullptr;
@@ -69,14 +93,8 @@ private:
 			jassertfalse;
 		};
 
-		void selectedRowsChanged(int lastRowSelected) override {};
-
-		void buttonClicked(Button* button) override {
+		void selectedRowsChanged(int lastRowSelected) override {
 			sendChangeMessage();
-		};
-
-		String getName(int row) const {
-			return fileNames[row];
 		};
 
 		void updateFileNames(const StringArray& fileNamesNew) {
@@ -92,18 +110,9 @@ public:
 		setModel(&model);
 		setColour(ListBox::outlineColourId, Colours::grey);
 		setClickingTogglesRowSelection(true);
-		setMultipleSelectionEnabled(false);
-		getHeader().addColumn("Name", Column::name, 32, 32, -1, TableHeaderComponent::visible | TableHeaderComponent::resizable);
-		getHeader().addColumn("Use", Column::include, 32, 32, -1, TableHeaderComponent::visible | TableHeaderComponent::resizable);
+		setMultipleSelectionEnabled(true);
+		getHeader().addColumn("Name", Column::name, 128, 32, -1, TableHeaderComponent::visible | TableHeaderComponent::resizable);
 		model.addChangeListener(this);
-	};
-
-	void resized() override {
-		int toggleButtonComponentWidth = 32;
-		// enabling this seems to break selection.... cool
-		//getHeader().setColumnWidth(Column::name, getWidth() - toggleButtonComponentWidth);
-		//getHeader().setColumnWidth(Column::include, toggleButtonComponentWidth);
-		TableListBox::resized();
 	};
 
 	void changeListenerCallback(ChangeBroadcaster* source) override {
@@ -111,15 +120,6 @@ public:
 			sendChangeMessage();
 		}
 	};
-
-	void getIncludedRows(Array<int>& includedRows) {
-		for (int i = 0; i < model.getNumRows(); ++i) {
-			ToggleButton* toggleButton = static_cast<ToggleButton*>(getCellComponent(Column::include, i));
-			if (toggleButton != nullptr && toggleButton->getToggleState()) {
-				includedRows.add(i);
-			}
-		}
-	}
 
 	InputFileTableListBoxModel& getModel() {
 		return model;

@@ -882,11 +882,10 @@ void MainContentComponent::inputFilesChanged(NotificationType notificationType) 
 }
 
 void MainContentComponent::updatePRComponentLists() {
-	Array<int> includedRows;
+	SparseSet<int> selectedRows = inputFileListComponent->getSelectedRows();
 	Array<int> includedFileIds;
-	inputFileListComponent->getIncludedRows(includedRows);
-	for (auto i : includedRows) {
-		int fileId = rowToFileId[i];
+	for (int i = 0; i < selectedRows.size(); ++i) {
+		int fileId = rowToFileId[selectedRows[i]];
 		includedFileIds.add(fileId);
 	}
 
@@ -895,6 +894,7 @@ void MainContentComponent::updatePRComponentLists() {
 		String fileName = std::get<FileAttr::fileName>(fileIdToAttrs[i]);
 		fileNames.add(fileName);
 	}
+
 	pComponent->getModel().updateFileNames(fileNames);
 	pComponent->updateContent();
 	rComponent->getModel().updateFileNames(fileNames);
