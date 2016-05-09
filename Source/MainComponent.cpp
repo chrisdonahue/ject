@@ -110,7 +110,7 @@ MainContentComponent::MainContentComponent ()
     gainLabel->setColour (TextEditor::textColourId, Colours::black);
     gainLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (waveformComponent = new WaveformComponent ("LEL"));
+    addAndMakeVisible (waveformComponent = new WaveformComponent ("No waveform to display"));
 
     addAndMakeVisible (prBehaviorLabel = new Label (String(),
                                                     TRANS("P/R Behavior")));
@@ -788,11 +788,11 @@ void MainContentComponent::changeListenerCallback(ChangeBroadcaster* source) {
 	}
 	else if (source == pComponent) {
 		const ScopedLock pl(paramLock);
-		jassert(fileIdToAttrs.size() == pParam.size());
+		//jassert(fileIdToAttrs.size() == pParam.size());
 	}
 	else if (source == rComponent) {
 		const ScopedLock pl(paramLock);
-		jassert(fileIdToAttrs.size() == rParam.size());
+		//jassert(fileIdToAttrs.size() == rParam.size());
 	}
 }
 
@@ -878,6 +878,7 @@ void MainContentComponent::inputFilesChanged(NotificationType notificationType) 
 	}
 	inputFileListComponent->getModel().updateFileNames(fileNames);
 	inputFileListComponent->updateContent();
+	updatePRComponentLists();
 }
 
 void MainContentComponent::updatePRComponentLists() {
@@ -964,7 +965,7 @@ BEGIN_JUCER_METADATA
          bold="0" italic="0" justification="33"/>
   <GENERICCOMPONENT name="" id="5da17034a15a2c26" memberName="waveformComponent"
                     virtualName="" explicitFocusOrder="0" pos="256 24 552 152" class="WaveformComponent"
-                    params="&quot;LEL&quot;"/>
+                    params="&quot;No waveform to display&quot;"/>
   <LABEL name="" id="df0c2bbfcc27d23b" memberName="prBehaviorLabel" virtualName=""
          explicitFocusOrder="0" pos="256 280 88 24" edTextCol="ff000000"
          edBkgCol="0" labelText="P/R Behavior" editableSingleClick="0"
