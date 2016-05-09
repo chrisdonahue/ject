@@ -1,9 +1,9 @@
 /*
   ==============================================================================
 
-    ParameterSliderTableListBox.h
-    Created: 6 May 2016 1:21:53pm
-    Author:  Chris
+	ParameterSliderTableListBox.h
+	Created: 6 May 2016 1:21:53pm
+	Author:  Chris
 
   ==============================================================================
 */
@@ -11,12 +11,15 @@
 #ifndef PARAMETERSLIDERTABLELISTBOX_H_INCLUDED
 #define PARAMETERSLIDERTABLELISTBOX_H_INCLUDED
 
+#include <unordered_map>
+#include <set>
+
 #include "../JuceLibraryCode/JuceHeader.h"
 
 class ParameterSliderTableListBox : public TableListBox, public ChangeListener, public ChangeBroadcaster {
 private:
 	enum Column {
-		name=1,
+		id = 1,
 		slider
 	};
 
@@ -25,7 +28,7 @@ private:
 		ParameterSliderTableListBoxModel() {};
 
 		int getNumRows() override {
-			return fileNames.size();
+			return fileIds.size();
 		};
 
 		void paintRowBackground(Graphics& g, int rowNumber, int width, int height, bool rowIsSelected) override {
@@ -38,12 +41,12 @@ private:
 		void paintCell(Graphics& g, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override {};
 
 		Component* refreshComponentForCell(int rowNumber, int columnId, bool isRowSelected, Component *existingComponentToUpdate) override {
-			if (columnId == Column::name) {
+			if (columnId == Column::id) {
 				Label* label = static_cast<Label*>(existingComponentToUpdate);
 
 				if (label == nullptr) {
 					label = new Label();
-					label->setText(fileNames[rowNumber], dontSendNotification);
+					label->setText(String(rowToFileId[rowNumber]), dontSendNotification);
 				}
 
 				return label;
@@ -54,6 +57,8 @@ private:
 				if (slider == nullptr) {
 					slider = new Slider();
 					slider->setRange(0.0, 1.0, 0.01);
+					slider->setSliderStyle(Slider::LinearHorizontal);
+					slider->setTextBoxStyle(Slider::TextBoxLeft, false, 40, 20);
 					slider->addListener(this);
 				}
 
@@ -75,16 +80,26 @@ private:
 			sendChangeMessage();
 		};
 
-		String getName(int row) const {
-			return fileNames[row];
+		int getFileIdForRow(int row) const {
+			return rowToFileId.at(row);
 		};
 
-		void updateFileNames(const StringArray& fileNamesNew) {
-			fileNames = fileNamesNew;
+		void updateFileIds(const std::set<int>& fileIdsNew) {
+			fileIds = fileIdsNew;
+			fileIdToRow.clear();
+			rowToFileId.clear();
+			int row = 0;
+			for (auto i : fileIds) {
+				fileIdToRow[i] = row;
+				rowToFileId[row] = i;
+				++row;
+			}
 		};
 
 	private:
-		StringArray fileNames;
+		std::set<int> fileIds;
+		std::unordered_map<int, int> fileIdToRow;
+		std::unordered_map<int, int> rowToFileId;
 	};
 
 public:
@@ -93,8 +108,8 @@ public:
 		setColour(ListBox::outlineColourId, Colours::grey);
 		setClickingTogglesRowSelection(true);
 		setMultipleSelectionEnabled(false);
-		getHeader().addColumn("Name", Column::name, 32, 32, -1, TableHeaderComponent::visible | TableHeaderComponent::resizable);
-		getHeader().addColumn(paramName, Column::slider, 32, 32, -1, TableHeaderComponent::visible | TableHeaderComponent::resizable);
+		getHeader().addColumn("ID", Column::id, 32, 32, -1, TableHeaderComponent::visible | TableHeaderComponent::resizable);
+		getHeader().addColumn(paramName, Column::slider, 224, 32, -1, TableHeaderComponent::visible | TableHeaderComponent::resizable);
 		model.addChangeListener(this);
 	};
 
@@ -104,9 +119,19 @@ public:
 		}
 	};
 
+	void getFileIdToWeight(unordered_map<int, double>& result) {
+		int numRows = model.getNumRows();
+		for (int row = 0; row < numRows; ++row) {
+			int fileId = model.getFileIdForRow(row);
+			Slider* slider = static_cast<Slider*>(getCellComponent(Column::slider, row));
+			jassert(slider != nullptr);
+			result[row] = slider->getValue();
+		}
+	};
+
 	ParameterSliderTableListBoxModel& getModel() {
 		return model;
-	}
+	};
 
 private:
 	ParameterSliderTableListBoxModel model;

@@ -11,53 +11,43 @@ Author:  Chris
 #ifndef INPUTFILETABLELISTBOX_H_INCLUDED
 #define INPUTFILETABLELISTBOX_H_INCLUDED
 
+#include <map>
+#include <unordered_set>
+
 #include "../JuceLibraryCode/JuceHeader.h"
 
 class InputFileTableListBox : public TableListBox, public ChangeListener, public ChangeBroadcaster {
 private:
-	 class EditableTextCustomComponent  : public Label
-    {
-    public:
-        EditableTextCustomComponent (TableDemoComponent& td)  : owner (td)
-        {
-            // double click to edit the label text; single click handled below
-            setEditable (false, true, false);
-            setColour (textColourId, Colours::black);
-        }
+	class SelectableLabel : public Label
+	{
+	public:
+		SelectableLabel(InputFileTableListBox& table, int row) :
+			table(table), row(row) {
+			setColour(textColourId, Colours::black);
+		};
 
-        void mouseDown (const MouseEvent& event) override
-        {
-            // single click on the label should simply select the row
-            owner.table.selectRowsBasedOnModifierKeys (row, event.mods, false);
+		void mouseDown(const MouseEvent& event) override {
+			table.selectRowsBasedOnModifierKeys(row, event.mods, false);
+			Label::mouseDown(event);
+		};
 
-            Label::mouseDown (event);
-        }
+		void setRow(int rowNew) {
+			row = rowNew;
+		};
 
-        void textWasEdited() override
-        {
-            owner.setText (columnId, row, getText());
-        }
-
-        // Our demo code will call this when we may need to update our contents
-        void setRowAndColumn (const int newRow, const int newColumn)
-        {
-            row = newRow;
-            columnId = newColumn;
-            setText (owner.getText(columnId, row), dontSendNotification);
-        }
-
-    private:
-        TableDemoComponent& owner;
-        int row, columnId;
-    };
+	private:
+		InputFileTableListBox& table;
+		int row;
+	};
 
 	enum Column {
-		name = 1
+		id = 1,
+		name
 	};
 
 	class InputFileTableListBoxModel : public TableListBoxModel, public ChangeBroadcaster {
 	public:
-		InputFileTableListBoxModel() {};
+		InputFileTableListBoxModel(InputFileTableListBox& table) : table(table) {};
 
 		int getNumRows() override {
 			return fileNames.size();
@@ -73,11 +63,21 @@ private:
 		void paintCell(Graphics& g, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override {};
 
 		Component* refreshComponentForCell(int rowNumber, int columnId, bool isRowSelected, Component *existingComponentToUpdate) override {
-			if (columnId == Column::name) {
+			if (columnId == Column::id) {
 				Label* label = static_cast<Label*>(existingComponentToUpdate);
 
 				if (label == nullptr) {
-					label = new Label();
+					label = new SelectableLabel(table, rowNumber);
+					label->setText(String(fileIds[rowNumber]), dontSendNotification);
+				}
+
+				return label;
+			}
+			else if (columnId == Column::name) {
+				Label* label = static_cast<Label*>(existingComponentToUpdate);
+
+				if (label == nullptr) {
+					label = new SelectableLabel(table, rowNumber);
 					label->setText(fileNames[rowNumber], dontSendNotification);
 				}
 
@@ -97,21 +97,38 @@ private:
 			sendChangeMessage();
 		};
 
-		void updateFileNames(const StringArray& fileNamesNew) {
-			fileNames = fileNamesNew;
+		int getFileIdForRow(int row) const {
+			return rowToFileId.at(row);
+		};
+
+		void updateFiles(const std::map<int, String> fileIdsToNamesNew) {
+			fileIdsToNames = fileIdsToNamesNew;
+			fileIdToRow.clear();
+			rowToFileId.clear();
+			int row = 0;
+			for (auto i : fileIdsToNames) {
+				int id = i.first;
+				fileIdToRow[id] = row;
+				rowToFileId[row] = id;
+				++row;
+			}
 		};
 
 	private:
-		StringArray fileNames;
+		InputFileTableListBox& table;
+		std::map<int, String> fileIdsToNames;
+		std::unordered_map<int, int> fileIdToRow;
+		std::unordered_map<int, int> rowToFileId;
 	};
 
 public:
-	InputFileTableListBox() {
+	InputFileTableListBox() : model(*this) {
 		setModel(&model);
 		setColour(ListBox::outlineColourId, Colours::grey);
 		setClickingTogglesRowSelection(true);
 		setMultipleSelectionEnabled(true);
-		getHeader().addColumn("Name", Column::name, 128, 32, -1, TableHeaderComponent::visible | TableHeaderComponent::resizable);
+		getHeader().addColumn("ID", Column::id, 32, 32, -1, TableHeaderComponent::defaultFlags);
+		getHeader().addColumn("Name", Column::name, 160, 32, -1, TableHeaderComponent::defaultFlags);
 		model.addChangeListener(this);
 	};
 
@@ -121,9 +138,17 @@ public:
 		}
 	};
 
+	void getSelectedFileIds(std::unordered_set<int>& fileIds) {
+		SparseSet<int> selectedRows = getSelectedRows();
+		for (int i = 0; i < selectedRows.size(); ++i) {
+			int row = selectedRows[i];
+			fileIds.insert(model.getFileIdForRow(row));
+		}
+	};
+
 	InputFileTableListBoxModel& getModel() {
 		return model;
-	}
+	};
 
 private:
 	InputFileTableListBoxModel model;

@@ -99,7 +99,7 @@ MainContentComponent::MainContentComponent ()
     addAndMakeVisible (gainSlider = new Slider (String()));
     gainSlider->setRange (0, 1, 0.01);
     gainSlider->setSliderStyle (Slider::LinearHorizontal);
-    gainSlider->setTextBoxStyle (Slider::TextBoxLeft, false, 80, 20);
+    gainSlider->setTextBoxStyle (Slider::TextBoxLeft, false, 40, 20);
     gainSlider->addListener (this);
 
     addAndMakeVisible (gainLabel = new Label (String(),
@@ -159,7 +159,7 @@ MainContentComponent::MainContentComponent ()
     addAndMakeVisible (nfftSlider = new Slider (String()));
     nfftSlider->setRange (0, 24, 1);
     nfftSlider->setSliderStyle (Slider::LinearHorizontal);
-    nfftSlider->setTextBoxStyle (Slider::TextBoxLeft, false, 80, 20);
+    nfftSlider->setTextBoxStyle (Slider::TextBoxLeft, false, 40, 20);
     nfftSlider->addListener (this);
 
     addAndMakeVisible (nfftLabel = new Label (String(),
@@ -882,12 +882,8 @@ void MainContentComponent::inputFilesChanged(NotificationType notificationType) 
 }
 
 void MainContentComponent::updatePRComponentLists() {
-	SparseSet<int> selectedRows = inputFileListComponent->getSelectedRows();
-	Array<int> includedFileIds;
-	for (int i = 0; i < selectedRows.size(); ++i) {
-		int fileId = rowToFileId[selectedRows[i]];
-		includedFileIds.add(fileId);
-	}
+	std::unordered_set<int> includedFileIds;
+	inputFileListComponent->getSelectedFileIds(includedFileIds);
 
 	StringArray fileNames;
 	for (auto i : includedFileIds) {
@@ -957,7 +953,7 @@ BEGIN_JUCER_METADATA
   <SLIDER name="" id="4e9f7543cb949220" memberName="gainSlider" virtualName=""
           explicitFocusOrder="0" pos="352 184 456 24" min="0" max="1" int="0.010000000000000000208"
           style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
-          textBoxWidth="80" textBoxHeight="20" skewFactor="1" needsCallback="1"/>
+          textBoxWidth="40" textBoxHeight="20" skewFactor="1" needsCallback="1"/>
   <LABEL name="" id="617675cab679ff64" memberName="gainLabel" virtualName=""
          explicitFocusOrder="0" pos="256 184 88 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Gain" editableSingleClick="0" editableDoubleClick="0"
@@ -998,7 +994,7 @@ BEGIN_JUCER_METADATA
   <SLIDER name="" id="2ccccb8c8ed630bf" memberName="nfftSlider" virtualName=""
           explicitFocusOrder="0" pos="352 248 240 24" min="0" max="24"
           int="1" style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
-          textBoxWidth="80" textBoxHeight="20" skewFactor="1" needsCallback="1"/>
+          textBoxWidth="40" textBoxHeight="20" skewFactor="1" needsCallback="1"/>
   <LABEL name="" id="9b09e8ab97220128" memberName="nfftLabel" virtualName=""
          explicitFocusOrder="0" pos="256 248 88 24" edTextCol="ff000000"
          edBkgCol="0" labelText="NFFT" editableSingleClick="0" editableDoubleClick="0"

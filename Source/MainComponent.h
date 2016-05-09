@@ -134,7 +134,6 @@ private:
 	CriticalSection fileListLock;
 	int fileIdNext;
 	unordered_map<int, tuple<String, String, AudioBuffer<float>*>> fileIdToAttrs;
-	unordered_map<int, int> rowToFileId;
 
 	void setPlayheadUiEnabled(bool playheadUiEnabled);
 	void setPlayheadAudio(AudioBuffer<float>* playheadAudio);
