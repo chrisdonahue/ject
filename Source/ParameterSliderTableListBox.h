@@ -25,16 +25,17 @@ private:
 		ParameterSliderTableListBoxModel() {};
 
 		int getNumRows() override {
-			return 0;
+			return 4;
 		};
 
 		void paintRowBackground(Graphics& g, int rowNumber, int width, int height, bool rowIsSelected) override {
-
+			if (rowIsSelected)
+				g.fillAll(Colours::lightblue);
+			else if (rowNumber % 2)
+				g.fillAll(Colour(0xffeeeeee));
 		};
 
-		void paintCell(Graphics& g, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override {
-
-		};
+		void paintCell(Graphics& g, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override {};
 
 		Component* refreshComponentForCell(int rowNumber, int columnId, bool isRowSelected, Component *existingComponentToUpdate) override {
 			if (columnId == Column::name) {
@@ -65,12 +66,10 @@ private:
 		};
 
 		void sortOrderChanged(int newSortColumnId, bool isForwards) override {
-
+			jassertfalse;
 		};
 
-		void selectedRowsChanged(int lastRowSelected) override {
-
-		};
+		void selectedRowsChanged(int lastRowSelected) override {};
 
 		void sliderValueChanged(Slider* slider) override {
 			sendChangeMessage();
@@ -79,24 +78,24 @@ private:
 	};
 
 public:
-	ParameterSliderTableListBox(String paramName) : model(new ParameterSliderTableListBoxModel()) {
-		setModel(model);
+	ParameterSliderTableListBox(String paramName) {
+		setModel(&model);
 		setColour(ListBox::outlineColourId, Colours::grey);
 		setClickingTogglesRowSelection(true);
-		setMultipleSelectionEnabled(true);
+		setMultipleSelectionEnabled(false);
 		getHeader().addColumn("Name", Column::name, 32, 32, -1, TableHeaderComponent::visible | TableHeaderComponent::resizable);
 		getHeader().addColumn(paramName, Column::slider, 32, 32, -1, TableHeaderComponent::visible | TableHeaderComponent::resizable);
-		model->addChangeListener(this);
+		model.addChangeListener(this);
 	};
 
 	void changeListenerCallback(ChangeBroadcaster* source) override {
-		if (source == model) {
+		if (source == &model) {
 			sendChangeMessage();
 		}
 	};
 
 private:
-	ScopedPointer<ParameterSliderTableListBoxModel> model;
+	ParameterSliderTableListBoxModel model;
 };
 
 #endif  // PARAMETERSLIDERTABLELISTBOX_H_INCLUDED

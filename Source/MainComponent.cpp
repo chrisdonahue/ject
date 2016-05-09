@@ -186,8 +186,6 @@ MainContentComponent::MainContentComponent ()
 
     addAndMakeVisible (pComponent = new ParameterSliderTableListBox ("P"));
 
-    addAndMakeVisible (inputFileListComponent = new InputFileTableListBox());
-
     addAndMakeVisible (inputRemoveButton = new TextButton (String()));
     inputRemoveButton->setButtonText (TRANS("Remove"));
     inputRemoveButton->addListener (this);
@@ -195,6 +193,8 @@ MainContentComponent::MainContentComponent ()
     addAndMakeVisible (inputAddButton = new TextButton (String()));
     inputAddButton->setButtonText (TRANS("Add"));
     inputAddButton->addListener (this);
+
+    addAndMakeVisible (inputFileListComponent = new InputFileTableListBox());
 
 
     //[UserPreSize]
@@ -260,9 +260,9 @@ MainContentComponent::~MainContentComponent()
     sLabel = nullptr;
     rComponent = nullptr;
     pComponent = nullptr;
-    inputFileListComponent = nullptr;
     inputRemoveButton = nullptr;
     inputAddButton = nullptr;
+    inputFileListComponent = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -314,9 +314,9 @@ void MainContentComponent::resized()
     sLabel->setBounds (552, 352, 24, 24);
     rComponent->setBounds (552, 384, 256, 176);
     pComponent->setBounds (256, 384, 256, 176);
-    inputFileListComponent->setBounds (24, 56, 192, 440);
     inputRemoveButton->setBounds (128, 24, 88, 24);
     inputAddButton->setBounds (24, 24, 88, 24);
+    inputFileListComponent->setBounds (24, 56, 192, 440);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -875,8 +875,9 @@ void MainContentComponent::inputFilesChanged(NotificationType notificationType) 
 		rowToFileId[row++] = fileId;
 		fileNames.add(fileName);
 	}
-	inputFileList.updateFileNames(fileNames);
+	inputFileListComponent->getModel().updateFileNames(fileNames);
 	inputFileListComponent->updateContent();
+	//inputFileListComponent->repaint();
 }
 
 void MainContentComponent::fftFree() {
@@ -996,15 +997,15 @@ BEGIN_JUCER_METADATA
   <GENERICCOMPONENT name="" id="6b2b891fb1909c36" memberName="pComponent" virtualName=""
                     explicitFocusOrder="0" pos="256 384 256 176" class="ParameterSliderTableListBox"
                     params="&quot;P&quot;"/>
-  <GENERICCOMPONENT name="" id="7617b55e4d758efa" memberName="inputFileListComponent"
-                    virtualName="" explicitFocusOrder="0" pos="24 56 192 440" class="InputFileTableListBox"
-                    params=""/>
   <TEXTBUTTON name="" id="ce8360a29a7e1323" memberName="inputRemoveButton"
               virtualName="" explicitFocusOrder="0" pos="128 24 88 24" buttonText="Remove"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="dcb4b995c383b4ef" memberName="inputAddButton" virtualName=""
               explicitFocusOrder="0" pos="24 24 88 24" buttonText="Add" connectedEdges="0"
               needsCallback="1" radioGroupId="0"/>
+  <GENERICCOMPONENT name="" id="7617b55e4d758efa" memberName="inputFileListComponent"
+                    virtualName="" explicitFocusOrder="0" pos="24 56 192 440" class="InputFileTableListBox"
+                    params=""/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

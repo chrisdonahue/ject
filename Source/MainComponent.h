@@ -171,9 +171,9 @@ private:
     ScopedPointer<Label> sLabel;
     ScopedPointer<ParameterSliderTableListBox> rComponent;
     ScopedPointer<ParameterSliderTableListBox> pComponent;
-    ScopedPointer<InputFileTableListBox> inputFileListComponent;
     ScopedPointer<TextButton> inputRemoveButton;
     ScopedPointer<TextButton> inputAddButton;
+    ScopedPointer<InputFileTableListBox> inputFileListComponent;
 
 
     //==============================================================================

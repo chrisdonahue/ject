@@ -1,11 +1,11 @@
 /*
-  ==============================================================================
+==============================================================================
 
-    InputFileTableListBox.h
-    Created: 6 May 2016 1:37:15pm
-    Author:  Chris
+InputFileTableListBox.h
+Created: 6 May 2016 1:21:53pm
+Author:  Chris
 
-  ==============================================================================
+==============================================================================
 */
 
 #ifndef INPUTFILETABLELISTBOX_H_INCLUDED
@@ -25,7 +25,7 @@ private:
 		InputFileTableListBoxModel() {};
 
 		int getNumRows() override {
-			return 0;
+			return fileNames.size();
 		};
 
 		void paintRowBackground(Graphics& g, int rowNumber, int width, int height, bool rowIsSelected) override {
@@ -35,9 +35,7 @@ private:
 				g.fillAll(Colour(0xffeeeeee));
 		};
 
-		void paintCell(Graphics& g, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override {
-
-		};
+		void paintCell(Graphics& g, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override {};
 
 		Component* refreshComponentForCell(int rowNumber, int columnId, bool isRowSelected, Component *existingComponentToUpdate) override {
 			if (columnId == Column::name) {
@@ -45,7 +43,7 @@ private:
 
 				if (label == nullptr) {
 					label = new Label();
-					label->setText("lel", dontSendNotification);
+					label->setText(fileNames[rowNumber], dontSendNotification);
 				}
 
 				return label;
@@ -68,17 +66,25 @@ private:
 		};
 
 		void sortOrderChanged(int newSortColumnId, bool isForwards) override {
-
+			jassertfalse;
 		};
 
-		void selectedRowsChanged(int lastRowSelected) override {
+		void selectedRowsChanged(int lastRowSelected) override {};
 
-		};
-
-		void buttonClicked(Button* buttonThatWasClicked) override {
+		void buttonClicked(Button* button) override {
 			sendChangeMessage();
 		};
+
+		String getName(int row) const {
+			return fileNames[row];
+		};
+
+		void updateFileNames(const StringArray& fileNamesNew) {
+			fileNames = fileNamesNew;
+		};
+
 	private:
+		StringArray fileNames;
 	};
 
 public:
@@ -86,10 +92,18 @@ public:
 		setModel(&model);
 		setColour(ListBox::outlineColourId, Colours::grey);
 		setClickingTogglesRowSelection(true);
-		setMultipleSelectionEnabled(true);
+		setMultipleSelectionEnabled(false);
 		getHeader().addColumn("Name", Column::name, 32, 32, -1, TableHeaderComponent::visible | TableHeaderComponent::resizable);
-		getHeader().addColumn("Use", Column::include, 32, 32, -1, TableHeaderComponent::visible);
+		getHeader().addColumn("Use", Column::include, 32, 32, -1, TableHeaderComponent::visible | TableHeaderComponent::resizable);
 		model.addChangeListener(this);
+	};
+
+	void resized() override {
+		int toggleButtonComponentWidth = 32;
+		// enabling this seems to break selection.... cool
+		//getHeader().setColumnWidth(Column::name, getWidth() - toggleButtonComponentWidth);
+		//getHeader().setColumnWidth(Column::include, toggleButtonComponentWidth);
+		TableListBox::resized();
 	};
 
 	void changeListenerCallback(ChangeBroadcaster* source) override {
@@ -98,28 +112,12 @@ public:
 		}
 	};
 
-	void resized() override {
-		int toggleButtonComponentWidth = 32;
-		getHeader().setColumnWidth(Column::name, getWidth() - toggleButtonComponentWidth);
-		getHeader().setColumnWidth(Column::include, toggleButtonComponentWidth);
-	};
-
-	String getName(int row) {
-
-	};
-
-	void updateFileNames(const StringArray& rows) {
-
-	};
+	InputFileTableListBoxModel& getModel() {
+		return model;
+	}
 
 private:
 	InputFileTableListBoxModel model;
-	StringArray fileNames;
 };
 
-/*
-int toggleButtonComponentWidth = 32;
-inputFileListComponent->getHeader().setColumnWidth(InputFileList::Column::name, inputFileListComponent->getWidth() - toggleButtonComponentWidth);
-inputFileListComponent->getHeader().setColumnWidth(InputFileList::Column::include, toggleButtonComponentWidth);
-*/
 #endif  // INPUTFILETABLELISTBOX_H_INCLUDED
