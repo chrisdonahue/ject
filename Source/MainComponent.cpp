@@ -784,6 +784,7 @@ void MainContentComponent::changeListenerCallback(ChangeBroadcaster* source) {
 			const ScopedLock cl(convLock);
 			setPlayheadAudio(&conv);
 		}
+		updatePRComponentLists();
 	}
 	else if (source == pComponent) {
 		const ScopedLock pl(paramLock);
@@ -877,7 +878,26 @@ void MainContentComponent::inputFilesChanged(NotificationType notificationType) 
 	}
 	inputFileListComponent->getModel().updateFileNames(fileNames);
 	inputFileListComponent->updateContent();
-	//inputFileListComponent->repaint();
+}
+
+void MainContentComponent::updatePRComponentLists() {
+	Array<int> includedRows;
+	Array<int> includedFileIds;
+	inputFileListComponent->getIncludedRows(includedRows);
+	for (auto i : includedRows) {
+		int fileId = rowToFileId[i];
+		includedFileIds.add(fileId);
+	}
+
+	StringArray fileNames;
+	for (auto i : includedFileIds) {
+		String fileName = std::get<FileAttr::fileName>(fileIdToAttrs[i]);
+		fileNames.add(fileName);
+	}
+	pComponent->getModel().updateFileNames(fileNames);
+	pComponent->updateContent();
+	rComponent->getModel().updateFileNames(fileNames);
+	rComponent->updateContent();
 }
 
 void MainContentComponent::fftFree() {

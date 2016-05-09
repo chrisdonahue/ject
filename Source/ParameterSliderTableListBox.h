@@ -25,7 +25,7 @@ private:
 		ParameterSliderTableListBoxModel() {};
 
 		int getNumRows() override {
-			return 4;
+			return fileNames.size();
 		};
 
 		void paintRowBackground(Graphics& g, int rowNumber, int width, int height, bool rowIsSelected) override {
@@ -43,7 +43,7 @@ private:
 
 				if (label == nullptr) {
 					label = new Label();
-					label->setText("lol", dontSendNotification);
+					label->setText(fileNames[rowNumber], dontSendNotification);
 				}
 
 				return label;
@@ -74,7 +74,17 @@ private:
 		void sliderValueChanged(Slider* slider) override {
 			sendChangeMessage();
 		};
+
+		String getName(int row) const {
+			return fileNames[row];
+		};
+
+		void updateFileNames(const StringArray& fileNamesNew) {
+			fileNames = fileNamesNew;
+		};
+
 	private:
+		StringArray fileNames;
 	};
 
 public:
@@ -93,6 +103,10 @@ public:
 			sendChangeMessage();
 		}
 	};
+
+	ParameterSliderTableListBoxModel& getModel() {
+		return model;
+	}
 
 private:
 	ParameterSliderTableListBoxModel model;

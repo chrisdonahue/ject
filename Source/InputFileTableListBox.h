@@ -112,6 +112,15 @@ public:
 		}
 	};
 
+	void getIncludedRows(Array<int>& includedRows) {
+		for (int i = 0; i < model.getNumRows(); ++i) {
+			ToggleButton* toggleButton = static_cast<ToggleButton*>(getCellComponent(Column::include, i));
+			if (toggleButton != nullptr && toggleButton->getToggleState()) {
+				includedRows.add(i);
+			}
+		}
+	}
+
 	InputFileTableListBoxModel& getModel() {
 		return model;
 	}

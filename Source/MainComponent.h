@@ -140,6 +140,7 @@ private:
 	void setPlayheadAudio(AudioBuffer<float>* playheadAudio);
 	void setUiFromParams(NotificationType notificationType);
 	void inputFilesChanged(NotificationType notificationType);
+	void updatePRComponentLists();
 	void fftFree();
     //[/UserVariables]
 
