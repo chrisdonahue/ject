@@ -1,9 +1,9 @@
 /*
   ==============================================================================
 
-    XmlHelper.h
-    Created: 9 May 2016 6:10:10pm
-    Author:  Chris
+	XmlHelper.h
+	Created: 9 May 2016 6:10:10pm
+	Author:  Chris
 
   ==============================================================================
 */
@@ -15,7 +15,7 @@
 
 namespace XmlHelper {
 	enum Column {
-		id=1,
+		id = 1,
 		path,
 		name,
 		include,
@@ -23,40 +23,12 @@ namespace XmlHelper {
 		rValue
 	};
 
-	XmlElement* fileListColumns;
-
-	XmlElement* loadDataFromResource() {
-		XmlElement* fileList = XmlDocument::parse(BinaryData::fileListAttributes_xml);
-		fileListColumns = fileList->getChildByName("COLUMNS");
-		return fileList;
-	};
-
-	String getAttributeNameForColumnId(const int columnId) {
-		forEachXmlChildElement(*fileListColumns, columnXml) {
-			if (columnXml->getIntAttribute("columnId") == columnId)
-				return columnXml->getStringAttribute("name");
-		}
-
-		return String();
-	};
-
-	String getStringAttributeForRowColumnId(XmlElement* fileListData, const int columnId, const int rowId) {
-		String attributeName = getAttributeNameForColumnId(columnId);
-		XmlElement* child = fileListData->getChildElement(rowId);
-		return child->getStringAttribute(attributeName);
-	};
-
-	int getIntAttributeForRowColumnId(XmlElement* fileListData, const int columnId, const int rowId) {
-		String attributeName = getAttributeNameForColumnId(columnId);
-		XmlElement* child = fileListData->getChildElement(rowId);
-		return child->getIntAttribute(attributeName);
-	};
-
-	double getDoubleAttributeForRowColumnId(XmlElement* fileListData, const int columnId, const int rowId) {
-		String attributeName = getAttributeNameForColumnId(columnId);
-		XmlElement* child = fileListData->getChildElement(rowId);
-		return child->getDoubleAttribute(attributeName);
-	};
+	extern XmlElement* fileListColumns;
+	extern XmlElement* loadDataFromResource();
+	extern String getAttributeNameForColumnId(const int columnId);
+	extern String getStringAttributeForRowColumnId(XmlElement* fileListData, const int columnId, const int rowId);
+	extern int getIntAttributeForRowColumnId(XmlElement* fileListData, const int columnId, const int rowId);
+	extern double getDoubleAttributeForRowColumnId(XmlElement* fileListData, const int columnId, const int rowId);
 }
 
 #endif  // XMLHELPER_H_INCLUDED

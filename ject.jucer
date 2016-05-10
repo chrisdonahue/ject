@@ -20,6 +20,7 @@
           <FILE id="HcY2a5" name="kissfft.hh" compile="0" resource="0" file="Source/Libraries/kiss_fft130/kissfft.hh"/>
         </GROUP>
       </GROUP>
+      <FILE id="QRbJbv" name="XmlHelper.cpp" compile="1" resource="0" file="Source/XmlHelper.cpp"/>
       <FILE id="H6heKT" name="InputFileTableListBox.h" compile="0" resource="0"
             file="Source/InputFileTableListBox.h"/>
       <FILE id="DmJdqe" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>

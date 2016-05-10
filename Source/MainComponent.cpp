@@ -748,7 +748,7 @@ void MainContentComponent::filesDropped(const StringArray& filePaths, int x, int
 			fileElement->setAttribute(XmlHelper::getAttributeNameForColumnId(XmlHelper::Column::pValue), 1.0);
 			fileElement->setAttribute(XmlHelper::getAttributeNameForColumnId(XmlHelper::Column::rValue), 1.0);
 			fileIdToBuffer[fileIdNext] = fileBuffer;
-			fileList->addChildElement(fileElement);
+			fileListData->addChildElement(fileElement);
 			++fileIdNext;
 			++succeeded;
 		}
@@ -834,7 +834,7 @@ void MainContentComponent::inputFilesChanged(NotificationType notificationType) 
 	int filesNum = fileListData->getNumChildElements();
 	int samplesNum = 0;
 	for (int i = 0; i < filesNum; ++i) {
-		int fileId = fileListData->getChildElement(i)->getIntAttribute("ID");
+		int fileId = XmlHelper::getIntAttributeForRowColumnId(fileListData, XmlHelper::Column::id, i);
 		AudioBuffer<float>* fileBuffer = fileIdToBuffer.at(fileId);
 		jassert(fileBuffer != nullptr);
 		samplesNum += fileBuffer->getNumSamples();

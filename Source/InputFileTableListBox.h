@@ -70,10 +70,7 @@ private:
 
 			if (columnId == XmlHelper::Column::id ||
 				columnId == XmlHelper::Column::path ||
-				columnId == XmlHelper::Column::name ||
-				columnId == XmlHelper::Column::include ||
-				columnId == XmlHelper::Column::pValue ||
-				columnId == XmlHelper::Column::rValue) {
+				columnId == XmlHelper::Column::name) {
 				Label* label = static_cast<Label*>(existingComponentToUpdate);
 
 				if (label == nullptr) {
@@ -83,8 +80,19 @@ private:
 
 				return label;
 			}
-			/*
-			else if (columnId == Column::slider) {
+			else if (columnId == XmlHelper::Column::include) {
+				ToggleButton* toggleButton = static_cast<ToggleButton*>(existingComponentToUpdate);
+
+				if (toggleButton == nullptr) {
+					toggleButton = new ToggleButton();
+					toggleButton->addListener(this);
+				}
+
+				toggleButton->setEnabled(static_cast<bool>(XmlHelper::getIntAttributeForRowColumnId(fileListData, columnId, rowNumber)));
+
+				return toggleButton;
+			}
+			else if (columnId == XmlHelper::Column::pValue || XmlHelper::Column::rValue) {
 				Slider* slider = static_cast<Slider*>(existingComponentToUpdate);
 
 				if (slider == nullptr) {
@@ -95,8 +103,10 @@ private:
 					slider->addListener(this);
 				}
 
+				slider->setValue(XmlHelper::getDoubleAttributeForRowColumnId(fileListData, columnId, rowNumber));
+
 				return slider;
-			}*/
+			}
 			else {
 				jassertfalse;
 				return nullptr;
