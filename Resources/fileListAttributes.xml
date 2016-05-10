@@ -1,0 +1,11 @@
+<FILE_TABLE>
+    <COLUMNS>
+        <COLUMN columnId="1" name="ID" width="32"/>
+        <COLUMN columnId="2" name="Path" width="32"/>
+        <COLUMN columnId="3" name="Name" width="32"/>
+        <COLUMN columnId="4" name="Include" width="32"/>
+        <COLUMN columnId="5" name="pValue" width="32"/>
+        <COLUMN columnId="6" name="rValue" width="32"/>
+    </COLUMNS>
+    <DATA></DATA>
+</FILE_TABLE>
