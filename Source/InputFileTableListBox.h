@@ -11,10 +11,9 @@ Author:  Chris
 #ifndef INPUTFILETABLELISTBOX_H_INCLUDED
 #define INPUTFILETABLELISTBOX_H_INCLUDED
 
-#include <map>
-#include <unordered_set>
-
 #include "../JuceLibraryCode/JuceHeader.h"
+
+#include "XmlHelper.h"
 
 class InputFileTableListBox : public TableListBox, public ChangeListener, public ChangeBroadcaster {
 private:
@@ -40,17 +39,12 @@ private:
 		int row;
 	};
 
-	enum Column {
-		id = 1,
-		name
-	};
-
-	class InputFileTableListBoxModel : public TableListBoxModel, public ChangeBroadcaster {
+	class InputFileTableListBoxModel : public TableListBoxModel, public ChangeBroadcaster, public ButtonListener, public SliderListener {
 	public:
-		InputFileTableListBoxModel(InputFileTableListBox& table, XmlElement* files) : table(table), files(files) {};
+		InputFileTableListBoxModel(InputFileTableListBox& table) : table(table) {};
 
 		int getNumRows() override {
-			return files->getNumChildElements();
+			return table.fileListData->getNumChildElements();
 		};
 
 		void paintRowBackground(Graphics& g, int rowNumber, int width, int height, bool rowIsSelected) override {
@@ -63,26 +57,33 @@ private:
 		void paintCell(Graphics& g, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override {};
 
 		Component* refreshComponentForCell(int rowNumber, int columnId, bool isRowSelected, Component *existingComponentToUpdate) override {
-			if (columnId == Column::id) {
+			XmlElement* fileListData = table.fileListData;
+
+			enum Column {
+				id = 1,
+				path,
+				name,
+				include,
+				pValue,
+				rValue
+			};
+
+			if (columnId == XmlHelper::Column::id ||
+				columnId == XmlHelper::Column::path ||
+				columnId == XmlHelper::Column::name ||
+				columnId == XmlHelper::Column::include ||
+				columnId == XmlHelper::Column::pValue ||
+				columnId == XmlHelper::Column::rValue) {
 				Label* label = static_cast<Label*>(existingComponentToUpdate);
 
 				if (label == nullptr) {
-					label = new SelectableLabel(table, rowNumber);
-					label->setText(file->, dontSendNotification);
+					label = new Label();
+					label->setText(XmlHelper::getStringAttributeForRowColumnId(fileListData, columnId, rowNumber), dontSendNotification);
 				}
 
 				return label;
 			}
-			else if (columnId == Column::name) {
-				Label* label = static_cast<Label*>(existingComponentToUpdate);
-
-				if (label == nullptr) {
-					label = new SelectableLabel(table, rowNumber);
-					label->setText(fileNames[rowNumber], dontSendNotification);
-				}
-
-				return label;
-			}
+			/*
 			else if (columnId == Column::slider) {
 				Slider* slider = static_cast<Slider*>(existingComponentToUpdate);
 
@@ -95,7 +96,7 @@ private:
 				}
 
 				return slider;
-			}
+			}*/
 			else {
 				jassertfalse;
 				return nullptr;
@@ -110,40 +111,33 @@ private:
 			sendChangeMessage();
 		};
 
+		void buttonClicked(Button* button) override {
+			sendChangeMessage();
+		};
+
 		void sliderValueChanged(Slider* slider) override {
 			sendChangeMessage();
 		};
 
-		int getFileIdForRow(int row) const {
-			return rowToFileId.at(row);
-		};
-
-		void updateFiles(const std::map<int, String> fileIdsToNamesNew) {
-			fileIdsToNames = fileIdsToNamesNew;
-			fileIdToRow.clear();
-			rowToFileId.clear();
-			int row = 0;
-			for (auto i : fileIdsToNames) {
-				int id = i.first;
-				fileIdToRow[id] = row;
-				rowToFileId[row] = id;
-				++row;
-			}
-		};
-
 	private:
 		InputFileTableListBox& table;
-		XmlElement* files;
 	};
 
 public:
-	InputFileTableListBox(XmlElement* files) : files(files), model(*this, files) {
+	friend class InputFileTableListBoxModel;
+
+	InputFileTableListBox(XmlElement* fileListColumns, XmlElement* fileListData) : model(*this), fileListData(fileListData) {
 		setModel(&model);
 		setColour(ListBox::outlineColourId, Colours::grey);
 		setClickingTogglesRowSelection(true);
 		setMultipleSelectionEnabled(true);
-		getHeader().addColumn("ID", Column::id, 32, 32, -1, TableHeaderComponent::defaultFlags);
-		getHeader().addColumn("Name", Column::name, 160, 32, -1, TableHeaderComponent::defaultFlags);
+		forEachXmlChildElement(*fileListColumns, columnXml) {
+			getHeader().addColumn(columnXml->getStringAttribute("name"),
+				columnXml->getIntAttribute("columnId"),
+				columnXml->getIntAttribute("width"),
+				50, 400,
+				TableHeaderComponent::defaultFlags);
+		}
 		model.addChangeListener(this);
 	};
 
@@ -151,6 +145,10 @@ public:
 		if (source == &model) {
 			sendChangeMessage();
 		}
+	};
+
+	void setFileListData(XmlElement* fileListDataNew) {
+		fileListData = fileListDataNew;
 	};
 
 	/*
@@ -168,8 +166,8 @@ public:
 	*/
 
 private:
-	XmlElement* files;
 	InputFileTableListBoxModel model;
+	XmlElement* fileListData;
 };
 
 #endif  // INPUTFILETABLELISTBOX_H_INCLUDED

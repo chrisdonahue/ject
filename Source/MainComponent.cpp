@@ -48,6 +48,12 @@ MainContentComponent::MainContentComponent ()
       fileIdNext(0)
 {
     //[Constructor_pre] You can add your own custom stuff here..
+	{
+		const ScopedLock fl(fileListLock);
+		fileList = XmlHelper::loadDataFromResource();
+		fileListColumns = fileList->getChildByName("COLUMNS");
+		fileListData = fileList->getChildByName("DATA");
+	}
     //[/Constructor_pre]
 
     addAndMakeVisible (waveformGroupBox = new GroupComponent (String(),
@@ -184,13 +190,11 @@ MainContentComponent::MainContentComponent ()
     inputAddButton->setButtonText (TRANS("Add"));
     inputAddButton->addListener (this);
 
-    addAndMakeVisible (inputFileListComponent = new InputFileTableListBox());
+    addAndMakeVisible (inputFileListComponent = new InputFileTableListBox (fileListColumns, fileListData));
 
 
     //[UserPreSize]
 	inputFileListComponent->addChangeListener(this);
-	pComponent->addChangeListener(this);
-	rComponent->addChangeListener(this);
 
 	//timerCallback();
 	inputFilesChanged(dontSendNotification);
@@ -218,8 +222,6 @@ MainContentComponent::~MainContentComponent()
 		}
 	}
 	inputFileListComponent->removeChangeListener(this);
-	pComponent->removeChangeListener(this);
-	rComponent->removeChangeListener(this);
     //[/Destructor_pre]
 
     waveformGroupBox = nullptr;
@@ -620,11 +622,11 @@ void MainContentComponent::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-void MainContentComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate) {}
+void MainContentComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate) {}
 
 void MainContentComponent::releaseResources() {}
 
-void MainContentComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill) {
+void MainContentComponent::getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) {
 	const ScopedLock cl(playheadAudioLock);
 
 	AudioSampleBuffer& block = *(bufferToFill.buffer);
@@ -638,7 +640,7 @@ void MainContentComponent::getNextAudioBlock (const AudioSourceChannelInfo& buff
 	case PlayheadState::stopped: {
 		block.clear();
 	}
-		break;
+								 break;
 
 	case PlayheadState::playing: {
 		int playheadAudioChannelsNum = playheadAudio.getNumChannels();
@@ -668,7 +670,7 @@ void MainContentComponent::getNextAudioBlock (const AudioSourceChannelInfo& buff
 		blockSamplesCompleted += blockSamplesRemaining;
 		blockSamplesRemaining -= blockSamplesRemaining;
 	}
-		break;
+								 break;
 
 	case PlayheadState::looping: {
 		while (blockSamplesRemaining > 0) {
@@ -692,7 +694,7 @@ void MainContentComponent::getNextAudioBlock (const AudioSourceChannelInfo& buff
 		}
 	}
 
-		break;
+								 break;
 
 	default:
 		jassertfalse;
@@ -739,13 +741,14 @@ void MainContentComponent::filesDropped(const StringArray& filePaths, int x, int
 		if (fileBuffer != nullptr) {
 			const ScopedLock fl(fileListLock);
 			XmlElement* fileElement = new XmlElement("file");
-			fileElement->setAttribute("ID", fileIdNext);
-			fileElement->setAttribute("Path", filePath);
-			fileElement->setAttribute("Name", fileName);
-			fileElement->setAttribute("Include", 0);
-			fileElement->setAttribute("pValue", 1.0);
-			fileElement->setAttribute("rValue", 1.0);
+			fileElement->setAttribute(XmlHelper::getAttributeNameForColumnId(XmlHelper::Column::id), fileIdNext);
+			fileElement->setAttribute(XmlHelper::getAttributeNameForColumnId(XmlHelper::Column::path), filePath);
+			fileElement->setAttribute(XmlHelper::getAttributeNameForColumnId(XmlHelper::Column::name), fileName);
+			fileElement->setAttribute(XmlHelper::getAttributeNameForColumnId(XmlHelper::Column::include), 1);
+			fileElement->setAttribute(XmlHelper::getAttributeNameForColumnId(XmlHelper::Column::pValue), 1.0);
+			fileElement->setAttribute(XmlHelper::getAttributeNameForColumnId(XmlHelper::Column::rValue), 1.0);
 			fileIdToBuffer[fileIdNext] = fileBuffer;
+			fileList->addChildElement(fileElement);
 			++fileIdNext;
 			++succeeded;
 		}
@@ -773,15 +776,6 @@ void MainContentComponent::changeListenerCallback(ChangeBroadcaster* source) {
 			const ScopedLock cl(convLock);
 			setPlayheadAudio(&conv);
 		}*/
-		updatePRComponentLists();
-	}
-	else if (source == pComponent) {
-		const ScopedLock pl(paramLock);
-		//jassert(fileIdToAttrs.size() == pParam.size());
-	}
-	else if (source == rComponent) {
-		const ScopedLock pl(paramLock);
-		//jassert(fileIdToAttrs.size() == rParam.size());
 	}
 }
 
@@ -837,10 +831,12 @@ void MainContentComponent::setUiFromParams(NotificationType notificationType) {
 }
 
 void MainContentComponent::inputFilesChanged(NotificationType notificationType) {
-	int filesNum = fileIdToAttrs.size();
+	int filesNum = fileListData->getNumChildElements();
 	int samplesNum = 0;
-	for (auto i : fileIdToAttrs) {
-		AudioBuffer<float>* fileBuffer = std::get<FileAttr::fileBuffer>(i.second);
+	for (int i = 0; i < filesNum; ++i) {
+		int fileId = fileListData->getChildElement(i)->getIntAttribute("ID");
+		AudioBuffer<float>* fileBuffer = fileIdToBuffer.at(fileId);
+		jassert(fileBuffer != nullptr);
 		samplesNum += fileBuffer->getNumSamples();
 	}
 
@@ -856,34 +852,7 @@ void MainContentComponent::inputFilesChanged(NotificationType notificationType) 
 		convButton->setEnabled(false);
 	}
 
-	StringArray fileNames;
-	int row = 0;
-	rowToFileId.clear();
-	for (auto i : fileIdToAttrs) {
-		int fileId = i.first;
-		String fileName = std::get<FileAttr::fileName>(i.second);
-		rowToFileId[row++] = fileId;
-		fileNames.add(fileName);
-	}
-	inputFileListComponent->getModel().updateFileNames(fileNames);
 	inputFileListComponent->updateContent();
-	updatePRComponentLists();
-}
-
-void MainContentComponent::updatePRComponentLists() {
-	std::unordered_set<int> includedFileIds;
-	inputFileListComponent->getSelectedFileIds(includedFileIds);
-
-	StringArray fileNames;
-	for (auto i : includedFileIds) {
-		String fileName = std::get<FileAttr::fileName>(fileIdToAttrs[i]);
-		fileNames.add(fileName);
-	}
-
-	pComponent->getModel().updateFileNames(fileNames);
-	pComponent->updateContent();
-	rComponent->getModel().updateFileNames(fileNames);
-	rComponent->updateContent();
 }
 //[/MiscUserCode]
 
@@ -996,7 +965,7 @@ BEGIN_JUCER_METADATA
               needsCallback="1" radioGroupId="0"/>
   <GENERICCOMPONENT name="" id="7617b55e4d758efa" memberName="inputFileListComponent"
                     virtualName="" explicitFocusOrder="0" pos="24 64 576 152" class="InputFileTableListBox"
-                    params=""/>
+                    params="fileListColumns, fileListData"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

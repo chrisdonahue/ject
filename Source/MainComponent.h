@@ -32,8 +32,8 @@
 #include "JuceHeader.h"
 
 #include "InputFileTableListBox.h"
-#include "ParameterSliderTableListBox.h"
 #include "WaveformComponent.h"
+#include "XmlHelper.h"
 
 using std::vector;
 using std::pair;
@@ -135,15 +135,18 @@ private:
 		numAttrs
 	};
 	CriticalSection fileListLock;
-	XmlElement* fileList;
+	ScopedPointer<XmlElement> fileList;
+	XmlElement* fileListColumns;
+	XmlElement* fileListData;
 	int fileIdNext;
 	unordered_map<int, AudioBuffer<float>*> fileIdToBuffer;
+
+	void loadFileList(XmlElement* fileListNew);
 
 	void setPlayheadUiEnabled(bool playheadUiEnabled);
 	void setPlayheadAudio(AudioBuffer<float>* playheadAudio);
 	void setUiFromParams(NotificationType notificationType);
 	void inputFilesChanged(NotificationType notificationType);
-	void updatePRComponentLists();
     //[/UserVariables]
 
     //==============================================================================
