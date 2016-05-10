@@ -127,28 +127,30 @@ private:
 
 	// file list state
 	enum FileAttr {
-		filePath=0,
-		fileName,
-		fileBuffer
+		id=0,
+		name,
+		path,
+		pValue,
+		rValue,
+		numAttrs
 	};
 	CriticalSection fileListLock;
+	XmlElement* fileList;
 	int fileIdNext;
-	unordered_map<int, tuple<String, String, AudioBuffer<float>*>> fileIdToAttrs;
+	unordered_map<int, AudioBuffer<float>*> fileIdToBuffer;
 
 	void setPlayheadUiEnabled(bool playheadUiEnabled);
 	void setPlayheadAudio(AudioBuffer<float>* playheadAudio);
 	void setUiFromParams(NotificationType notificationType);
 	void inputFilesChanged(NotificationType notificationType);
 	void updatePRComponentLists();
-	void fftFree();
     //[/UserVariables]
 
     //==============================================================================
+    ScopedPointer<GroupComponent> waveformGroupBox;
+    ScopedPointer<WaveformComponent> waveformComponent;
     ScopedPointer<GroupComponent> inputGroupBox;
     ScopedPointer<GroupComponent> convGroupBox;
-    ScopedPointer<GroupComponent> phaseComboBox;
-    ScopedPointer<GroupComponent> magniComboBox;
-    ScopedPointer<GroupComponent> waveformGroupBox;
     ScopedPointer<Slider> qSlider;
     ScopedPointer<Label> qLabel;
     ScopedPointer<TextButton> convButton;
@@ -156,7 +158,6 @@ private:
     ScopedPointer<TextButton> settingsButton;
     ScopedPointer<Slider> gainSlider;
     ScopedPointer<Label> gainLabel;
-    ScopedPointer<WaveformComponent> waveformComponent;
     ScopedPointer<Label> prBehaviorLabel;
     ScopedPointer<ComboBox> prBehaviorComboBox;
     ScopedPointer<TextButton> playButton;
@@ -169,8 +170,6 @@ private:
     ScopedPointer<Label> nfftLabel;
     ScopedPointer<TextButton> saveButton;
     ScopedPointer<Label> sLabel;
-    ScopedPointer<ParameterSliderTableListBox> rComponent;
-    ScopedPointer<ParameterSliderTableListBox> pComponent;
     ScopedPointer<TextButton> inputRemoveButton;
     ScopedPointer<TextButton> inputAddButton;
     ScopedPointer<InputFileTableListBox> inputFileListComponent;

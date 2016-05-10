@@ -47,10 +47,10 @@ private:
 
 	class InputFileTableListBoxModel : public TableListBoxModel, public ChangeBroadcaster {
 	public:
-		InputFileTableListBoxModel(InputFileTableListBox& table) : table(table) {};
+		InputFileTableListBoxModel(InputFileTableListBox& table, XmlElement* files) : table(table), files(files) {};
 
 		int getNumRows() override {
-			return fileNames.size();
+			return files->getNumChildElements();
 		};
 
 		void paintRowBackground(Graphics& g, int rowNumber, int width, int height, bool rowIsSelected) override {
@@ -68,7 +68,7 @@ private:
 
 				if (label == nullptr) {
 					label = new SelectableLabel(table, rowNumber);
-					label->setText(String(fileIds[rowNumber]), dontSendNotification);
+					label->setText(file->, dontSendNotification);
 				}
 
 				return label;
@@ -83,6 +83,19 @@ private:
 
 				return label;
 			}
+			else if (columnId == Column::slider) {
+				Slider* slider = static_cast<Slider*>(existingComponentToUpdate);
+
+				if (slider == nullptr) {
+					slider = new Slider();
+					slider->setRange(0.0, 1.0, 0.01);
+					slider->setSliderStyle(Slider::LinearHorizontal);
+					slider->setTextBoxStyle(Slider::TextBoxLeft, false, 40, 20);
+					slider->addListener(this);
+				}
+
+				return slider;
+			}
 			else {
 				jassertfalse;
 				return nullptr;
@@ -94,6 +107,10 @@ private:
 		};
 
 		void selectedRowsChanged(int lastRowSelected) override {
+			sendChangeMessage();
+		};
+
+		void sliderValueChanged(Slider* slider) override {
 			sendChangeMessage();
 		};
 
@@ -116,13 +133,11 @@ private:
 
 	private:
 		InputFileTableListBox& table;
-		std::map<int, String> fileIdsToNames;
-		std::unordered_map<int, int> fileIdToRow;
-		std::unordered_map<int, int> rowToFileId;
+		XmlElement* files;
 	};
 
 public:
-	InputFileTableListBox() : model(*this) {
+	InputFileTableListBox(XmlElement* files) : files(files), model(*this, files) {
 		setModel(&model);
 		setColour(ListBox::outlineColourId, Colours::grey);
 		setClickingTogglesRowSelection(true);
@@ -138,6 +153,7 @@ public:
 		}
 	};
 
+	/*
 	void getSelectedFileIds(std::unordered_set<int>& fileIds) {
 		SparseSet<int> selectedRows = getSelectedRows();
 		for (int i = 0; i < selectedRows.size(); ++i) {
@@ -149,8 +165,10 @@ public:
 	InputFileTableListBoxModel& getModel() {
 		return model;
 	};
+	*/
 
 private:
+	XmlElement* files;
 	InputFileTableListBoxModel model;
 };
 
