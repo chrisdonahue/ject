@@ -190,7 +190,7 @@ MainContentComponent::MainContentComponent ()
     inputAddButton->setButtonText (TRANS("Add"));
     inputAddButton->addListener (this);
 
-    addAndMakeVisible (inputFileListComponent = new InputFileTableListBox (fileListColumns, fileListData));
+    addAndMakeVisible (inputFileListComponent = new InputFileTableListBox (InputFileTableListBox::PrBehavior::independent));
 
 
     //[UserPreSize]
@@ -965,7 +965,7 @@ BEGIN_JUCER_METADATA
               needsCallback="1" radioGroupId="0"/>
   <GENERICCOMPONENT name="" id="7617b55e4d758efa" memberName="inputFileListComponent"
                     virtualName="" explicitFocusOrder="0" pos="24 64 576 152" class="InputFileTableListBox"
-                    params="fileListColumns, fileListData"/>
+                    params="InputFileTableListBox::PrBehavior::independent"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

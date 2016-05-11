@@ -11,9 +11,9 @@ Author:  Chris
 #ifndef INPUTFILETABLELISTBOX_H_INCLUDED
 #define INPUTFILETABLELISTBOX_H_INCLUDED
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "Sound.h"
 
-#include "XmlHelper.h"
+#include "../JuceLibraryCode/JuceHeader.h"
 
 class InputFileTableListBox : public TableListBox, public ChangeListener, public ChangeBroadcaster {
 private:
@@ -39,12 +39,27 @@ private:
 		int row;
 	};
 
+	enum Column {
+		id = 1,
+		path,
+		name,
+		include,
+		pValue,
+		rValue
+	};
+
+	enum PrBehavior {
+		independent = 1,
+		linked,
+		inverse
+	};
+
 	class InputFileTableListBoxModel : public TableListBoxModel, public ChangeBroadcaster, public ButtonListener, public SliderListener {
 	public:
 		InputFileTableListBoxModel(InputFileTableListBox& table) : table(table) {};
 
 		int getNumRows() override {
-			return table.fileListData->getNumChildElements();
+			return table.sounds.size();
 		};
 
 		void paintRowBackground(Graphics& g, int rowNumber, int width, int height, bool rowIsSelected) override {
@@ -57,30 +72,40 @@ private:
 		void paintCell(Graphics& g, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override {};
 
 		Component* refreshComponentForCell(int rowNumber, int columnId, bool isRowSelected, Component *existingComponentToUpdate) override {
-			XmlElement* fileListData = table.fileListData;
+			jassert(rowNumber < table.sounds.size());
+			const Sound* sound = table.sounds[rowNumber];
 
-			enum Column {
-				id = 1,
-				path,
-				name,
-				include,
-				pValue,
-				rValue
-			};
-
-			if (columnId == XmlHelper::Column::id ||
-				columnId == XmlHelper::Column::path ||
-				columnId == XmlHelper::Column::name) {
+			if (columnId == Column::id) {
 				Label* label = static_cast<Label*>(existingComponentToUpdate);
 
 				if (label == nullptr) {
 					label = new Label();
-					label->setText(XmlHelper::getStringAttributeForRowColumnId(fileListData, columnId, rowNumber), dontSendNotification);
+					label->setText(String(sound->getId()), dontSendNotification);
 				}
 
 				return label;
 			}
-			else if (columnId == XmlHelper::Column::include) {
+			else if (columnId == Column::path) {
+				Label* label = static_cast<Label*>(existingComponentToUpdate);
+
+				if (label == nullptr) {
+					label = new Label();
+					label->setText(sound->getFilePath(), dontSendNotification);
+				}
+
+				return label;
+			}
+			else if (columnId == Column::name) {
+				Label* label = static_cast<Label*>(existingComponentToUpdate);
+
+				if (label == nullptr) {
+					label = new Label();
+					label->setText(sound->getName(), dontSendNotification);
+				}
+
+				return label;
+			}
+			else if (columnId == Column::include) {
 				ToggleButton* toggleButton = static_cast<ToggleButton*>(existingComponentToUpdate);
 
 				if (toggleButton == nullptr) {
@@ -88,11 +113,11 @@ private:
 					toggleButton->addListener(this);
 				}
 
-				toggleButton->setEnabled(static_cast<bool>(XmlHelper::getIntAttributeForRowColumnId(fileListData, columnId, rowNumber)));
+				toggleButton->setEnabled(sound->isIncluded());
 
 				return toggleButton;
 			}
-			else if (columnId == XmlHelper::Column::pValue || XmlHelper::Column::rValue) {
+			else if (columnId == Column::pValue) {
 				Slider* slider = static_cast<Slider*>(existingComponentToUpdate);
 
 				if (slider == nullptr) {
@@ -103,7 +128,22 @@ private:
 					slider->addListener(this);
 				}
 
-				slider->setValue(XmlHelper::getDoubleAttributeForRowColumnId(fileListData, columnId, rowNumber));
+				slider->setValue(sound->getPValue(), dontSendNotification);
+
+				return slider;
+			}
+			else if (columnId == Column::rValue) {
+				Slider* slider = static_cast<Slider*>(existingComponentToUpdate);
+
+				if (slider == nullptr) {
+					slider = new Slider();
+					slider->setRange(0.0, 1.0, 0.01);
+					slider->setSliderStyle(Slider::LinearHorizontal);
+					slider->setTextBoxStyle(Slider::TextBoxLeft, false, 40, 20);
+					slider->addListener(this);
+				}
+
+				slider->setValue(sound->getRValue(), dontSendNotification);
 
 				return slider;
 			}
@@ -136,18 +176,16 @@ private:
 public:
 	friend class InputFileTableListBoxModel;
 
-	InputFileTableListBox(XmlElement* fileListColumns, XmlElement* fileListData) : model(*this), fileListData(fileListData) {
+	InputFileTableListBox(PrBehavior prBehavior) : model(*this), prBehavior(prBehavior) {
 		setModel(&model);
 		setColour(ListBox::outlineColourId, Colours::grey);
 		setClickingTogglesRowSelection(true);
 		setMultipleSelectionEnabled(true);
-		forEachXmlChildElement(*fileListColumns, columnXml) {
-			getHeader().addColumn(columnXml->getStringAttribute("name"),
-				columnXml->getIntAttribute("columnId"),
-				columnXml->getIntAttribute("width"),
-				50, 400,
-				TableHeaderComponent::defaultFlags);
-		}
+		getHeader().addColumn("ID", Column::id, 128, 32, -1, TableHeaderComponent::defaultFlags);
+		getHeader().addColumn("Name", Column::name, 128, 32, -1, TableHeaderComponent::defaultFlags);
+		getHeader().addColumn("Use", Column::include, 128, 32, -1, TableHeaderComponent::defaultFlags);
+		getHeader().addColumn("P", Column::pValue, 128, 32, -1, TableHeaderComponent::defaultFlags);
+		getHeader().addColumn("R", Column::rValue, 128, 32, -1, TableHeaderComponent::defaultFlags);
 		model.addChangeListener(this);
 	};
 
@@ -157,8 +195,12 @@ public:
 		}
 	};
 
-	void setFileListData(XmlElement* fileListDataNew) {
-		fileListData = fileListDataNew;
+	void setSounds(const std::vector<Sound*>& soundsNew) {
+		sounds = soundsNew;
+	};
+
+	void setPrBehavior(PrBehavior prBehaviorNew) {
+		prBehavior = prBehaviorNew;
 	};
 
 	/*
@@ -177,7 +219,8 @@ public:
 
 private:
 	InputFileTableListBoxModel model;
-	XmlElement* fileListData;
+	std::vector<Sound*> sounds;
+	PrBehavior prBehavior;
 };
 
 #endif  // INPUTFILETABLELISTBOX_H_INCLUDED

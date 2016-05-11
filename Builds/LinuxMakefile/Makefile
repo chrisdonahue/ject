@@ -51,11 +51,9 @@ endif
 OBJECTS := \
   $(OBJDIR)/kiss_fft_cfe828c6.o \
   $(OBJDIR)/kiss_fftr_2d1de936.o \
-  $(OBJDIR)/XmlHelper_4ca5d986.o \
   $(OBJDIR)/Main_90ebc5c2.o \
   $(OBJDIR)/MainComponent_a6ffb4a5.o \
   $(OBJDIR)/WaveformComponent_3d0f1fa1.o \
-  $(OBJDIR)/BinaryData_ce4232d4.o \
   $(OBJDIR)/juce_audio_basics_6b797ca1.o \
   $(OBJDIR)/juce_audio_devices_a742c38b.o \
   $(OBJDIR)/juce_audio_formats_5a29c68a.o \
@@ -98,11 +96,6 @@ $(OBJDIR)/kiss_fftr_2d1de936.o: ../../Source/Libraries/kiss_fft130/kiss_fftr.c
 	@echo "Compiling kiss_fftr.c"
 	@$(CC) $(CFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/XmlHelper_4ca5d986.o: ../../Source/XmlHelper.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling XmlHelper.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/Main_90ebc5c2.o: ../../Source/Main.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling Main.cpp"
@@ -116,11 +109,6 @@ $(OBJDIR)/MainComponent_a6ffb4a5.o: ../../Source/MainComponent.cpp
 $(OBJDIR)/WaveformComponent_3d0f1fa1.o: ../../Source/WaveformComponent.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling WaveformComponent.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/BinaryData_ce4232d4.o: ../../JuceLibraryCode/BinaryData.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling BinaryData.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/juce_audio_basics_6b797ca1.o: ../../JuceLibraryCode/juce_audio_basics.cpp

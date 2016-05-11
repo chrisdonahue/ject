@@ -4,10 +4,6 @@
               bundleIdentifier="com.yourcompany.ject" includeBinaryInAppConfig="1"
               jucerVersion="4.2.1">
   <MAINGROUP id="zdBS2Z" name="JECT">
-    <GROUP id="{6F08EA9F-4B9C-9106-4A0C-3DB2E300DF6B}" name="Resources">
-      <FILE id="fqVwjD" name="fileListAttributes.xml" compile="0" resource="1"
-            file="Resources/fileListAttributes.xml"/>
-    </GROUP>
     <GROUP id="{05229AE6-9916-1D68-66B0-1214109EB6CD}" name="Source">
       <GROUP id="{84F3BC3C-EF04-889F-BF39-120C06F7FF4F}" name="Libraries">
         <GROUP id="{7757FA70-EB2F-05CC-48EB-25039725FA32}" name="kiss_fft130">
@@ -20,7 +16,7 @@
           <FILE id="HcY2a5" name="kissfft.hh" compile="0" resource="0" file="Source/Libraries/kiss_fft130/kissfft.hh"/>
         </GROUP>
       </GROUP>
-      <FILE id="QRbJbv" name="XmlHelper.cpp" compile="1" resource="0" file="Source/XmlHelper.cpp"/>
+      <FILE id="NVev2u" name="Sound.h" compile="0" resource="0" file="Source/Sound.h"/>
       <FILE id="H6heKT" name="InputFileTableListBox.h" compile="0" resource="0"
             file="Source/InputFileTableListBox.h"/>
       <FILE id="DmJdqe" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
@@ -31,7 +27,6 @@
             file="Source/WaveformComponent.cpp"/>
       <FILE id="uNBcA8" name="WaveformComponent.h" compile="0" resource="0"
             file="Source/WaveformComponent.h"/>
-      <FILE id="O0Q2tq" name="XmlHelper.h" compile="0" resource="0" file="Source/XmlHelper.h"/>
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>

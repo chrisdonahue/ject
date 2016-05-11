@@ -33,7 +33,6 @@
 
 #include "InputFileTableListBox.h"
 #include "WaveformComponent.h"
-#include "XmlHelper.h"
 
 using std::vector;
 using std::pair;
@@ -89,12 +88,6 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	enum PrBehavior {
-		independent=1,
-		linked,
-		inverse
-	};
-
 	enum PlayheadState {
 		stopped=0,
 		playing,
