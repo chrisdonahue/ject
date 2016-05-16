@@ -48,12 +48,6 @@ private:
 		rValue
 	};
 
-	enum PrBehavior {
-		independent = 1,
-		linked,
-		inverse
-	};
-
 	class InputFileTableListBoxModel : public TableListBoxModel, public ChangeBroadcaster, public ButtonListener, public SliderListener {
 	public:
 		InputFileTableListBoxModel(InputFileTableListBox& table) : table(table) {};
@@ -174,6 +168,12 @@ private:
 	};
 
 public:
+	enum PrBehavior {
+		independent = 1,
+		linked,
+		inverse
+	};
+
 	friend class InputFileTableListBoxModel;
 
 	InputFileTableListBox(PrBehavior prBehavior) : model(*this), prBehavior(prBehavior) {
@@ -201,6 +201,10 @@ public:
 
 	void setPrBehavior(PrBehavior prBehaviorNew) {
 		prBehavior = prBehaviorNew;
+	};
+
+	PrBehavior getPrBehavior() const {
+		return prBehavior;
 	};
 
 	/*

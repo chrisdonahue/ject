@@ -32,8 +32,11 @@
 #include "JuceHeader.h"
 
 #include "InputFileTableListBox.h"
+#include "Sound.h"
 #include "WaveformComponent.h"
 
+using std::unique_ptr;
+using std::shared_ptr;
 using std::vector;
 using std::pair;
 using std::tuple;
@@ -103,7 +106,6 @@ private:
 	float sParam;
 
 	// ui state
-	PrBehavior prBehavior;
 	CriticalSection waveformDisplayLock;
 
 	// conv state
@@ -128,9 +130,7 @@ private:
 		numAttrs
 	};
 	CriticalSection fileListLock;
-	ScopedPointer<XmlElement> fileList;
-	XmlElement* fileListColumns;
-	XmlElement* fileListData;
+	unordered_map<int, unique_ptr<Sound>> idToSound;
 	int fileIdNext;
 	unordered_map<int, AudioBuffer<float>*> fileIdToBuffer;
 

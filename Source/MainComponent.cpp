@@ -37,7 +37,6 @@ MainContentComponent::MainContentComponent ()
       qParam(1.0),
       rParam(0.5),
       sParam(1.0),
-      prBehavior(PrBehavior::independent),
       waveformDisplayLock(),
       conv(0, 0),
       convDirty(true),
@@ -48,12 +47,6 @@ MainContentComponent::MainContentComponent ()
       fileIdNext(0)
 {
     //[Constructor_pre] You can add your own custom stuff here..
-	{
-		const ScopedLock fl(fileListLock);
-		fileList = XmlHelper::loadDataFromResource();
-		fileListColumns = fileList->getChildByName("COLUMNS");
-		fileListData = fileList->getChildByName("DATA");
-	}
     //[/Constructor_pre]
 
     addAndMakeVisible (waveformGroupBox = new GroupComponent (String(),
@@ -611,7 +604,7 @@ void MainContentComponent::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     if (comboBoxThatHasChanged == prBehaviorComboBox)
     {
         //[UserComboBoxCode_prBehaviorComboBox] -- add your combo box handling code here..
-		prBehavior = PrBehavior(prBehaviorComboBox->getSelectedId());
+		inputFileListComponent->setPrBehavior(static_cast<InputFileTableListBox::PrBehavior>(prBehaviorComboBox->getSelectedId()));
         //[/UserComboBoxCode_prBehaviorComboBox]
     }
 
@@ -713,43 +706,14 @@ bool MainContentComponent::isInterestedInFileDrag(const StringArray& files) {
 void MainContentComponent::filesDropped(const StringArray& filePaths, int x, int y) {
 	x; y;
 
-	auto loadFile = [](const File& droppedFile) {
-		AudioFormatManager formatManager;
-		formatManager.registerFormat(new WavAudioFormat(), true);
-		formatManager.registerFormat(new AiffAudioFormat(), false);
-		formatManager.registerFormat(new OggVorbisAudioFormat(), false);
-		ScopedPointer<AudioFormatReader> reader = formatManager.createReaderFor(droppedFile);
-
-		AudioBuffer<float>* samples = nullptr;
-		if (reader != nullptr && reader->numChannels > 0 && reader->numChannels <= JECT_CHANNELS_NUM && reader->lengthInSamples > 0) {
-			samples = new AudioBuffer<float>(reader->numChannels, static_cast<int>(reader->lengthInSamples));
-			reader->read(samples, 0, static_cast<int>(reader->lengthInSamples), 0, reader->numChannels == 1, reader->numChannels == 2);
-		}
-		return samples;
-	};
-	auto nameFile = [](const String& filePath) {
-		File droppedFile(filePath);
-		return droppedFile.getFileName();
-	};
-
 	int succeeded = 0;
 	for (int i = 0; i < filePaths.size(); ++i) {
 		String filePath = filePaths[i];
-		File file(filePath);
-		String fileName = file.getFileName();
-		AudioBuffer<float>* fileBuffer = loadFile(file);
+		AudioBuffer<float>* fileBuffer = Sound::readBufferFromAudioFile(filePath);
 		if (fileBuffer != nullptr) {
 			const ScopedLock fl(fileListLock);
-			XmlElement* fileElement = new XmlElement("file");
-			fileElement->setAttribute(XmlHelper::getAttributeNameForColumnId(XmlHelper::Column::id), fileIdNext);
-			fileElement->setAttribute(XmlHelper::getAttributeNameForColumnId(XmlHelper::Column::path), filePath);
-			fileElement->setAttribute(XmlHelper::getAttributeNameForColumnId(XmlHelper::Column::name), fileName);
-			fileElement->setAttribute(XmlHelper::getAttributeNameForColumnId(XmlHelper::Column::include), 1);
-			fileElement->setAttribute(XmlHelper::getAttributeNameForColumnId(XmlHelper::Column::pValue), 1.0);
-			fileElement->setAttribute(XmlHelper::getAttributeNameForColumnId(XmlHelper::Column::rValue), 1.0);
-			fileIdToBuffer[fileIdNext] = fileBuffer;
-			fileListData->addChildElement(fileElement);
-			++fileIdNext;
+			Sound* sound = new Sound(fileBuffer, filePath);
+			idToSound.emplace(fileIdNext++, sound);
 			++succeeded;
 		}
 	}
@@ -827,21 +791,20 @@ void MainContentComponent::setUiFromParams(NotificationType notificationType) {
 	qSlider->setValue(static_cast<double>(qParam), notificationType);
 	//rSlider->setValue(static_cast<double>(rParam.get()), notificationType);
 	sSlider->setValue(static_cast<double>(sParam), notificationType);
-	prBehaviorComboBox->setSelectedId(prBehavior, notificationType);
+	prBehaviorComboBox->setSelectedId(static_cast<int>(inputFileListComponent->getPrBehavior()), notificationType);
 }
 
 void MainContentComponent::inputFilesChanged(NotificationType notificationType) {
-	int filesNum = fileListData->getNumChildElements();
 	int samplesNum = 0;
-	for (int i = 0; i < filesNum; ++i) {
-		int fileId = XmlHelper::getIntAttributeForRowColumnId(fileListData, XmlHelper::Column::id, i);
-		AudioBuffer<float>* fileBuffer = fileIdToBuffer.at(fileId);
-		jassert(fileBuffer != nullptr);
-		samplesNum += fileBuffer->getNumSamples();
+	for (const auto& i : idToSound) {
+		const AudioBuffer<float>* buffer = i.second->getBuffer();
+		jassert(buffer != nullptr);
+		samplesNum += buffer->getNumSamples();
+		
 	}
 
 	if (samplesNum > 0) {
-		int n2 = static_cast<int>(std::ceil(std::log2(samplesNum - (filesNum - 1))));
+		int n2 = static_cast<int>(std::ceil(std::log2(samplesNum - (idToSound.size() - 1))));
 		nfftSlider->setRange(static_cast<double>(n2), 28, 1.0);
 		nfftSlider->setValue(static_cast<double>(n2));
 		nfftSlider->setEnabled(true);
@@ -868,7 +831,7 @@ BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="MainContentComponent" componentName=""
                  parentClasses="public AudioAppComponent, public FileDragAndDropTarget, public Timer, public ChangeListener"
-                 constructorParams="" variableInitialisers="gainParam(0.5),&#10;nfftParam(0),&#10;pParam(0.5),&#10;qParam(1.0),&#10;rParam(0.5),&#10;sParam(1.0),&#10;prBehavior(PrBehavior::independent),&#10;waveformDisplayLock(),&#10;conv(0, 0),&#10;convDirty(true),&#10;playheadAudioLock(),&#10;playheadState(PlayheadState::stopped),&#10;playheadAudio(0, 0),&#10;playheadAudioSamplesCompleted(0),&#10;fileIdNext(0)"
+                 constructorParams="" variableInitialisers="gainParam(0.5),&#10;nfftParam(0),&#10;pParam(0.5),&#10;qParam(1.0),&#10;rParam(0.5),&#10;sParam(1.0),&#10;waveformDisplayLock(),&#10;conv(0, 0),&#10;convDirty(true),&#10;playheadAudioLock(),&#10;playheadState(PlayheadState::stopped),&#10;playheadAudio(0, 0),&#10;playheadAudioSamplesCompleted(0),&#10;fileIdNext(0)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="1" initialWidth="624" initialHeight="600">
   <BACKGROUND backgroundColour="ffffffff"/>
