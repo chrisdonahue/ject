@@ -113,7 +113,7 @@ private:
 					toggleButton->addListener(this);
 				}
 
-				toggleButton->setEnabled(sound->isIncluded());
+				toggleButton->setToggleState(sound->isIncluded(), dontSendNotification);
 
 				return toggleButton;
 			}
@@ -187,11 +187,12 @@ public:
 		setColour(ListBox::outlineColourId, Colours::grey);
 		setClickingTogglesRowSelection(true);
 		setMultipleSelectionEnabled(true);
-		getHeader().addColumn("ID", Column::id, 128, 32, -1, TableHeaderComponent::defaultFlags);
-		getHeader().addColumn("Name", Column::name, 128, 32, -1, TableHeaderComponent::defaultFlags);
-		getHeader().addColumn("Use", Column::include, 128, 32, -1, TableHeaderComponent::defaultFlags);
-		getHeader().addColumn("P", Column::pValue, 128, 32, -1, TableHeaderComponent::defaultFlags);
-		getHeader().addColumn("R", Column::rValue, 128, 32, -1, TableHeaderComponent::defaultFlags);
+		int flags = TableHeaderComponent::defaultFlags & ~TableHeaderComponent::sortable;
+		getHeader().addColumn("ID", Column::id, 32, 32, -1, flags);
+		getHeader().addColumn("Name", Column::name, 128, 32, -1, flags);
+		getHeader().addColumn("Use", Column::include, 32, 32, -1, flags);
+		getHeader().addColumn("P", Column::pValue, 128, 32, -1, flags);
+		getHeader().addColumn("R", Column::rValue, 128, 32, -1, flags);
 		model.addChangeListener(this);
 	};
 
