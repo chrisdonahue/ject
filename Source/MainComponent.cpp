@@ -789,19 +789,34 @@ void MainContentComponent::setUiFromParams(NotificationType notificationType) {
 }
 
 void MainContentComponent::inputFilesChanged(NotificationType notificationType) {
-	int samplesNum = 0;
 	unordered_map<int, Sound*> idToSoundTable;
 	for (const auto& i : idToSound) {
-		const AudioBuffer<float>* buffer = i.second->getBufferPtr();
-		jassert(buffer != nullptr);
-		samplesNum += buffer->getNumSamples();
 		idToSoundTable.emplace(i.first, i.second.get());
 	}
 
-	if (samplesNum > 0) {
-		int n2 = static_cast<int>(std::ceil(std::log2(samplesNum - (idToSound.size() - 1))));
-		nfftSlider->setRange(static_cast<double>(n2), 28, 1.0);
-		nfftSlider->setValue(static_cast<double>(n2));
+	inputFileListComponent->setIdToSound(idToSoundTable);
+	inputFileListComponent->updateContent();
+
+	updateNfftSlider(notificationType);
+}
+
+
+void MainContentComponent::updateNfftSlider(NotificationType notificationType) {
+	int maxSamplesNum = 0;
+	int totalSamplesNum = 0;
+	for (const auto& i : idToSound) {
+		const AudioBuffer<float>* buffer = i.second->getBufferPtr();
+		jassert(buffer != nullptr);
+		int bufferNumSamples = buffer->getNumSamples();
+		maxSamplesNum = bufferNumSamples > maxSamplesNum ? bufferNumSamples : maxSamplesNum;
+		totalSamplesNum += bufferNumSamples;
+	}
+
+	if (totalSamplesNum > 0) {
+		int max2 = static_cast<int>(std::ceil(std::log2(totalSamplesNum - (idToSound.size() - 1))));
+		int total2 = static_cast<int>(std::ceil(std::log2(totalSamplesNum - (idToSound.size() - 1))));
+		nfftSlider->setRange(static_cast<double>(max2), 28, 1.0);
+		nfftSlider->setValue(static_cast<double>(total2), notificationType);
 		nfftSlider->setEnabled(true);
 		convButton->setEnabled(true);
 	}
@@ -809,9 +824,6 @@ void MainContentComponent::inputFilesChanged(NotificationType notificationType) 
 		nfftSlider->setEnabled(false);
 		convButton->setEnabled(false);
 	}
-
-	inputFileListComponent->setIdToSound(idToSoundTable);
-	inputFileListComponent->updateContent();
 }
 //[/MiscUserCode]
 

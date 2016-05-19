@@ -63,12 +63,24 @@ public:
 		return include;
 	};
 
+	void setInclude(bool includeNew) {
+		include = includeNew;
+	};
+
 	double getPValue() const {
 		return pValue;
 	};
 
+	void setPValue(double pValueNew) {
+		pValue = pValueNew;
+	};
+
 	double getRValue() const {
 		return rValue;
+	};
+
+	void setRValue(double rValueNew) {
+		rValue = rValueNew;
 	};
 
 	kiss_fft_cpx* getSpectra(int nfft) {

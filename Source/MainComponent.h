@@ -26,6 +26,7 @@
 
 #include <tuple>
 #include <vector>
+#include <unordered_set>
 #include <unordered_map>
 #include <utility>
 
@@ -41,6 +42,7 @@ using std::vector;
 using std::pair;
 using std::tuple;
 using std::unordered_map;
+using std::unordered_set;
 
 ApplicationProperties& getAppProperties();
 //[/Headers]
@@ -131,6 +133,7 @@ private:
 	};
 	CriticalSection fileListLock;
 	unordered_map<int, unique_ptr<Sound>> idToSound;
+	unordered_set<int> includedSounds;
 	int fileIdNext;
 
 	void loadFileList(XmlElement* fileListNew);
@@ -139,6 +142,7 @@ private:
 	void setPlayheadAudio(AudioBuffer<float>* playheadAudio);
 	void setUiFromParams(NotificationType notificationType);
 	void inputFilesChanged(NotificationType notificationType);
+	void updateNfftSlider(NotificationType notificationType);
     //[/UserVariables]
 
     //==============================================================================

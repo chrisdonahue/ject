@@ -19,6 +19,8 @@ Author:  Chris
 
 #include "Sound.h"
 
+using std::unordered_map;
+
 class InputFileTableListBox : public TableListBox, public ChangeListener, public ChangeBroadcaster {
 private:
 	class SelectableLabel : public Label
@@ -110,6 +112,7 @@ private:
 
 				if (toggleButton == nullptr) {
 					toggleButton = new ToggleButton();
+					includeButtonToId[toggleButton] = id;
 					toggleButton->addListener(this);
 				}
 
@@ -122,6 +125,8 @@ private:
 
 				if (slider == nullptr) {
 					slider = new Slider();
+					idToPSlider[id] = slider;
+					pSliderToId[slider] = id;
 					slider->setRange(0.0, 1.0, 0.01);
 					slider->setSliderStyle(Slider::LinearHorizontal);
 					slider->setTextBoxStyle(Slider::TextBoxLeft, false, 40, 20);
@@ -137,6 +142,8 @@ private:
 
 				if (slider == nullptr) {
 					slider = new Slider();
+					idToRSlider[id] = slider;
+					rSliderToId[slider] = id;
 					slider->setRange(0.0, 1.0, 0.01);
 					slider->setSliderStyle(Slider::LinearHorizontal);
 					slider->setTextBoxStyle(Slider::TextBoxLeft, false, 40, 20);
@@ -162,15 +169,69 @@ private:
 		};
 
 		void buttonClicked(Button* button) override {
+			auto buttonItr = includeButtonToId.find(button);
+			jassert(buttonItr != includeButtonToId.end());
+			int id = buttonItr->second;
+
+			auto soundItr = table.idToSound.find(id);
+			jassert(soundItr != table.idToSound.end());
+			Sound* sound = soundItr->second;
+			jassert(sound != nullptr);
+
+			sound->setInclude(button->getToggleState());
 			sendChangeMessage();
 		};
 
 		void sliderValueChanged(Slider* slider) override {
+			int id = -1;
+			Slider* other = nullptr;
+			auto pSliderItr = pSliderToId.find(slider);
+			auto rSliderItr = rSliderToId.find(slider);
+			bool isPSlider = pSliderItr != pSliderToId.end();
+			bool isRSlider = rSliderItr != rSliderToId.end();
+			jassert(isPSlider != isRSlider);
+
+			if (isPSlider) {
+				id = pSliderItr->second;
+				other = idToRSlider[id];
+			}
+			else {
+				id = rSliderItr->second;
+				other = idToPSlider[id];
+			}
+			jassert(id != -1);
+			jassert(other != nullptr);
+
+			const PrBehavior& behavior = table.prBehavior;
+			if (behavior != PrBehavior::independent) {
+				if (behavior == PrBehavior::linked) {
+					other->setValue(slider->getValue());
+				}
+				else if (behavior == PrBehavior::inverse) {
+					other->setValue(1.0 - slider->getValue());
+				}
+				else {
+					jassertfalse;
+				}
+			}
+
+			auto soundItr = table.idToSound.find(id);
+			jassert(soundItr != table.idToSound.end());
+			Sound* sound = soundItr->second;
+			jassert(sound != nullptr);
+
+			sound->setPValue(idToPSlider[id]->getValue());
+			sound->setRValue(idToRSlider[id]->getValue());
 			sendChangeMessage();
 		};
 
 	private:
 		InputFileTableListBox& table;
+		unordered_map<int, Slider*> idToPSlider;
+		unordered_map<Slider*, int> pSliderToId;
+		unordered_map<int, Slider*> idToRSlider;
+		unordered_map<Slider*, int> rSliderToId;
+		unordered_map<Button*, int> includeButtonToId;
 	};
 
 public:
@@ -226,24 +287,10 @@ public:
 		return prBehavior;
 	};
 
-	/*
-	void getSelectedFileIds(std::unordered_set<int>& fileIds) {
-		SparseSet<int> selectedRows = getSelectedRows();
-		for (int i = 0; i < selectedRows.size(); ++i) {
-			int row = selectedRows[i];
-			fileIds.insert(model.getFileIdForRow(row));
-		}
-	};
-
-	InputFileTableListBoxModel& getModel() {
-		return model;
-	};
-	*/
-
 private:
 	InputFileTableListBoxModel model;
-	std::unordered_map<int, Sound*> idToSound;
-	std::unordered_map<int, int> rowToId;
+	unordered_map<int, Sound*> idToSound;
+	unordered_map<int, int> rowToId;
 	PrBehavior prBehavior;
 };
 
