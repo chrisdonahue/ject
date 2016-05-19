@@ -18,22 +18,23 @@
 
 class Sound {
 public:
-	static AudioBuffer<float>* readBufferFromAudioFile(String filePath) {
+	static bool readBufferFromAudioFile(String filePath, AudioBuffer<float>* samples) {
 		AudioFormatManager formatManager;
 		formatManager.registerFormat(new WavAudioFormat(), true);
 		formatManager.registerFormat(new AiffAudioFormat(), false);
 		formatManager.registerFormat(new OggVorbisAudioFormat(), false);
-		ScopedPointer<AudioFormatReader> reader = formatManager.createReaderFor(droppedFile);
+		ScopedPointer<AudioFormatReader> reader = formatManager.createReaderFor(File(filePath));
 
-		AudioBuffer<float>* samples = nullptr;
 		if (reader != nullptr && reader->numChannels > 0 && reader->numChannels <= JECT_CHANNELS_NUM && reader->lengthInSamples > 0) {
-			samples = new AudioBuffer<float>(reader->numChannels, static_cast<int>(reader->lengthInSamples));
+			samples->setSize(reader->numChannels, reader->lengthInSamples);
 			reader->read(samples, 0, static_cast<int>(reader->lengthInSamples), 0, reader->numChannels == 1, reader->numChannels == 2);
+			return true;
 		}
-		return samples;
+
+		return false;
 	};
 
-	Sound(AudioBuffer<float>* buffer, String filePath) :
+	Sound(String filePath) :
 		buffer(buffer),
 		filePath(filePath),
 		include(true),
@@ -44,10 +45,10 @@ public:
 		name = file.getFileName();
 	};
 
-	Sound(AudioBuffer<float>* buffer) : Sound(buffer, String::empty) {};
+	Sound() : Sound(String::empty) {};
 
-	AudioBuffer<float>* getBuffer() const {
-		return buffer.get();
+	AudioBuffer<float>* getBufferPtr() {
+		return &buffer;
 	};
 
 	String getFilePath() const {
@@ -75,7 +76,7 @@ public:
 	};
 
 private:
-	std::unique_ptr<AudioBuffer<float>> buffer;
+	AudioBuffer<float> buffer;
 	String filePath;
 	String name;
 	bool include;

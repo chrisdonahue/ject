@@ -132,7 +132,6 @@ private:
 	CriticalSection fileListLock;
 	unordered_map<int, unique_ptr<Sound>> idToSound;
 	int fileIdNext;
-	unordered_map<int, AudioBuffer<float>*> fileIdToBuffer;
 
 	void loadFileList(XmlElement* fileListNew);
 

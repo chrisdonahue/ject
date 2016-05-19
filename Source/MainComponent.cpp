@@ -208,12 +208,6 @@ MainContentComponent::MainContentComponent ()
 MainContentComponent::~MainContentComponent()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
-	{
-		const ScopedLock fl(fileListLock);
-		for (auto i : fileIdToBuffer) {
-			delete i.second;
-		}
-	}
 	inputFileListComponent->removeChangeListener(this);
     //[/Destructor_pre]
 
@@ -709,11 +703,11 @@ void MainContentComponent::filesDropped(const StringArray& filePaths, int x, int
 	int succeeded = 0;
 	for (int i = 0; i < filePaths.size(); ++i) {
 		String filePath = filePaths[i];
-		AudioBuffer<float>* fileBuffer = Sound::readBufferFromAudioFile(filePath);
-		if (fileBuffer != nullptr) {
+		unique_ptr<Sound> sound(new Sound(filePath));
+		if (Sound::readBufferFromAudioFile(filePath, sound->getBufferPtr())) {
 			const ScopedLock fl(fileListLock);
-			Sound* sound = new Sound(fileBuffer, filePath);
-			idToSound.emplace(fileIdNext++, sound);
+			int fileId = fileIdNext++;
+			idToSound.emplace(fileId, std::move(sound));
 			++succeeded;
 		}
 	}
@@ -796,11 +790,12 @@ void MainContentComponent::setUiFromParams(NotificationType notificationType) {
 
 void MainContentComponent::inputFilesChanged(NotificationType notificationType) {
 	int samplesNum = 0;
+	unordered_map<int, Sound*> idToSoundTable;
 	for (const auto& i : idToSound) {
-		const AudioBuffer<float>* buffer = i.second->getBuffer();
+		const AudioBuffer<float>* buffer = i.second->getBufferPtr();
 		jassert(buffer != nullptr);
 		samplesNum += buffer->getNumSamples();
-		
+		idToSoundTable.emplace(i.first, i.second.get());
 	}
 
 	if (samplesNum > 0) {
@@ -815,6 +810,7 @@ void MainContentComponent::inputFilesChanged(NotificationType notificationType) 
 		convButton->setEnabled(false);
 	}
 
+	inputFileListComponent->setIdToSound(idToSoundTable);
 	inputFileListComponent->updateContent();
 }
 //[/MiscUserCode]

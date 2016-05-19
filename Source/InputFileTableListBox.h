@@ -11,9 +11,13 @@ Author:  Chris
 #ifndef INPUTFILETABLELISTBOX_H_INCLUDED
 #define INPUTFILETABLELISTBOX_H_INCLUDED
 
-#include "Sound.h"
+#include <algorithm>
+#include <vector>
+#include <unordered_map>
 
 #include "../JuceLibraryCode/JuceHeader.h"
+
+#include "Sound.h"
 
 class InputFileTableListBox : public TableListBox, public ChangeListener, public ChangeBroadcaster {
 private:
@@ -53,7 +57,7 @@ private:
 		InputFileTableListBoxModel(InputFileTableListBox& table) : table(table) {};
 
 		int getNumRows() override {
-			return table.sounds.size();
+			return table.idToSound.size();
 		};
 
 		void paintRowBackground(Graphics& g, int rowNumber, int width, int height, bool rowIsSelected) override {
@@ -66,15 +70,17 @@ private:
 		void paintCell(Graphics& g, int rowNumber, int columnId, int width, int height, bool rowIsSelected) override {};
 
 		Component* refreshComponentForCell(int rowNumber, int columnId, bool isRowSelected, Component *existingComponentToUpdate) override {
-			jassert(rowNumber < table.sounds.size());
-			const Sound* sound = table.sounds[rowNumber];
+			jassert(rowNumber < table.rowToId.size());
+
+			int id = table.rowToId[rowNumber];
+			const Sound* sound = table.idToSound[id];
 
 			if (columnId == Column::id) {
 				Label* label = static_cast<Label*>(existingComponentToUpdate);
 
 				if (label == nullptr) {
 					label = new Label();
-					label->setText(String(sound->getId()), dontSendNotification);
+					label->setText(String(id), dontSendNotification);
 				}
 
 				return label;
@@ -195,8 +201,20 @@ public:
 		}
 	};
 
-	void setSounds(const std::vector<Sound*>& soundsNew) {
-		sounds = soundsNew;
+	void setIdToSound(const std::unordered_map<int, Sound*>& idToSoundNew) {
+		idToSound = idToSoundNew;
+		std::vector<int> ids;
+		for (auto i : idToSound) {
+			ids.push_back(i.first);
+		}
+		std::sort(ids.begin(), ids.end());
+
+		rowToId.clear();
+		for (auto it = ids.begin(); it != ids.end(); ++it) {
+			int row = std::distance(ids.begin(), it);
+			int id = *it;
+			rowToId.emplace(row, id);
+		}
 	};
 
 	void setPrBehavior(PrBehavior prBehaviorNew) {
@@ -223,7 +241,8 @@ public:
 
 private:
 	InputFileTableListBoxModel model;
-	std::vector<Sound*> sounds;
+	std::unordered_map<int, Sound*> idToSound;
+	std::unordered_map<int, int> rowToId;
 	PrBehavior prBehavior;
 };
 
