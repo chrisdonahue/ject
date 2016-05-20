@@ -116,6 +116,7 @@ private:
 	int playheadAudioSamplesCompleted;
 
 	// file list state
+	AudioFormatManager formatManager;
 	CriticalSection soundListLock;
 	unordered_map<int, unique_ptr<Sound>> idToSound;
 	int soundIdNext;

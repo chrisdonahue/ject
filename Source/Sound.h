@@ -20,12 +20,8 @@
 
 class Sound {
 public:
-	static bool readBufferFromAudioFile(String filePath, AudioBuffer<float>* samples) {
-		AudioFormatManager formatManager;
-		formatManager.registerFormat(new WavAudioFormat(), true);
-		formatManager.registerFormat(new AiffAudioFormat(), false);
-		formatManager.registerFormat(new OggVorbisAudioFormat(), false);
-		ScopedPointer<AudioFormatReader> reader = formatManager.createReaderFor(File(filePath));
+	static bool readBufferFromAudioFile(AudioFormatManager* formatManager, String filePath, AudioBuffer<float>* samples) {
+		ScopedPointer<AudioFormatReader> reader = formatManager->createReaderFor(File(filePath));
 
 		if (reader != nullptr && reader->numChannels > 0 && reader->numChannels <= JECT_CHANNELS_NUM && reader->lengthInSamples > 0) {
 			samples->setSize(reader->numChannels, reader->lengthInSamples);
@@ -37,7 +33,7 @@ public:
 	};
 
 	Sound(String filePath) :
-		buffer(buffer),
+		buffer(0, 0),
 		filePath(filePath),
 		include(true),
 		pValue(1.0),

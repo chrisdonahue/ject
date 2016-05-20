@@ -44,6 +44,9 @@ MainContentComponent::MainContentComponent()
 	soundIdNext(0)
 {
 	//[Constructor_pre] You can add your own custom stuff here..
+	formatManager.registerFormat(new WavAudioFormat(), true);
+	formatManager.registerFormat(new AiffAudioFormat(), false);
+	formatManager.registerFormat(new OggVorbisAudioFormat(), false);
 	//[/Constructor_pre]
 
 	addAndMakeVisible(waveformGroupBox = new GroupComponent(String(),
@@ -434,7 +437,6 @@ void MainContentComponent::buttonClicked(Button* buttonThatWasClicked)
 			}
 
 			// ifft
-			//kiss_fftri(fftInverseState.get(), CONVCHANNEL, conv.getWritePointer(channel));
 			kiss_fftri(fftInverseState, CONVCHANNEL, conv.getWritePointer(convChannel));
 
 			// check max
@@ -690,7 +692,7 @@ void MainContentComponent::filesDropped(const StringArray& filePaths, int x, int
 	for (int i = 0; i < filePaths.size(); ++i) {
 		String filePath = filePaths[i];
 		unique_ptr<Sound> sound(new Sound(filePath));
-		if (Sound::readBufferFromAudioFile(filePath, sound->getBufferPtr())) {
+		if (Sound::readBufferFromAudioFile(&formatManager, filePath, sound->getBufferPtr())) {
 			const ScopedLock fl(soundListLock);
 			int soundId = soundIdNext++;
 			idToSound.emplace(soundId, std::move(sound));
