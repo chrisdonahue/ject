@@ -269,8 +269,8 @@ void MainContentComponent::resized()
     qLabel->setBounds (24, 520, 24, 24);
     convButton->setBounds (384, 488, 216, 56);
     authorLabel->setBounds (424, 552, 136, 24);
-    settingsButton->setBounds (32, 272, 120, 24);
-    gainSlider->setBounds (120, 424, 456, 24);
+    settingsButton->setBounds (480, 424, 120, 24);
+    gainSlider->setBounds (120, 424, 344, 24);
     gainLabel->setBounds (24, 424, 88, 24);
     prBehaviorLabel->setBounds (256, 32, 88, 24);
     prBehaviorComboBox->setBounds (352, 32, 248, 24);
@@ -724,12 +724,14 @@ void MainContentComponent::filesDropped(const StringArray& filePaths, int x, int
 void MainContentComponent::changeListenerCallback(ChangeBroadcaster* source) {
 	if (source == inputFileListComponent) {
 		const ScopedLock fl(fileListLock);
-		/*
-		const int lastSelected = inputFileListComponent->getLastRowSelected();
-		if (lastSelected >= 0) {
-			AudioBuffer<float>* selectedBuffer = std::get<FileAttr::fileBuffer>(fileIdToAttrs[rowToFileId[lastSelected]]);
-			setPlayheadAudio(selectedBuffer);
+		updateNfftSlider(dontSendNotification);
+
+		int previewId = inputFileListComponent->getPreviewId();
+		if (previewId != -1) {
+			setPlayheadAudio(idToSound[previewId]->getBufferPtr());
 		}
+
+		/*
 		else {
 			const ScopedLock cl(convLock);
 			setPlayheadAudio(&conv);
@@ -805,6 +807,10 @@ void MainContentComponent::updateNfftSlider(NotificationType notificationType) {
 	int maxSamplesNum = 0;
 	int totalSamplesNum = 0;
 	for (const auto& i : idToSound) {
+		if (!i.second->isIncluded()) {
+			continue;
+		}
+
 		const AudioBuffer<float>* buffer = i.second->getBufferPtr();
 		jassert(buffer != nullptr);
 		int bufferNumSamples = buffer->getNumSamples();
@@ -871,10 +877,10 @@ BEGIN_JUCER_METADATA
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
   <TEXTBUTTON name="" id="8a40cfbb6678ded1" memberName="settingsButton" virtualName=""
-              explicitFocusOrder="0" pos="32 272 120 24" buttonText="Audio Settings"
+              explicitFocusOrder="0" pos="480 424 120 24" buttonText="Audio Settings"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <SLIDER name="" id="4e9f7543cb949220" memberName="gainSlider" virtualName=""
-          explicitFocusOrder="0" pos="120 424 456 24" min="0" max="1" int="0.010000000000000000208"
+          explicitFocusOrder="0" pos="120 424 344 24" min="0" max="1" int="0.010000000000000000208"
           style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="40" textBoxHeight="20" skewFactor="1" needsCallback="1"/>
   <LABEL name="" id="617675cab679ff64" memberName="gainLabel" virtualName=""

@@ -51,7 +51,8 @@ private:
 		name,
 		include,
 		pValue,
-		rValue
+		rValue,
+		preview
 	};
 
 	class InputFileTableListBoxModel : public TableListBoxModel, public ChangeBroadcaster, public ButtonListener, public SliderListener {
@@ -112,10 +113,10 @@ private:
 
 				if (toggleButton == nullptr) {
 					toggleButton = new ToggleButton();
-					includeButtonToId[toggleButton] = id;
 					toggleButton->addListener(this);
 				}
 
+				includeButtonToId[toggleButton] = id;
 				toggleButton->setToggleState(sound->isIncluded(), dontSendNotification);
 
 				return toggleButton;
@@ -125,14 +126,14 @@ private:
 
 				if (slider == nullptr) {
 					slider = new Slider();
-					idToPSlider[id] = slider;
-					pSliderToId[slider] = id;
 					slider->setRange(0.0, 1.0, 0.01);
 					slider->setSliderStyle(Slider::LinearHorizontal);
 					slider->setTextBoxStyle(Slider::TextBoxLeft, false, 40, 20);
 					slider->addListener(this);
 				}
 
+				idToPSlider[id] = slider;
+				pSliderToId[slider] = id;
 				slider->setValue(sound->getPValue(), dontSendNotification);
 
 				return slider;
@@ -142,17 +143,30 @@ private:
 
 				if (slider == nullptr) {
 					slider = new Slider();
-					idToRSlider[id] = slider;
-					rSliderToId[slider] = id;
 					slider->setRange(0.0, 1.0, 0.01);
 					slider->setSliderStyle(Slider::LinearHorizontal);
 					slider->setTextBoxStyle(Slider::TextBoxLeft, false, 40, 20);
 					slider->addListener(this);
 				}
 
+				idToRSlider[id] = slider;
+				rSliderToId[slider] = id;
 				slider->setValue(sound->getRValue(), dontSendNotification);
 
 				return slider;
+			}
+			else if (columnId == Column::preview) {
+				TextButton* textButton = static_cast<TextButton*>(existingComponentToUpdate);
+
+				if (textButton == nullptr) {
+					textButton = new TextButton();
+					textButton->addListener(this);
+					textButton->setButtonText("Preview");
+				}
+
+				previewButtonToId[textButton] = id;
+
+				return textButton;
 			}
 			else {
 				jassertfalse;
@@ -169,16 +183,30 @@ private:
 		};
 
 		void buttonClicked(Button* button) override {
-			auto buttonItr = includeButtonToId.find(button);
-			jassert(buttonItr != includeButtonToId.end());
-			int id = buttonItr->second;
+			auto previewButtonItr = previewButtonToId.find(button);
+			bool isPreviewButton = previewButtonItr != previewButtonToId.end();
+			auto includeButtonItr = includeButtonToId.find(button);
+			bool isIncludeButton = includeButtonItr != includeButtonToId.end();
+			jassert(isPreviewButton != isIncludeButton);
 
-			auto soundItr = table.idToSound.find(id);
-			jassert(soundItr != table.idToSound.end());
-			Sound* sound = soundItr->second;
-			jassert(sound != nullptr);
+			if (isPreviewButton) {
+				int id = previewButtonItr->second;
+				table.previewId = id;
+			}
+			else if (isIncludeButton) {
+				int id = includeButtonItr->second;
+				auto soundItr = table.idToSound.find(id);
+				jassert(soundItr != table.idToSound.end());
+				
+				Sound* sound = soundItr->second;
+				jassert(sound != nullptr);
 
-			sound->setInclude(button->getToggleState());
+				sound->setInclude(button->getToggleState());
+			}
+			else {
+				jassertfalse;
+			}
+
 			sendChangeMessage();
 		};
 
@@ -232,6 +260,7 @@ private:
 		unordered_map<int, Slider*> idToRSlider;
 		unordered_map<Slider*, int> rSliderToId;
 		unordered_map<Button*, int> includeButtonToId;
+		unordered_map<Button*, int> previewButtonToId;
 	};
 
 public:
@@ -243,7 +272,7 @@ public:
 
 	friend class InputFileTableListBoxModel;
 
-	InputFileTableListBox(PrBehavior prBehavior) : model(*this), prBehavior(prBehavior) {
+	InputFileTableListBox(PrBehavior prBehavior) : model(*this), prBehavior(prBehavior), previewId(-1) {
 		setModel(&model);
 		setColour(ListBox::outlineColourId, Colours::grey);
 		setClickingTogglesRowSelection(true);
@@ -254,6 +283,7 @@ public:
 		getHeader().addColumn("Use", Column::include, 32, 32, -1, flags);
 		getHeader().addColumn("P", Column::pValue, 128, 32, -1, flags);
 		getHeader().addColumn("R", Column::rValue, 128, 32, -1, flags);
+		getHeader().addColumn("Preview", Column::preview, 64, 32, -1, flags);
 		model.addChangeListener(this);
 	};
 
@@ -287,11 +317,18 @@ public:
 		return prBehavior;
 	};
 
+	int getPreviewId() {
+		int result = previewId;
+		previewId = -1;
+		return result;
+	};
+
 private:
 	InputFileTableListBoxModel model;
 	unordered_map<int, Sound*> idToSound;
 	unordered_map<int, int> rowToId;
 	PrBehavior prBehavior;
+	int previewId;
 };
 
 #endif  // INPUTFILETABLELISTBOX_H_INCLUDED
