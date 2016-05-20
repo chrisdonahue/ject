@@ -37,7 +37,6 @@ MainContentComponent::MainContentComponent()
 	sParam(1.0),
 	waveformDisplayLock(),
 	conv(0, 0),
-	convDirty(true),
 	playheadAudioLock(),
 	playheadState(PlayheadState::stopped),
 	playheadAudio(0, 0),
@@ -186,6 +185,10 @@ MainContentComponent::MainContentComponent()
 
 	//[UserPreSize]
 	inputFileListComponent->addChangeListener(this);
+	{
+		const ScopedLock wl(waveformDisplayLock);
+		waveformComponent->setSound(&playheadAudio);
+	}
 
 	//timerCallback();
 	inputFilesChanged(dontSendNotification);
@@ -299,7 +302,6 @@ void MainContentComponent::sliderValueChanged(Slider* sliderThatWasMoved)
 		//[UserSliderCode_qSlider] -- add your slider handling code here..
 		const ScopedLock pl(paramLock);
 		qParam = static_cast<float>(qSlider->getValue());
-		convDirty = true;
 		//[/UserSliderCode_qSlider]
 	}
 	else if (sliderThatWasMoved == gainSlider)
@@ -313,7 +315,6 @@ void MainContentComponent::sliderValueChanged(Slider* sliderThatWasMoved)
 		//[UserSliderCode_sSlider] -- add your slider handling code here..
 		const ScopedLock pl(paramLock);
 		sParam = static_cast<float>(sSlider->getValue());
-		convDirty = true;
 		//[/UserSliderCode_sSlider]
 	}
 	else if (sliderThatWasMoved == nfftSlider)
@@ -321,7 +322,6 @@ void MainContentComponent::sliderValueChanged(Slider* sliderThatWasMoved)
 		//[UserSliderCode_nfftSlider] -- add your slider handling code here..
 		const ScopedLock pl(paramLock);
 		nfftParam = static_cast<int>(nfftSlider->getValue());
-		convDirty = true;
 		//[/UserSliderCode_nfftSlider]
 	}
 
@@ -340,6 +340,8 @@ void MainContentComponent::buttonClicked(Button* buttonThatWasClicked)
 		const ScopedLock cl(convLock);
 		const ScopedLock fl(fileListLock);
 
+		setPlayheadUiEnabled(false);
+
 		bool convValid = true;
 
 		int pow2 = static_cast<int>(nfftSlider->getValue());
@@ -347,7 +349,7 @@ void MainContentComponent::buttonClicked(Button* buttonThatWasClicked)
 		int fftOutputLen = fftInputLen / 2 + 1;
 		int numChannels = 1;
 
-		std::unordered_set<std::pair<int, int>> includedSounds;
+		unordered_set<int> includedSounds;
 		int maxChannels = 0;
 		for (const auto& iter : idToSound) {
 			int id = iter.first;
@@ -355,7 +357,7 @@ void MainContentComponent::buttonClicked(Button* buttonThatWasClicked)
 			int numChannels = sound->getBufferNumChannels();
 			if (sound->isIncluded() && numChannels > 0) {
 				maxChannels = numChannels > maxChannels ? numChannels : maxChannels;
-				includedSounds.emplace(std::make_pair(id, numChannels));
+				includedSounds.emplace(id);
 			}
 		}
 
@@ -363,10 +365,11 @@ void MainContentComponent::buttonClicked(Button* buttonThatWasClicked)
 			return;
 		}
 
-		std::unique_ptr<kiss_fftr_state> fftInverseState(kiss_fftr_alloc(fftInputLen, 1, nullptr, nullptr));
-		std::unique_ptr<kiss_fft_cpx> CONV(static_cast<kiss_fft_cpx*>(calloc(fftOutputLen * maxChannels, sizeof(kiss_fft_cpx))));
+		kiss_fftr_state* fftInverseState = kiss_fftr_alloc(fftInputLen, 1, nullptr, nullptr);
+		kiss_fft_cpx* CONV = static_cast<kiss_fft_cpx*>(calloc(fftOutputLen * maxChannels, sizeof(kiss_fft_cpx)));
 		conv.setSize(maxChannels, fftInputLen);
 
+		float n = static_cast<float>(includedSounds.size());
 		float q;
 		float s;
 		{
@@ -377,20 +380,21 @@ void MainContentComponent::buttonClicked(Button* buttonThatWasClicked)
 
 		float max = -1.0f;
 
-		for (int channel = 0; channel < maxChannels; ++channel) {
-			kiss_fft_cpx* CONVCHANNEL = CONV.get() + (channel * fftOutputLen);
+		for (int convChannel = 0; convChannel < maxChannels; ++convChannel) {
+			kiss_fft_cpx* CONVCHANNEL = CONV + (convChannel * fftOutputLen);
 
-			for (const auto& iter : includedSounds) {
-				Sound* sound = idToSound[iter.first].get();
+			for (const auto& id : includedSounds) {
+				Sound* sound = idToSound[id].get();
 				jassert(sound != nullptr);
 				float p = static_cast<float>(sound->getPValue());
 				float r = static_cast<float>(sound->getRValue());
-				int soundChannel = channel > sound->getBufferNumChannels() ? sound->getBufferNumChannels() - 1 : channel;
-				kiss_fft_cpx* CHANNEL = sound->getSpectra(fftInputLen, soundChannel);
+				int soundNumChannels = sound->getBufferNumChannels();
+				int soundChannel = convChannel >= soundNumChannels ? soundNumChannels - 1 : convChannel;
+				kiss_fft_cpx* SOUNDCHANNEL = sound->getSpectra(fftInputLen, soundChannel);
 
 				for (int i = 0; i < fftOutputLen; ++i) {
-					float xr = CHANNEL[i].r;
-					float xi = CHANNEL[i].i;
+					float xr = SOUNDCHANNEL[i].r;
+					float xi = SOUNDCHANNEL[i].i;
 					float xMag = sqrtf((xr * xr) + (xi * xi));
 					float xPhs = atan2f(xi, xr);
 					float convMag = powf(xMag, p);
@@ -413,8 +417,8 @@ void MainContentComponent::buttonClicked(Button* buttonThatWasClicked)
 				float ci = CONVCHANNEL[i].i;
 				float cMag = sqrtf((cr * cr) + (ci * ci));
 				float cPhs = atan2f(ci, cr);
-				float convMag = powf(cMag, 2.0f * q);
-				float convPhs = 2.0f * s * cPhs;
+				float convMag = powf(cMag, n * q);
+				float convPhs = n * s * cPhs;
 				float convr = convMag * cosf(convPhs);
 				float convi = convMag * sinf(convPhs);
 
@@ -427,12 +431,16 @@ void MainContentComponent::buttonClicked(Button* buttonThatWasClicked)
 			}
 
 			// ifft
-			kiss_fftri(fftInverseState.get(), CONVCHANNEL, conv.getWritePointer(channel));
+			//kiss_fftri(fftInverseState.get(), CONVCHANNEL, conv.getWritePointer(channel));
+			kiss_fftri(fftInverseState, CONVCHANNEL, conv.getWritePointer(convChannel));
 
 			// check max
-			float channelMax = conv.findMinMax(channel, 0, fftInputLen).getEnd();
+			float channelMax = conv.findMinMax(convChannel, 0, fftInputLen).getEnd();
 			max = channelMax > max ? channelMax : max;
 		}
+
+		delete fftInverseState;
+		delete CONV;
 
 		// normalize
 		conv.applyGain(1.0f / max);
@@ -460,11 +468,8 @@ void MainContentComponent::buttonClicked(Button* buttonThatWasClicked)
 		}
 
 		setPlayheadUiEnabled(true);
-
-		convDirty = false;
+		//[/UserButtonCode_convButton]
 	}
-	//[/UserButtonCode_convButton]
-}
 	else if (buttonThatWasClicked == settingsButton)
 	{
 		//[UserButtonCode_settingsButton] -- add your button handler code here..
@@ -549,15 +554,33 @@ void MainContentComponent::buttonClicked(Button* buttonThatWasClicked)
 	else if (buttonThatWasClicked == inputRemoveButton)
 	{
 		//[UserButtonCode_inputRemoveButton] -- add your button handler code here..
-		//jassert(fileIdToAttrs.size() == inputFileList.getNumRows());
 		const ScopedLock fl(fileListLock);
+		SparseSet<int> selectedRows = inputFileListComponent->getSelectedRows();
+		for (int i = 0; i < selectedRows.size(); ++i) {
+			int row = selectedRows[i];
+			int id = inputFileListComponent->getIdForRow(row);
+			const auto& iter = idToSound.find(id);
+			jassert(iter != idToSound.end());
+			idToSound.erase(iter);
+		}
+		if (selectedRows.size() > 0) {
+			inputFilesChanged(dontSendNotification);
+		}
 		//[/UserButtonCode_inputRemoveButton]
 	}
 	else if (buttonThatWasClicked == inputAddButton)
 	{
 		//[UserButtonCode_inputAddButton] -- add your button handler code here..
-		//jassert(fileIdToAttrs.size() == inputFileList.getNumRows());
 		const ScopedLock fl(fileListLock);
+		FileChooser fileChooser("Add sound...", File::nonexistent, "*.wav;*.aif;*.aiff;*.ogg", true);
+		if (fileChooser.browseForMultipleFilesToOpen()) {
+			Array<File> files = fileChooser.getResults();
+			StringArray filePaths;
+			for (int i = 0; i < files.size(); ++i) {
+				filePaths.add(files[i].getFullPathName());
+			}
+			filesDropped(filePaths, -1, -1);
+		}
 		//[/UserButtonCode_inputAddButton]
 	}
 
@@ -688,7 +711,6 @@ void MainContentComponent::filesDropped(const StringArray& filePaths, int x, int
 	}
 
 	if (succeeded > 0) {
-		convDirty = true;
 		inputFilesChanged(dontSendNotification);
 	}
 	if (succeeded < filePaths.size()) {
@@ -725,29 +747,26 @@ void MainContentComponent::setPlayheadUiEnabled(bool playheadUiEnabled) {
 }
 
 void MainContentComponent::setPlayheadAudio(AudioBuffer<float>* playheadAudioNew) {
+	const ScopedLock pal(playheadAudioLock);
+	const ScopedLock wdl(waveformDisplayLock);
+
 	if (playheadAudioNew != nullptr && (playheadAudioNew->getNumChannels() == 0 || playheadAudioNew->getNumSamples() == 0)) {
 		playheadAudioNew == nullptr;
 	}
 
-	// update display
-	{
-		const ScopedLock wdl(waveformDisplayLock);
-		waveformComponent->setSound(playheadAudioNew);
-		waveformComponent->repaint();
-	}
-
 	// update playhead audio
-	if (playheadAudioNew != nullptr) {
-		const ScopedLock pal(playheadAudioLock);
+	if (playheadAudioNew == nullptr) {
+		playheadAudio.setSize(0, 0);
+		setPlayheadUiEnabled(false);
+	}
+	else {
 		if (playheadAudioNew->getNumSamples() != playheadAudio.getNumSamples()) {
 			playheadState = PlayheadState::stopped;
 			playheadAudioSamplesCompleted = 0;
 		}
 		playheadAudio.makeCopyOf(*playheadAudioNew);
+		setPlayheadUiEnabled(true);
 	}
-
-	// update playhead UI
-	setPlayheadUiEnabled(playheadAudioNew != nullptr);
 }
 
 void MainContentComponent::setUiFromParams(NotificationType notificationType) {
@@ -786,7 +805,7 @@ void MainContentComponent::updateNfftSlider(NotificationType notificationType) {
 	}
 
 	if (totalSamplesNum > 0) {
-		int max2 = static_cast<int>(std::ceil(std::log2(totalSamplesNum - (idToSound.size() - 1))));
+		int max2 = static_cast<int>(std::ceil(std::log2(maxSamplesNum)));
 		int total2 = static_cast<int>(std::ceil(std::log2(totalSamplesNum - (idToSound.size() - 1))));
 		nfftSlider->setRange(static_cast<double>(max2), 28, 1.0);
 		nfftSlider->setValue(static_cast<double>(total2), notificationType);
@@ -812,7 +831,7 @@ BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="MainContentComponent" componentName=""
 				 parentClasses="public AudioAppComponent, public FileDragAndDropTarget, public Timer, public ChangeListener"
-				 constructorParams="" variableInitialisers="gainParam(0.5),&#10;nfftParam(0),&#10;qParam(1.0),&#10;sParam(1.0),&#10;waveformDisplayLock(),&#10;conv(0, 0),&#10;convDirty(true),&#10;playheadAudioLock(),&#10;playheadState(PlayheadState::stopped),&#10;playheadAudio(0, 0),&#10;playheadAudioSamplesCompleted(0),&#10;fileIdNext(0)"
+				 constructorParams="" variableInitialisers="gainParam(0.5),&#10;nfftParam(0),&#10;qParam(1.0),&#10;sParam(1.0),&#10;waveformDisplayLock(),&#10;conv(0, 0),&#10;playheadAudioLock(),&#10;playheadState(PlayheadState::stopped),&#10;playheadAudio(0, 0),&#10;playheadAudioSamplesCompleted(0),&#10;fileIdNext(0)"
 				 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
 				 fixedSize="1" initialWidth="624" initialHeight="600">
   <BACKGROUND backgroundColour="ffffffff"/>

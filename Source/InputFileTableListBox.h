@@ -83,8 +83,9 @@ private:
 
 				if (label == nullptr) {
 					label = new Label();
-					label->setText(String(id), dontSendNotification);
 				}
+
+				label->setText(String(id), dontSendNotification);
 
 				return label;
 			}
@@ -93,8 +94,9 @@ private:
 
 				if (label == nullptr) {
 					label = new Label();
-					label->setText(sound->getFilePath(), dontSendNotification);
 				}
+
+				label->setText(sound->getFilePath(), dontSendNotification);
 
 				return label;
 			}
@@ -103,8 +105,9 @@ private:
 
 				if (label == nullptr) {
 					label = new Label();
-					label->setText(sound->getName(), dontSendNotification);
 				}
+
+				label->setText(sound->getName(), dontSendNotification);
 
 				return label;
 			}
@@ -321,6 +324,14 @@ public:
 		int result = previewId;
 		previewId = -1;
 		return result;
+	};
+
+	int getIdForRow(int row) const {
+		const auto& iter = rowToId.find(row);
+		if (iter == rowToId.end()) {
+			return -1;
+		}
+		return iter->second;
 	};
 
 private:

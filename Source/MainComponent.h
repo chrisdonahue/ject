@@ -40,7 +40,6 @@ using std::unique_ptr;
 using std::shared_ptr;
 using std::vector;
 using std::pair;
-using std::tuple;
 using std::unordered_map;
 using std::unordered_set;
 
@@ -111,7 +110,6 @@ private:
 	// conv state
 	CriticalSection convLock;
 	AudioBuffer<float> conv;
-	bool convDirty;
 
 	// audio playback state
 	Atomic<float> gainParam;
@@ -131,7 +129,6 @@ private:
 	};
 	CriticalSection fileListLock;
 	unordered_map<int, unique_ptr<Sound>> idToSound;
-	unordered_set<int> includedSounds;
 	int fileIdNext;
 
 	void loadFileList(XmlElement* fileListNew);

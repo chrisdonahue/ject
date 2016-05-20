@@ -48,6 +48,12 @@ public:
 
 	Sound() : Sound(String::empty) {};
 
+	~Sound() {
+		if (spectra != nullptr) {
+			delete spectra;
+		}
+	}
+
 	AudioBuffer<float>* getBufferPtr() {
 		return &buffer;
 	};
@@ -102,20 +108,29 @@ public:
 			int fftOutputLen = fftInputLen / 2 + 1;
 			int numChannels = buffer.getNumChannels();
 
-			std::unique_ptr<kiss_fftr_state> fftState(kiss_fftr_alloc(nfftNew, 0, nullptr, nullptr));
-			std::unique_ptr<float> fftInput(static_cast<float*>(malloc(sizeof(float) * fftInputLen)));
-			spectra.reset(static_cast<kiss_fft_cpx*>(malloc(sizeof(kiss_fft_cpx) * fftOutputLen * numChannels)));
+			kiss_fftr_state* fftState = kiss_fftr_alloc(nfftNew, 0, nullptr, nullptr);
+			float* fftInput = static_cast<float*>(malloc(sizeof(float) * fftInputLen));
+			if (spectra != nullptr) {
+				delete spectra;
+			}
+			spectra = static_cast<kiss_fft_cpx*>(malloc(sizeof(kiss_fft_cpx) * fftOutputLen * numChannels));
 
 			for (int c = 0; c < numChannels; ++c) {
-				float* bufferRaw = buffer.getWritePointer(c);
-				memcpy(fftInput.get(), bufferRaw, sizeof(float) * numSamples);
-				kiss_fftr(fftState.get(), fftInput.get(), spectra.get() + (c * numSamples));
+				const float* bufferRaw = buffer.getReadPointer(c);
+				memcpy(fftInput, bufferRaw, sizeof(float) * numSamples);
+				for (int s = buffer.getNumSamples(); s < fftInputLen; ++s) {
+					fftInput[s] = 0.0f;
+				}
+				kiss_fftr(fftState, fftInput, spectra + (c * numSamples));
 			}
 
 			nfft = nfftNew;
+
+			delete fftState;
+			delete fftInput;
 		}
 
-		return spectra.get() + (channel * numSamples);
+		return spectra + (channel * numSamples);
 	};
 
 private:
@@ -126,7 +141,7 @@ private:
 	double pValue;
 	double rValue;
 	int nfft;
-	std::unique_ptr<kiss_fft_cpx> spectra;
+	kiss_fft_cpx* spectra;
 };
 
 #endif  // SOUND_H_INCLUDED
