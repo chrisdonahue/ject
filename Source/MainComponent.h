@@ -102,9 +102,7 @@ private:
 	// audio parameters
 	CriticalSection paramLock;
 	int nfftParam;
-	HashMap<int, float> pParam;
 	float qParam;
-	HashMap<int, float> rParam;
 	float sParam;
 
 	// ui state

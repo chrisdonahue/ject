@@ -40,6 +40,7 @@ public:
 		include(true),
 		pValue(1.0),
 		rValue(1.0),
+		nfft(-1),
 		spectra(nullptr) {
 		File file(filePath);
 		name = file.getFileName();
@@ -49,6 +50,14 @@ public:
 
 	AudioBuffer<float>* getBufferPtr() {
 		return &buffer;
+	};
+
+	int getBufferNumChannels() const {
+		return buffer.getNumChannels();
+	};
+
+	int getBufferNumSamples() const {
+		return buffer.getNumSamples();
 	};
 
 	String getFilePath() const {
@@ -83,8 +92,30 @@ public:
 		rValue = rValueNew;
 	};
 
-	kiss_fft_cpx* getSpectra(int nfft) {
-		return spectra.get();
+	kiss_fft_cpx* getSpectra(int nfftNew, int channel) {
+		int numSamples = buffer.getNumSamples();
+
+		if (nfftNew != nfft) {
+			jassert(nfftNew > buffer.getNumSamples());
+
+			int fftInputLen = nfftNew;
+			int fftOutputLen = fftInputLen / 2 + 1;
+			int numChannels = buffer.getNumChannels();
+
+			std::unique_ptr<kiss_fftr_state> fftState(kiss_fftr_alloc(nfftNew, 0, nullptr, nullptr));
+			std::unique_ptr<float> fftInput(static_cast<float*>(malloc(sizeof(float) * fftInputLen)));
+			spectra.reset(static_cast<kiss_fft_cpx*>(malloc(sizeof(kiss_fft_cpx) * fftOutputLen * numChannels)));
+
+			for (int c = 0; c < numChannels; ++c) {
+				float* bufferRaw = buffer.getWritePointer(c);
+				memcpy(fftInput.get(), bufferRaw, sizeof(float) * numSamples);
+				kiss_fftr(fftState.get(), fftInput.get(), spectra.get() + (c * numSamples));
+			}
+
+			nfft = nfftNew;
+		}
+
+		return spectra.get() + (channel * numSamples);
 	};
 
 private:
@@ -94,6 +125,7 @@ private:
 	bool include;
 	double pValue;
 	double rValue;
+	int nfft;
 	std::unique_ptr<kiss_fft_cpx> spectra;
 };
 
