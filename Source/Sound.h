@@ -101,17 +101,19 @@ public:
 	};
 
 	kiss_fft_cpx* getSpectra(int nfftNew, int channel) {
-		int numSamples = buffer.getNumSamples();
+		int fftInputLen = nfftNew;
+		int fftOutputLen = fftInputLen / 2 + 1;
 
 		if (nfftNew != nfft) {
-			jassert(nfftNew > buffer.getNumSamples());
-
-			int fftInputLen = nfftNew;
-			int fftOutputLen = fftInputLen / 2 + 1;
 			int numChannels = buffer.getNumChannels();
+			int numSamples = buffer.getNumSamples();
+
+			jassert(channel < numChannels);
+			jassert(nfftNew >= numSamples);
 
 			kiss_fftr_state* fftState = kiss_fftr_alloc(nfftNew, 0, nullptr, nullptr);
 			float* fftInput = static_cast<float*>(malloc(sizeof(float) * fftInputLen));
+
 			if (spectra != nullptr) {
 				delete spectra;
 			}
@@ -120,19 +122,19 @@ public:
 			for (int c = 0; c < numChannels; ++c) {
 				const float* bufferRaw = buffer.getReadPointer(c);
 				memcpy(fftInput, bufferRaw, sizeof(float) * numSamples);
-				for (int s = buffer.getNumSamples(); s < fftInputLen; ++s) {
+				for (int s = numSamples; s < fftInputLen; ++s) {
 					fftInput[s] = 0.0f;
 				}
 				kiss_fftr(fftState, fftInput, spectra + (c * fftOutputLen));
 			}
 
-			nfft = nfftNew;
-
 			delete fftState;
 			delete fftInput;
+
+			nfft = nfftNew;
 		}
 
-		return spectra + (channel * numSamples);
+		return spectra + (channel * fftOutputLen);
 	};
 
 private:

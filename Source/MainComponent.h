@@ -97,6 +97,8 @@ private:
 		looping
 	};
 
+	double sampleRate;
+
 	// audio parameters
 	CriticalSection paramLock;
 	int nfftParam;

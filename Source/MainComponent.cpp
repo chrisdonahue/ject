@@ -31,7 +31,8 @@
 
 //==============================================================================
 MainContentComponent::MainContentComponent()
-	: gainParam(0.5),
+	: sampleRate(-1.0),
+	gainParam(0.5),
 	nfftParam(0),
 	qParam(1.0),
 	sParam(1.0),
@@ -317,6 +318,12 @@ void MainContentComponent::sliderValueChanged(Slider* sliderThatWasMoved)
 		//[UserSliderCode_nfftSlider] -- add your slider handling code here..
 		const ScopedLock pl(paramLock);
 		nfftParam = static_cast<int>(nfftSlider->getValue());
+		if (nfftParam >= 25) {
+			double samples = std::pow(2.0, static_cast<double>(nfftParam));
+			double hours = (samples / sampleRate) / 3600.0;
+			String warningMessage = "This NFFT size will produce a sound of length " + String(hours) + " hours. This will probably crash your computer.";
+			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Warning", warningMessage);
+		}
 		//[/UserSliderCode_nfftSlider]
 	}
 
@@ -338,8 +345,17 @@ void MainContentComponent::buttonClicked(Button* buttonThatWasClicked)
 
 		bool convValid = true;
 
-		int pow2 = static_cast<int>(nfftSlider->getValue());
-		int fftInputLen = static_cast<int>(pow(2.0, pow2));
+		float q;
+		float s;
+		double nfft;
+		{
+			const ScopedLock pl(paramLock);
+			q = qParam;
+			s = sParam;
+			nfft = static_cast<double>(nfftParam);
+		}
+
+		int fftInputLen = static_cast<int>(std::pow(2.0, nfft));
 		int fftOutputLen = fftInputLen / 2 + 1;
 		int numChannels = 1;
 
@@ -354,6 +370,7 @@ void MainContentComponent::buttonClicked(Button* buttonThatWasClicked)
 				includedSounds.emplace(id);
 			}
 		}
+		float n = static_cast<float>(includedSounds.size());
 
 		if (maxChannels == 0) {
 			return;
@@ -362,15 +379,6 @@ void MainContentComponent::buttonClicked(Button* buttonThatWasClicked)
 		kiss_fftr_state* fftInverseState = kiss_fftr_alloc(fftInputLen, 1, nullptr, nullptr);
 		kiss_fft_cpx* CONV = static_cast<kiss_fft_cpx*>(calloc(fftOutputLen * maxChannels, sizeof(kiss_fft_cpx)));
 		conv.setSize(maxChannels, fftInputLen);
-
-		float n = static_cast<float>(includedSounds.size());
-		float q;
-		float s;
-		{
-			const ScopedLock pl(paramLock);
-			q = qParam;
-			s = sParam;
-		}
 
 		float max = -1.0f;
 
@@ -383,6 +391,7 @@ void MainContentComponent::buttonClicked(Button* buttonThatWasClicked)
 				float p = static_cast<float>(sound->getPValue());
 				float r = static_cast<float>(sound->getRValue());
 				int soundNumChannels = sound->getBufferNumChannels();
+				int soundNumSamples = sound->getBufferNumSamples();
 				int soundChannel = convChannel >= soundNumChannels ? soundNumChannels - 1 : convChannel;
 				kiss_fft_cpx* SOUNDCHANNEL = sound->getSpectra(fftInputLen, soundChannel);
 
@@ -584,7 +593,9 @@ void MainContentComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-void MainContentComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate) {}
+void MainContentComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRateNew) {
+	sampleRate = sampleRateNew;
+}
 
 void MainContentComponent::releaseResources() {}
 
@@ -785,7 +796,7 @@ void MainContentComponent::updateNfftSlider(NotificationType notificationType) {
 	if (totalSamplesNum > 0) {
 		int max2 = static_cast<int>(std::ceil(std::log2(maxSamplesNum)));
 		int total2 = static_cast<int>(std::ceil(std::log2(totalSamplesNum - (idToSound.size() - 1))));
-		nfftSlider->setRange(static_cast<double>(max2), 28, 1.0);
+		nfftSlider->setRange(static_cast<double>(max2), 31, 1.0);
 		nfftSlider->setValue(static_cast<double>(total2), notificationType);
 		nfftSlider->setEnabled(true);
 		convButton->setEnabled(true);
@@ -809,7 +820,7 @@ BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="MainContentComponent" componentName=""
 				 parentClasses="public AudioAppComponent, public FileDragAndDropTarget, public Timer, public ChangeListener"
-				 constructorParams="" variableInitialisers="gainParam(0.5),&#10;nfftParam(0),&#10;qParam(1.0),&#10;sParam(1.0),&#10;conv(0, 0),&#10;playheadAudioLock(),&#10;playheadState(PlayheadState::stopped),&#10;playheadAudio(0, 0),&#10;playheadAudioSamplesCompleted(0),&#10;soundIdNext(0)"
+				 constructorParams="" variableInitialisers="sampleRate(-1.0),&#10;gainParam(0.5),&#10;nfftParam(0),&#10;qParam(1.0),&#10;sParam(1.0),&#10;conv(0, 0),&#10;playheadAudioLock(),&#10;playheadState(PlayheadState::stopped),&#10;playheadAudio(0, 0),&#10;playheadAudioSamplesCompleted(0),&#10;soundIdNext(0)"
 				 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
 				 fixedSize="1" initialWidth="624" initialHeight="600">
   <BACKGROUND backgroundColour="ffffffff"/>
