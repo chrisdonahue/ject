@@ -21,7 +21,6 @@
 #define __JUCE_HEADER_CB87035FA43504BB__
 
 //[Headers]     -- You can add your own extra header files here --
-#define JECT_CHANNELS_NUM 2
 #define JECT_FPS 30
 
 #include <tuple>
@@ -104,11 +103,7 @@ private:
 	float qParam;
 	float sParam;
 
-	// ui state
-	CriticalSection waveformDisplayLock;
-
 	// conv state
-	CriticalSection convLock;
 	AudioBuffer<float> conv;
 
 	// audio playback state
@@ -119,17 +114,9 @@ private:
 	int playheadAudioSamplesCompleted;
 
 	// file list state
-	enum FileAttr {
-		id=0,
-		name,
-		path,
-		pValue,
-		rValue,
-		numAttrs
-	};
-	CriticalSection fileListLock;
+	CriticalSection soundListLock;
 	unordered_map<int, unique_ptr<Sound>> idToSound;
-	int fileIdNext;
+	int soundIdNext;
 
 	void loadFileList(XmlElement* fileListNew);
 

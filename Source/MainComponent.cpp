@@ -35,13 +35,12 @@ MainContentComponent::MainContentComponent()
 	nfftParam(0),
 	qParam(1.0),
 	sParam(1.0),
-	waveformDisplayLock(),
 	conv(0, 0),
 	playheadAudioLock(),
 	playheadState(PlayheadState::stopped),
 	playheadAudio(0, 0),
 	playheadAudioSamplesCompleted(0),
-	fileIdNext(0)
+	soundIdNext(0)
 {
 	//[Constructor_pre] You can add your own custom stuff here..
 	//[/Constructor_pre]
@@ -185,16 +184,12 @@ MainContentComponent::MainContentComponent()
 
 	//[UserPreSize]
 	inputFileListComponent->addChangeListener(this);
-	{
-		const ScopedLock wl(waveformDisplayLock);
-		waveformComponent->setSound(&playheadAudio);
-	}
+	waveformComponent->setSound(&playheadAudio);
+	setPlayheadAudio(nullptr);
 
 	//timerCallback();
 	inputFilesChanged(dontSendNotification);
 	setUiFromParams(dontSendNotification);
-	setPlayheadUiEnabled(false);
-	convButton->setEnabled(false);
 	//[/UserPreSize]
 
 	setSize(624, 600);
@@ -337,8 +332,7 @@ void MainContentComponent::buttonClicked(Button* buttonThatWasClicked)
 	if (buttonThatWasClicked == convButton)
 	{
 		//[UserButtonCode_convButton] -- add your button handler code here..
-		const ScopedLock cl(convLock);
-		const ScopedLock fl(fileListLock);
+		const ScopedLock fl(soundListLock);
 
 		setPlayheadUiEnabled(false);
 
@@ -450,24 +444,7 @@ void MainContentComponent::buttonClicked(Button* buttonThatWasClicked)
 			return;
 		}
 
-		// copy to playhead buffer
-		{
-			const ScopedLock pal(playheadAudioLock);
-			if (playheadAudio.getNumSamples() != conv.getNumSamples()) {
-				playheadState = PlayheadState::stopped;
-				playheadAudioSamplesCompleted = 0;
-			}
-			playheadAudio.makeCopyOf(conv);
-		}
-
-		// copy to UI
-		{
-			const ScopedLock wdl(waveformDisplayLock);
-			waveformComponent->setSound(&conv);
-			waveformComponent->repaint();
-		}
-
-		setPlayheadUiEnabled(true);
+		setPlayheadAudio(&conv);
 		//[/UserButtonCode_convButton]
 	}
 	else if (buttonThatWasClicked == settingsButton)
@@ -554,7 +531,7 @@ void MainContentComponent::buttonClicked(Button* buttonThatWasClicked)
 	else if (buttonThatWasClicked == inputRemoveButton)
 	{
 		//[UserButtonCode_inputRemoveButton] -- add your button handler code here..
-		const ScopedLock fl(fileListLock);
+		const ScopedLock fl(soundListLock);
 		SparseSet<int> selectedRows = inputFileListComponent->getSelectedRows();
 		for (int i = 0; i < selectedRows.size(); ++i) {
 			int row = selectedRows[i];
@@ -571,7 +548,7 @@ void MainContentComponent::buttonClicked(Button* buttonThatWasClicked)
 	else if (buttonThatWasClicked == inputAddButton)
 	{
 		//[UserButtonCode_inputAddButton] -- add your button handler code here..
-		const ScopedLock fl(fileListLock);
+		const ScopedLock fl(soundListLock);
 		FileChooser fileChooser("Add sound...", File::nonexistent, "*.wav;*.aif;*.aiff;*.ogg", true);
 		if (fileChooser.browseForMultipleFilesToOpen()) {
 			Array<File> files = fileChooser.getResults();
@@ -703,9 +680,9 @@ void MainContentComponent::filesDropped(const StringArray& filePaths, int x, int
 		String filePath = filePaths[i];
 		unique_ptr<Sound> sound(new Sound(filePath));
 		if (Sound::readBufferFromAudioFile(filePath, sound->getBufferPtr())) {
-			const ScopedLock fl(fileListLock);
-			int fileId = fileIdNext++;
-			idToSound.emplace(fileId, std::move(sound));
+			const ScopedLock fl(soundListLock);
+			int soundId = soundIdNext++;
+			idToSound.emplace(soundId, std::move(sound));
 			++succeeded;
 		}
 	}
@@ -720,23 +697,23 @@ void MainContentComponent::filesDropped(const StringArray& filePaths, int x, int
 
 void MainContentComponent::changeListenerCallback(ChangeBroadcaster* source) {
 	if (source == inputFileListComponent) {
-		const ScopedLock fl(fileListLock);
+		const ScopedLock fl(soundListLock);
 		updateNfftSlider(dontSendNotification);
 
 		int previewId = inputFileListComponent->getPreviewId();
 		if (previewId != -1) {
-			setPlayheadAudio(idToSound[previewId]->getBufferPtr());
+			const auto& iter = idToSound.find(previewId);
+			jassert(iter != idToSound.end());
+			setPlayheadAudio(iter->second->getBufferPtr());
 		}
 	}
 }
 
 void MainContentComponent::timerCallback() {
-	const ScopedLock wdl(waveformDisplayLock);
+	const ScopedLock pal(playheadAudioLock);
 
 	waveformComponent->setPlayhead(playheadAudioSamplesCompleted);
 	waveformComponent->repaint();
-
-	//setUiFromParams(dontSendNotification);
 }
 
 void MainContentComponent::setPlayheadUiEnabled(bool playheadUiEnabled) {
@@ -748,7 +725,6 @@ void MainContentComponent::setPlayheadUiEnabled(bool playheadUiEnabled) {
 
 void MainContentComponent::setPlayheadAudio(AudioBuffer<float>* playheadAudioNew) {
 	const ScopedLock pal(playheadAudioLock);
-	const ScopedLock wdl(waveformDisplayLock);
 
 	if (playheadAudioNew != nullptr && (playheadAudioNew->getNumChannels() == 0 || playheadAudioNew->getNumSamples() == 0)) {
 		playheadAudioNew == nullptr;
@@ -767,6 +743,8 @@ void MainContentComponent::setPlayheadAudio(AudioBuffer<float>* playheadAudioNew
 		playheadAudio.makeCopyOf(*playheadAudioNew);
 		setPlayheadUiEnabled(true);
 	}
+
+	waveformComponent->repaint();
 }
 
 void MainContentComponent::setUiFromParams(NotificationType notificationType) {
@@ -831,7 +809,7 @@ BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="MainContentComponent" componentName=""
 				 parentClasses="public AudioAppComponent, public FileDragAndDropTarget, public Timer, public ChangeListener"
-				 constructorParams="" variableInitialisers="gainParam(0.5),&#10;nfftParam(0),&#10;qParam(1.0),&#10;sParam(1.0),&#10;waveformDisplayLock(),&#10;conv(0, 0),&#10;playheadAudioLock(),&#10;playheadState(PlayheadState::stopped),&#10;playheadAudio(0, 0),&#10;playheadAudioSamplesCompleted(0),&#10;fileIdNext(0)"
+				 constructorParams="" variableInitialisers="gainParam(0.5),&#10;nfftParam(0),&#10;qParam(1.0),&#10;sParam(1.0),&#10;conv(0, 0),&#10;playheadAudioLock(),&#10;playheadState(PlayheadState::stopped),&#10;playheadAudio(0, 0),&#10;playheadAudioSamplesCompleted(0),&#10;soundIdNext(0)"
 				 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
 				 fixedSize="1" initialWidth="624" initialHeight="600">
   <BACKGROUND backgroundColour="ffffffff"/>

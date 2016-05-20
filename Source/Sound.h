@@ -11,6 +11,8 @@
 #ifndef SOUND_H_INCLUDED
 #define SOUND_H_INCLUDED
 
+#define JECT_CHANNELS_NUM 2
+
 #include <memory>
 
 #include "../JuceLibraryCode/JuceHeader.h"
@@ -121,7 +123,7 @@ public:
 				for (int s = buffer.getNumSamples(); s < fftInputLen; ++s) {
 					fftInput[s] = 0.0f;
 				}
-				kiss_fftr(fftState, fftInput, spectra + (c * numSamples));
+				kiss_fftr(fftState, fftInput, spectra + (c * fftOutputLen));
 			}
 
 			nfft = nfftNew;
