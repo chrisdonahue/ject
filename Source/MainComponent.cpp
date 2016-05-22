@@ -30,163 +30,163 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-MainContentComponent::MainContentComponent()
-	: sampleRate(-1.0),
-	gainParam(0.5),
-	nfftParam(0),
-	qParam(1.0),
-	sParam(1.0),
-	conv(0, 0),
-	playheadAudioLock(),
-	playheadState(PlayheadState::stopped),
-	playheadAudio(0, 0),
-	playheadAudioSamplesCompleted(0),
-	soundIdNext(0)
+MainContentComponent::MainContentComponent ()
+    : sampleRate(-1.0),
+      gainParam(0.5),
+      nfftParam(0),
+      qParam(1.0),
+      sParam(1.0),
+      conv(0, 0),
+      playheadAudioLock(),
+      playheadState(PlayheadState::stopped),
+      playheadAudio(0, 0),
+      playheadAudioSamplesCompleted(0),
+      soundIdNext(0)
 {
-	//[Constructor_pre] You can add your own custom stuff here..
+    //[Constructor_pre] You can add your own custom stuff here..
 	formatManager.registerFormat(new WavAudioFormat(), true);
 	formatManager.registerFormat(new AiffAudioFormat(), false);
 	formatManager.registerFormat(new OggVorbisAudioFormat(), false);
-	//[/Constructor_pre]
+    //[/Constructor_pre]
 
-	addAndMakeVisible(waveformGroupBox = new GroupComponent(String(),
-		TRANS("Waveform")));
+    addAndMakeVisible (waveformGroupBox = new GroupComponent (String(),
+                                                              TRANS("Waveform")));
 
-	addAndMakeVisible(waveformComponent = new WaveformComponent("No waveform to display"));
+    addAndMakeVisible (waveformComponent = new WaveformComponent ("No waveform to display"));
 
-	addAndMakeVisible(inputGroupBox = new GroupComponent(String(),
-		TRANS("Input")));
+    addAndMakeVisible (inputGroupBox = new GroupComponent (String(),
+                                                           TRANS("Input")));
 
-	addAndMakeVisible(convGroupBox = new GroupComponent(String(),
-		TRANS("Convolution")));
+    addAndMakeVisible (convGroupBox = new GroupComponent (String(),
+                                                          TRANS("Convolution")));
 
-	addAndMakeVisible(qSlider = new Slider(String()));
-	qSlider->setRange(0, 8, 0.01);
-	qSlider->setSliderStyle(Slider::LinearHorizontal);
-	qSlider->setTextBoxStyle(Slider::TextBoxLeft, false, 40, 20);
-	qSlider->addListener(this);
-	qSlider->setSkewFactor(0.4);
+    addAndMakeVisible (qSlider = new Slider (String()));
+    qSlider->setRange (0, 8, 0.01);
+    qSlider->setSliderStyle (Slider::LinearHorizontal);
+    qSlider->setTextBoxStyle (Slider::TextBoxLeft, false, 40, 20);
+    qSlider->addListener (this);
+    qSlider->setSkewFactor (0.4);
 
-	addAndMakeVisible(qLabel = new Label(String(),
-		TRANS("Q")));
-	qLabel->setFont(Font(15.00f, Font::plain));
-	qLabel->setJustificationType(Justification::centredLeft);
-	qLabel->setEditable(false, false, false);
-	qLabel->setColour(TextEditor::textColourId, Colours::black);
-	qLabel->setColour(TextEditor::backgroundColourId, Colour(0x00000000));
+    addAndMakeVisible (qLabel = new Label (String(),
+                                           TRANS("Q")));
+    qLabel->setFont (Font (15.00f, Font::plain));
+    qLabel->setJustificationType (Justification::centredLeft);
+    qLabel->setEditable (false, false, false);
+    qLabel->setColour (TextEditor::textColourId, Colours::black);
+    qLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-	addAndMakeVisible(convButton = new TextButton(String()));
-	convButton->setButtonText(TRANS("Convolve"));
-	convButton->addListener(this);
+    addAndMakeVisible (convButton = new TextButton (String()));
+    convButton->setButtonText (TRANS("Convolve"));
+    convButton->addListener (this);
 
-	addAndMakeVisible(authorLabel = new Label(String(),
-		TRANS("Chris Donahue 2016")));
-	authorLabel->setFont(Font(15.00f, Font::plain));
-	authorLabel->setJustificationType(Justification::centredLeft);
-	authorLabel->setEditable(false, false, false);
-	authorLabel->setColour(TextEditor::textColourId, Colours::black);
-	authorLabel->setColour(TextEditor::backgroundColourId, Colour(0x00000000));
+    addAndMakeVisible (authorLabel = new Label (String(),
+                                                CharPointer_UTF8 ("\xc2\xa9 Chris Donahue 2016")));
+    authorLabel->setFont (Font (15.00f, Font::plain));
+    authorLabel->setJustificationType (Justification::centredLeft);
+    authorLabel->setEditable (false, false, false);
+    authorLabel->setColour (TextEditor::textColourId, Colours::black);
+    authorLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-	addAndMakeVisible(settingsButton = new TextButton(String()));
-	settingsButton->setButtonText(TRANS("Audio Settings"));
-	settingsButton->addListener(this);
+    addAndMakeVisible (settingsButton = new TextButton (String()));
+    settingsButton->setButtonText (TRANS("Audio Settings"));
+    settingsButton->addListener (this);
 
-	addAndMakeVisible(gainSlider = new Slider(String()));
-	gainSlider->setRange(0, 1, 0.01);
-	gainSlider->setSliderStyle(Slider::LinearHorizontal);
-	gainSlider->setTextBoxStyle(Slider::TextBoxLeft, false, 40, 20);
-	gainSlider->addListener(this);
+    addAndMakeVisible (gainSlider = new Slider (String()));
+    gainSlider->setRange (0, 1, 0.01);
+    gainSlider->setSliderStyle (Slider::LinearHorizontal);
+    gainSlider->setTextBoxStyle (Slider::TextBoxLeft, false, 40, 20);
+    gainSlider->addListener (this);
 
-	addAndMakeVisible(gainLabel = new Label(String(),
-		TRANS("Gain")));
-	gainLabel->setFont(Font(15.00f, Font::plain));
-	gainLabel->setJustificationType(Justification::centredLeft);
-	gainLabel->setEditable(false, false, false);
-	gainLabel->setColour(TextEditor::textColourId, Colours::black);
-	gainLabel->setColour(TextEditor::backgroundColourId, Colour(0x00000000));
+    addAndMakeVisible (gainLabel = new Label (String(),
+                                              TRANS("Gain")));
+    gainLabel->setFont (Font (15.00f, Font::plain));
+    gainLabel->setJustificationType (Justification::centredLeft);
+    gainLabel->setEditable (false, false, false);
+    gainLabel->setColour (TextEditor::textColourId, Colours::black);
+    gainLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-	addAndMakeVisible(prBehaviorLabel = new Label(String(),
-		TRANS("P/R Behavior")));
-	prBehaviorLabel->setFont(Font(15.00f, Font::plain));
-	prBehaviorLabel->setJustificationType(Justification::centredLeft);
-	prBehaviorLabel->setEditable(false, false, false);
-	prBehaviorLabel->setColour(TextEditor::textColourId, Colours::black);
-	prBehaviorLabel->setColour(TextEditor::backgroundColourId, Colour(0x00000000));
+    addAndMakeVisible (prBehaviorLabel = new Label (String(),
+                                                    TRANS("P/R Behavior")));
+    prBehaviorLabel->setFont (Font (15.00f, Font::plain));
+    prBehaviorLabel->setJustificationType (Justification::centredLeft);
+    prBehaviorLabel->setEditable (false, false, false);
+    prBehaviorLabel->setColour (TextEditor::textColourId, Colours::black);
+    prBehaviorLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-	addAndMakeVisible(prBehaviorComboBox = new ComboBox(String()));
-	prBehaviorComboBox->setEditableText(false);
-	prBehaviorComboBox->setJustificationType(Justification::centredLeft);
-	prBehaviorComboBox->setTextWhenNothingSelected(String());
-	prBehaviorComboBox->setTextWhenNoChoicesAvailable(TRANS("(no choices)"));
-	prBehaviorComboBox->addItem(TRANS("Independent"), 1);
-	prBehaviorComboBox->addItem(TRANS("Linked"), 2);
-	prBehaviorComboBox->addItem(TRANS("Inverse"), 3);
-	prBehaviorComboBox->addListener(this);
+    addAndMakeVisible (prBehaviorComboBox = new ComboBox (String()));
+    prBehaviorComboBox->setEditableText (false);
+    prBehaviorComboBox->setJustificationType (Justification::centredLeft);
+    prBehaviorComboBox->setTextWhenNothingSelected (String());
+    prBehaviorComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    prBehaviorComboBox->addItem (TRANS("Independent"), 1);
+    prBehaviorComboBox->addItem (TRANS("Linked"), 2);
+    prBehaviorComboBox->addItem (TRANS("Inverse"), 3);
+    prBehaviorComboBox->addListener (this);
 
-	addAndMakeVisible(playButton = new TextButton(String()));
-	playButton->setButtonText(TRANS("Play"));
-	playButton->addListener(this);
+    addAndMakeVisible (playButton = new TextButton (String()));
+    playButton->setButtonText (TRANS("Play"));
+    playButton->addListener (this);
 
-	addAndMakeVisible(loopButton = new TextButton(String()));
-	loopButton->setButtonText(TRANS("Loop"));
-	loopButton->addListener(this);
+    addAndMakeVisible (loopButton = new TextButton (String()));
+    loopButton->setButtonText (TRANS("Loop"));
+    loopButton->addListener (this);
 
-	addAndMakeVisible(stopButton = new TextButton(String()));
-	stopButton->setButtonText(TRANS("Stop"));
-	stopButton->addListener(this);
+    addAndMakeVisible (stopButton = new TextButton (String()));
+    stopButton->setButtonText (TRANS("Stop"));
+    stopButton->addListener (this);
 
-	addAndMakeVisible(qDefaultButton = new TextButton(String()));
-	qDefaultButton->setButtonText(TRANS("Default"));
-	qDefaultButton->addListener(this);
+    addAndMakeVisible (qDefaultButton = new TextButton (String()));
+    qDefaultButton->setButtonText (TRANS("Default"));
+    qDefaultButton->addListener (this);
 
-	addAndMakeVisible(sSlider = new Slider(String()));
-	sSlider->setRange(0, 15, 0.01);
-	sSlider->setSliderStyle(Slider::LinearHorizontal);
-	sSlider->setTextBoxStyle(Slider::TextBoxLeft, false, 40, 20);
-	sSlider->addListener(this);
+    addAndMakeVisible (sSlider = new Slider (String()));
+    sSlider->setRange (0, 15, 0.01);
+    sSlider->setSliderStyle (Slider::LinearHorizontal);
+    sSlider->setTextBoxStyle (Slider::TextBoxLeft, false, 40, 20);
+    sSlider->addListener (this);
 
-	addAndMakeVisible(sDefaultButton = new TextButton(String()));
-	sDefaultButton->setButtonText(TRANS("Default"));
-	sDefaultButton->addListener(this);
+    addAndMakeVisible (sDefaultButton = new TextButton (String()));
+    sDefaultButton->setButtonText (TRANS("Default"));
+    sDefaultButton->addListener (this);
 
-	addAndMakeVisible(nfftSlider = new Slider(String()));
-	nfftSlider->setRange(0, 24, 1);
-	nfftSlider->setSliderStyle(Slider::LinearHorizontal);
-	nfftSlider->setTextBoxStyle(Slider::TextBoxLeft, false, 40, 20);
-	nfftSlider->addListener(this);
+    addAndMakeVisible (nfftSlider = new Slider (String()));
+    nfftSlider->setRange (0, 24, 1);
+    nfftSlider->setSliderStyle (Slider::LinearHorizontal);
+    nfftSlider->setTextBoxStyle (Slider::TextBoxLeft, false, 40, 20);
+    nfftSlider->addListener (this);
 
-	addAndMakeVisible(nfftLabel = new Label(String(),
-		TRANS("NFFT")));
-	nfftLabel->setFont(Font(15.00f, Font::plain));
-	nfftLabel->setJustificationType(Justification::centredLeft);
-	nfftLabel->setEditable(false, false, false);
-	nfftLabel->setColour(TextEditor::textColourId, Colours::black);
-	nfftLabel->setColour(TextEditor::backgroundColourId, Colour(0x00000000));
+    addAndMakeVisible (nfftLabel = new Label (String(),
+                                              TRANS("NFFT")));
+    nfftLabel->setFont (Font (15.00f, Font::plain));
+    nfftLabel->setJustificationType (Justification::centredLeft);
+    nfftLabel->setEditable (false, false, false);
+    nfftLabel->setColour (TextEditor::textColourId, Colours::black);
+    nfftLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-	addAndMakeVisible(saveButton = new TextButton(String()));
-	saveButton->setButtonText(TRANS("Save"));
-	saveButton->addListener(this);
+    addAndMakeVisible (saveButton = new TextButton (String()));
+    saveButton->setButtonText (TRANS("Save"));
+    saveButton->addListener (this);
 
-	addAndMakeVisible(sLabel = new Label(String(),
-		TRANS("S")));
-	sLabel->setFont(Font(15.00f, Font::plain));
-	sLabel->setJustificationType(Justification::centredLeft);
-	sLabel->setEditable(false, false, false);
-	sLabel->setColour(TextEditor::textColourId, Colours::black);
-	sLabel->setColour(TextEditor::backgroundColourId, Colour(0x00000000));
+    addAndMakeVisible (sLabel = new Label (String(),
+                                           TRANS("S")));
+    sLabel->setFont (Font (15.00f, Font::plain));
+    sLabel->setJustificationType (Justification::centredLeft);
+    sLabel->setEditable (false, false, false);
+    sLabel->setColour (TextEditor::textColourId, Colours::black);
+    sLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-	addAndMakeVisible(inputRemoveButton = new TextButton(String()));
-	inputRemoveButton->setButtonText(TRANS("Remove"));
-	inputRemoveButton->addListener(this);
+    addAndMakeVisible (inputRemoveButton = new TextButton (String()));
+    inputRemoveButton->setButtonText (TRANS("Remove"));
+    inputRemoveButton->addListener (this);
 
-	addAndMakeVisible(inputAddButton = new TextButton(String()));
-	inputAddButton->setButtonText(TRANS("Add"));
-	inputAddButton->addListener(this);
+    addAndMakeVisible (inputAddButton = new TextButton (String()));
+    inputAddButton->setButtonText (TRANS("Add"));
+    inputAddButton->addListener (this);
 
-	addAndMakeVisible(inputFileListComponent = new InputFileTableListBox(InputFileTableListBox::PrBehavior::independent));
+    addAndMakeVisible (inputFileListComponent = new InputFileTableListBox (InputFileTableListBox::PrBehavior::independent));
 
 
-	//[UserPreSize]
+    //[UserPreSize]
 	inputFileListComponent->addChangeListener(this);
 	waveformComponent->setSound(&playheadAudio);
 	setPlayheadAudio(nullptr);
@@ -194,131 +194,131 @@ MainContentComponent::MainContentComponent()
 	//timerCallback();
 	inputFilesChanged(dontSendNotification);
 	setUiFromParams(dontSendNotification);
-	//[/UserPreSize]
+    //[/UserPreSize]
 
-	setSize(624, 600);
+    setSize (624, 600);
 
 
-	//[Constructor] You can add your own custom stuff here..
+    //[Constructor] You can add your own custom stuff here..
 	setAudioChannels(0, JECT_CHANNELS_NUM);
 	startTimerHz(JECT_FPS);
-	//[/Constructor]
+    //[/Constructor]
 }
 
 MainContentComponent::~MainContentComponent()
 {
-	//[Destructor_pre]. You can add your own custom destruction code here..
+    //[Destructor_pre]. You can add your own custom destruction code here..
 	inputFileListComponent->removeChangeListener(this);
-	//[/Destructor_pre]
+    //[/Destructor_pre]
 
-	waveformGroupBox = nullptr;
-	waveformComponent = nullptr;
-	inputGroupBox = nullptr;
-	convGroupBox = nullptr;
-	qSlider = nullptr;
-	qLabel = nullptr;
-	convButton = nullptr;
-	authorLabel = nullptr;
-	settingsButton = nullptr;
-	gainSlider = nullptr;
-	gainLabel = nullptr;
-	prBehaviorLabel = nullptr;
-	prBehaviorComboBox = nullptr;
-	playButton = nullptr;
-	loopButton = nullptr;
-	stopButton = nullptr;
-	qDefaultButton = nullptr;
-	sSlider = nullptr;
-	sDefaultButton = nullptr;
-	nfftSlider = nullptr;
-	nfftLabel = nullptr;
-	saveButton = nullptr;
-	sLabel = nullptr;
-	inputRemoveButton = nullptr;
-	inputAddButton = nullptr;
-	inputFileListComponent = nullptr;
+    waveformGroupBox = nullptr;
+    waveformComponent = nullptr;
+    inputGroupBox = nullptr;
+    convGroupBox = nullptr;
+    qSlider = nullptr;
+    qLabel = nullptr;
+    convButton = nullptr;
+    authorLabel = nullptr;
+    settingsButton = nullptr;
+    gainSlider = nullptr;
+    gainLabel = nullptr;
+    prBehaviorLabel = nullptr;
+    prBehaviorComboBox = nullptr;
+    playButton = nullptr;
+    loopButton = nullptr;
+    stopButton = nullptr;
+    qDefaultButton = nullptr;
+    sSlider = nullptr;
+    sDefaultButton = nullptr;
+    nfftSlider = nullptr;
+    nfftLabel = nullptr;
+    saveButton = nullptr;
+    sLabel = nullptr;
+    inputRemoveButton = nullptr;
+    inputAddButton = nullptr;
+    inputFileListComponent = nullptr;
 
 
-	//[Destructor]. You can add your own custom destruction code here..
+    //[Destructor]. You can add your own custom destruction code here..
 	shutdownAudio();
-	//[/Destructor]
+    //[/Destructor]
 }
 
 //==============================================================================
-void MainContentComponent::paint(Graphics& g)
+void MainContentComponent::paint (Graphics& g)
 {
-	//[UserPrePaint] Add your own custom painting code here..
-	//[/UserPrePaint]
+    //[UserPrePaint] Add your own custom painting code here..
+    //[/UserPrePaint]
 
-	g.fillAll(Colours::white);
+    g.fillAll (Colours::white);
 
-	//[UserPaint] Add your own custom painting code here..
-	//[/UserPaint]
+    //[UserPaint] Add your own custom painting code here..
+    //[/UserPaint]
 }
 
 void MainContentComponent::resized()
 {
-	//[UserPreResize] Add your own custom resize code here..
-	//[/UserPreResize]
+    //[UserPreResize] Add your own custom resize code here..
+    //[/UserPreResize]
 
-	waveformGroupBox->setBounds(8, 242, 608, 214);
-	waveformComponent->setBounds(24, 264, 576, 152);
-	inputGroupBox->setBounds(8, 8, 608, 224);
-	convGroupBox->setBounds(8, 464, 608, 128);
-	qSlider->setBounds(120, 520, 248, 24);
-	qLabel->setBounds(24, 520, 24, 24);
-	convButton->setBounds(384, 488, 216, 56);
-	authorLabel->setBounds(424, 552, 136, 24);
-	settingsButton->setBounds(480, 424, 120, 24);
-	gainSlider->setBounds(120, 424, 344, 24);
-	gainLabel->setBounds(24, 424, 88, 24);
-	prBehaviorLabel->setBounds(256, 32, 88, 24);
-	prBehaviorComboBox->setBounds(352, 32, 248, 24);
-	playButton->setBounds(400, 272, 56, 24);
-	loopButton->setBounds(528, 272, 56, 24);
-	stopButton->setBounds(464, 272, 56, 24);
-	qDefaultButton->setBounds(56, 520, 56, 24);
-	sSlider->setBounds(120, 552, 248, 24);
-	sDefaultButton->setBounds(56, 552, 56, 24);
-	nfftSlider->setBounds(120, 488, 248, 24);
-	nfftLabel->setBounds(24, 488, 88, 24);
-	saveButton->setBounds(528, 376, 56, 24);
-	sLabel->setBounds(24, 552, 24, 24);
-	inputRemoveButton->setBounds(128, 32, 88, 24);
-	inputAddButton->setBounds(24, 32, 88, 24);
-	inputFileListComponent->setBounds(24, 64, 576, 152);
-	//[UserResized] Add your own custom resize handling here..
-	//[/UserResized]
+    waveformGroupBox->setBounds (8, 242, 608, 214);
+    waveformComponent->setBounds (24, 264, 576, 152);
+    inputGroupBox->setBounds (8, 8, 608, 224);
+    convGroupBox->setBounds (8, 464, 608, 128);
+    qSlider->setBounds (120, 520, 248, 24);
+    qLabel->setBounds (24, 520, 24, 24);
+    convButton->setBounds (384, 488, 216, 56);
+    authorLabel->setBounds (416, 552, 160, 24);
+    settingsButton->setBounds (480, 424, 120, 24);
+    gainSlider->setBounds (120, 424, 344, 24);
+    gainLabel->setBounds (24, 424, 88, 24);
+    prBehaviorLabel->setBounds (256, 32, 88, 24);
+    prBehaviorComboBox->setBounds (352, 32, 248, 24);
+    playButton->setBounds (400, 272, 56, 24);
+    loopButton->setBounds (528, 272, 56, 24);
+    stopButton->setBounds (464, 272, 56, 24);
+    qDefaultButton->setBounds (56, 520, 56, 24);
+    sSlider->setBounds (120, 552, 248, 24);
+    sDefaultButton->setBounds (56, 552, 56, 24);
+    nfftSlider->setBounds (120, 488, 248, 24);
+    nfftLabel->setBounds (24, 488, 88, 24);
+    saveButton->setBounds (528, 376, 56, 24);
+    sLabel->setBounds (24, 552, 24, 24);
+    inputRemoveButton->setBounds (128, 32, 88, 24);
+    inputAddButton->setBounds (24, 32, 88, 24);
+    inputFileListComponent->setBounds (24, 64, 576, 152);
+    //[UserResized] Add your own custom resize handling here..
+    //[/UserResized]
 }
 
-void MainContentComponent::sliderValueChanged(Slider* sliderThatWasMoved)
+void MainContentComponent::sliderValueChanged (Slider* sliderThatWasMoved)
 {
-	//[UsersliderValueChanged_Pre]
-	//[/UsersliderValueChanged_Pre]
+    //[UsersliderValueChanged_Pre]
+    //[/UsersliderValueChanged_Pre]
 
-	if (sliderThatWasMoved == qSlider)
-	{
-		//[UserSliderCode_qSlider] -- add your slider handling code here..
+    if (sliderThatWasMoved == qSlider)
+    {
+        //[UserSliderCode_qSlider] -- add your slider handling code here..
 		const ScopedLock pl(paramLock);
 		qParam = static_cast<float>(qSlider->getValue());
-		//[/UserSliderCode_qSlider]
-	}
-	else if (sliderThatWasMoved == gainSlider)
-	{
-		//[UserSliderCode_gainSlider] -- add your slider handling code here..
+        //[/UserSliderCode_qSlider]
+    }
+    else if (sliderThatWasMoved == gainSlider)
+    {
+        //[UserSliderCode_gainSlider] -- add your slider handling code here..
 		gainParam.set(static_cast<float>(gainSlider->getValue()));
-		//[/UserSliderCode_gainSlider]
-	}
-	else if (sliderThatWasMoved == sSlider)
-	{
-		//[UserSliderCode_sSlider] -- add your slider handling code here..
+        //[/UserSliderCode_gainSlider]
+    }
+    else if (sliderThatWasMoved == sSlider)
+    {
+        //[UserSliderCode_sSlider] -- add your slider handling code here..
 		const ScopedLock pl(paramLock);
 		sParam = static_cast<float>(sSlider->getValue());
-		//[/UserSliderCode_sSlider]
-	}
-	else if (sliderThatWasMoved == nfftSlider)
-	{
-		//[UserSliderCode_nfftSlider] -- add your slider handling code here..
+        //[/UserSliderCode_sSlider]
+    }
+    else if (sliderThatWasMoved == nfftSlider)
+    {
+        //[UserSliderCode_nfftSlider] -- add your slider handling code here..
 		const ScopedLock pl(paramLock);
 		nfftParam = static_cast<int>(nfftSlider->getValue());
 		if (nfftParam >= 25) {
@@ -327,21 +327,21 @@ void MainContentComponent::sliderValueChanged(Slider* sliderThatWasMoved)
 			String warningMessage = "This NFFT size will produce a sound of length " + String(hours) + " hours. This will probably crash your computer.";
 			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, "Warning", warningMessage);
 		}
-		//[/UserSliderCode_nfftSlider]
-	}
+        //[/UserSliderCode_nfftSlider]
+    }
 
-	//[UsersliderValueChanged_Post]
-	//[/UsersliderValueChanged_Post]
+    //[UsersliderValueChanged_Post]
+    //[/UsersliderValueChanged_Post]
 }
 
-void MainContentComponent::buttonClicked(Button* buttonThatWasClicked)
+void MainContentComponent::buttonClicked (Button* buttonThatWasClicked)
 {
-	//[UserbuttonClicked_Pre]
-	//[/UserbuttonClicked_Pre]
+    //[UserbuttonClicked_Pre]
+    //[/UserbuttonClicked_Pre]
 
-	if (buttonThatWasClicked == convButton)
-	{
-		//[UserButtonCode_convButton] -- add your button handler code here..
+    if (buttonThatWasClicked == convButton)
+    {
+        //[UserButtonCode_convButton] -- add your button handler code here..
 		const ScopedLock fl(soundListLock);
 
 		setPlayheadUiEnabled(false);
@@ -456,11 +456,11 @@ void MainContentComponent::buttonClicked(Button* buttonThatWasClicked)
 		}
 
 		setPlayheadAudio(&conv);
-		//[/UserButtonCode_convButton]
-	}
-	else if (buttonThatWasClicked == settingsButton)
-	{
-		//[UserButtonCode_settingsButton] -- add your button handler code here..
+        //[/UserButtonCode_convButton]
+    }
+    else if (buttonThatWasClicked == settingsButton)
+    {
+        //[UserButtonCode_settingsButton] -- add your button handler code here..
 		AudioDeviceSelectorComponent audioSettingsComp(deviceManager,
 			0, 256,
 			0, 256,
@@ -483,46 +483,46 @@ void MainContentComponent::buttonClicked(Button* buttonThatWasClicked)
 
 		getAppProperties().getUserSettings()->setValue("audioDeviceState", audioState);
 		getAppProperties().getUserSettings()->saveIfNeeded();
-		//[/UserButtonCode_settingsButton]
-	}
-	else if (buttonThatWasClicked == playButton)
-	{
-		//[UserButtonCode_playButton] -- add your button handler code here..
+        //[/UserButtonCode_settingsButton]
+    }
+    else if (buttonThatWasClicked == playButton)
+    {
+        //[UserButtonCode_playButton] -- add your button handler code here..
 		const ScopedLock pal(playheadAudioLock);
 		playheadState = PlayheadState::playing;
 		playheadAudioSamplesCompleted = 0;
-		//[/UserButtonCode_playButton]
-	}
-	else if (buttonThatWasClicked == loopButton)
-	{
-		//[UserButtonCode_loopButton] -- add your button handler code here..
+        //[/UserButtonCode_playButton]
+    }
+    else if (buttonThatWasClicked == loopButton)
+    {
+        //[UserButtonCode_loopButton] -- add your button handler code here..
 		const ScopedLock pal(playheadAudioLock);
 		playheadState = PlayheadState::looping;
-		//[/UserButtonCode_loopButton]
-	}
-	else if (buttonThatWasClicked == stopButton)
-	{
-		//[UserButtonCode_stopButton] -- add your button handler code here..
+        //[/UserButtonCode_loopButton]
+    }
+    else if (buttonThatWasClicked == stopButton)
+    {
+        //[UserButtonCode_stopButton] -- add your button handler code here..
 		const ScopedLock pal(playheadAudioLock);
 		playheadState = PlayheadState::stopped;
 		playheadAudioSamplesCompleted = 0;
-		//[/UserButtonCode_stopButton]
-	}
-	else if (buttonThatWasClicked == qDefaultButton)
-	{
-		//[UserButtonCode_qDefaultButton] -- add your button handler code here..
+        //[/UserButtonCode_stopButton]
+    }
+    else if (buttonThatWasClicked == qDefaultButton)
+    {
+        //[UserButtonCode_qDefaultButton] -- add your button handler code here..
 		qSlider->setValue(1.0);
-		//[/UserButtonCode_qDefaultButton]
-	}
-	else if (buttonThatWasClicked == sDefaultButton)
-	{
-		//[UserButtonCode_sDefaultButton] -- add your button handler code here..
+        //[/UserButtonCode_qDefaultButton]
+    }
+    else if (buttonThatWasClicked == sDefaultButton)
+    {
+        //[UserButtonCode_sDefaultButton] -- add your button handler code here..
 		sSlider->setValue(1.0);
-		//[/UserButtonCode_sDefaultButton]
-	}
-	else if (buttonThatWasClicked == saveButton)
-	{
-		//[UserButtonCode_saveButton] -- add your button handler code here..
+        //[/UserButtonCode_sDefaultButton]
+    }
+    else if (buttonThatWasClicked == saveButton)
+    {
+        //[UserButtonCode_saveButton] -- add your button handler code here..
 		const ScopedLock pal(playheadAudioLock);
 
 		if (playheadAudio.getNumChannels() > 0 && playheadAudio.getNumSamples() > 0) {
@@ -537,11 +537,11 @@ void MainContentComponent::buttonClicked(Button* buttonThatWasClicked)
 				outputFileStream.release();
 			}
 		}
-		//[/UserButtonCode_saveButton]
-	}
-	else if (buttonThatWasClicked == inputRemoveButton)
-	{
-		//[UserButtonCode_inputRemoveButton] -- add your button handler code here..
+        //[/UserButtonCode_saveButton]
+    }
+    else if (buttonThatWasClicked == inputRemoveButton)
+    {
+        //[UserButtonCode_inputRemoveButton] -- add your button handler code here..
 		const ScopedLock fl(soundListLock);
 		SparseSet<int> selectedRows = inputFileListComponent->getSelectedRows();
 		for (int i = 0; i < selectedRows.size(); ++i) {
@@ -554,11 +554,11 @@ void MainContentComponent::buttonClicked(Button* buttonThatWasClicked)
 		if (selectedRows.size() > 0) {
 			inputFilesChanged(dontSendNotification);
 		}
-		//[/UserButtonCode_inputRemoveButton]
-	}
-	else if (buttonThatWasClicked == inputAddButton)
-	{
-		//[UserButtonCode_inputAddButton] -- add your button handler code here..
+        //[/UserButtonCode_inputRemoveButton]
+    }
+    else if (buttonThatWasClicked == inputAddButton)
+    {
+        //[UserButtonCode_inputAddButton] -- add your button handler code here..
 		const ScopedLock fl(soundListLock);
 		FileChooser fileChooser("Add sound...", File::nonexistent, "*.wav;*.aif;*.aiff;*.ogg", true);
 		if (fileChooser.browseForMultipleFilesToOpen()) {
@@ -569,27 +569,27 @@ void MainContentComponent::buttonClicked(Button* buttonThatWasClicked)
 			}
 			filesDropped(filePaths, -1, -1);
 		}
-		//[/UserButtonCode_inputAddButton]
-	}
+        //[/UserButtonCode_inputAddButton]
+    }
 
-	//[UserbuttonClicked_Post]
-	//[/UserbuttonClicked_Post]
+    //[UserbuttonClicked_Post]
+    //[/UserbuttonClicked_Post]
 }
 
-void MainContentComponent::comboBoxChanged(ComboBox* comboBoxThatHasChanged)
+void MainContentComponent::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 {
-	//[UsercomboBoxChanged_Pre]
-	//[/UsercomboBoxChanged_Pre]
+    //[UsercomboBoxChanged_Pre]
+    //[/UsercomboBoxChanged_Pre]
 
-	if (comboBoxThatHasChanged == prBehaviorComboBox)
-	{
-		//[UserComboBoxCode_prBehaviorComboBox] -- add your combo box handling code here..
+    if (comboBoxThatHasChanged == prBehaviorComboBox)
+    {
+        //[UserComboBoxCode_prBehaviorComboBox] -- add your combo box handling code here..
 		inputFileListComponent->setPrBehavior(static_cast<InputFileTableListBox::PrBehavior>(prBehaviorComboBox->getSelectedId()));
-		//[/UserComboBoxCode_prBehaviorComboBox]
-	}
+        //[/UserComboBoxCode_prBehaviorComboBox]
+    }
 
-	//[UsercomboBoxChanged_Post]
-	//[/UsercomboBoxChanged_Post]
+    //[UsercomboBoxChanged_Post]
+    //[/UsercomboBoxChanged_Post]
 }
 
 
@@ -711,7 +711,7 @@ void MainContentComponent::filesDropped(const StringArray& filePaths, int x, int
 void MainContentComponent::changeListenerCallback(ChangeBroadcaster* source) {
 	if (source == inputFileListComponent) {
 		const ScopedLock fl(soundListLock);
-		updateNfftSlider(dontSendNotification);
+		updateNfftSlider(sendNotificationSync);
 
 		int previewId = inputFileListComponent->getPreviewId();
 		if (previewId != -1) {
@@ -776,7 +776,7 @@ void MainContentComponent::inputFilesChanged(NotificationType notificationType) 
 	inputFileListComponent->setIdToSound(idToSoundTable);
 	inputFileListComponent->updateContent();
 
-	updateNfftSlider(notificationType);
+	updateNfftSlider(sendNotificationSync);
 }
 
 
@@ -815,111 +815,111 @@ void MainContentComponent::updateNfftSlider(NotificationType notificationType) {
 #if 0
 /*  -- Projucer information section --
 
-	This is where the Projucer stores the metadata that describe this GUI layout, so
-	make changes in here at your peril!
+    This is where the Projucer stores the metadata that describe this GUI layout, so
+    make changes in here at your peril!
 
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="MainContentComponent" componentName=""
-				 parentClasses="public AudioAppComponent, public FileDragAndDropTarget, public Timer, public ChangeListener"
-				 constructorParams="" variableInitialisers="sampleRate(-1.0),&#10;gainParam(0.5),&#10;nfftParam(0),&#10;qParam(1.0),&#10;sParam(1.0),&#10;conv(0, 0),&#10;playheadAudioLock(),&#10;playheadState(PlayheadState::stopped),&#10;playheadAudio(0, 0),&#10;playheadAudioSamplesCompleted(0),&#10;soundIdNext(0)"
-				 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-				 fixedSize="1" initialWidth="624" initialHeight="600">
+                 parentClasses="public AudioAppComponent, public FileDragAndDropTarget, public Timer, public ChangeListener"
+                 constructorParams="" variableInitialisers="sampleRate(-1.0),&#10;gainParam(0.5),&#10;nfftParam(0),&#10;qParam(1.0),&#10;sParam(1.0),&#10;conv(0, 0),&#10;playheadAudioLock(),&#10;playheadState(PlayheadState::stopped),&#10;playheadAudio(0, 0),&#10;playheadAudioSamplesCompleted(0),&#10;soundIdNext(0)"
+                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
+                 fixedSize="1" initialWidth="624" initialHeight="600">
   <BACKGROUND backgroundColour="ffffffff"/>
   <GROUPCOMPONENT name="" id="7c21d6435b394a3c" memberName="waveformGroupBox" virtualName=""
-				  explicitFocusOrder="0" pos="8 242 608 214" title="Waveform"/>
+                  explicitFocusOrder="0" pos="8 242 608 214" title="Waveform"/>
   <GENERICCOMPONENT name="" id="5da17034a15a2c26" memberName="waveformComponent"
-					virtualName="" explicitFocusOrder="0" pos="24 264 576 152" class="WaveformComponent"
-					params="&quot;No waveform to display&quot;"/>
+                    virtualName="" explicitFocusOrder="0" pos="24 264 576 152" class="WaveformComponent"
+                    params="&quot;No waveform to display&quot;"/>
   <GROUPCOMPONENT name="" id="5b5e49932e4cad01" memberName="inputGroupBox" virtualName=""
-				  explicitFocusOrder="0" pos="8 8 608 224" title="Input"/>
+                  explicitFocusOrder="0" pos="8 8 608 224" title="Input"/>
   <GROUPCOMPONENT name="" id="251b2a29053ccce1" memberName="convGroupBox" virtualName=""
-				  explicitFocusOrder="0" pos="8 464 608 128" title="Convolution"/>
+                  explicitFocusOrder="0" pos="8 464 608 128" title="Convolution"/>
   <SLIDER name="" id="5d8042d5cba6f5af" memberName="qSlider" virtualName=""
-		  explicitFocusOrder="0" pos="120 520 248 24" min="0" max="8" int="0.010000000000000000208"
-		  style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
-		  textBoxWidth="40" textBoxHeight="20" skewFactor="0.4000000000000000222"
-		  needsCallback="1"/>
+          explicitFocusOrder="0" pos="120 520 248 24" min="0" max="8" int="0.010000000000000000208"
+          style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
+          textBoxWidth="40" textBoxHeight="20" skewFactor="0.4000000000000000222"
+          needsCallback="1"/>
   <LABEL name="" id="8c32c3818b630f5" memberName="qLabel" virtualName=""
-		 explicitFocusOrder="0" pos="24 520 24 24" edTextCol="ff000000"
-		 edBkgCol="0" labelText="Q" editableSingleClick="0" editableDoubleClick="0"
-		 focusDiscardsChanges="0" fontname="Default font" fontsize="15"
-		 bold="0" italic="0" justification="33"/>
+         explicitFocusOrder="0" pos="24 520 24 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Q" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
+         bold="0" italic="0" justification="33"/>
   <TEXTBUTTON name="" id="1b9a996260e602ac" memberName="convButton" virtualName=""
-			  explicitFocusOrder="0" pos="384 488 216 56" buttonText="Convolve"
-			  connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              explicitFocusOrder="0" pos="384 488 216 56" buttonText="Convolve"
+              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <LABEL name="" id="45a3ca5fc03eb3c6" memberName="authorLabel" virtualName=""
-		 explicitFocusOrder="0" pos="424 552 136 24" edTextCol="ff000000"
-		 edBkgCol="0" labelText="Chris Donahue 2016" editableSingleClick="0"
-		 editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-		 fontsize="15" bold="0" italic="0" justification="33"/>
+         explicitFocusOrder="0" pos="416 552 160 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="&#169; Chris Donahue 2016" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15" bold="0" italic="0" justification="33"/>
   <TEXTBUTTON name="" id="8a40cfbb6678ded1" memberName="settingsButton" virtualName=""
-			  explicitFocusOrder="0" pos="480 424 120 24" buttonText="Audio Settings"
-			  connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              explicitFocusOrder="0" pos="480 424 120 24" buttonText="Audio Settings"
+              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <SLIDER name="" id="4e9f7543cb949220" memberName="gainSlider" virtualName=""
-		  explicitFocusOrder="0" pos="120 424 344 24" min="0" max="1" int="0.010000000000000000208"
-		  style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
-		  textBoxWidth="40" textBoxHeight="20" skewFactor="1" needsCallback="1"/>
+          explicitFocusOrder="0" pos="120 424 344 24" min="0" max="1" int="0.010000000000000000208"
+          style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
+          textBoxWidth="40" textBoxHeight="20" skewFactor="1" needsCallback="1"/>
   <LABEL name="" id="617675cab679ff64" memberName="gainLabel" virtualName=""
-		 explicitFocusOrder="0" pos="24 424 88 24" edTextCol="ff000000"
-		 edBkgCol="0" labelText="Gain" editableSingleClick="0" editableDoubleClick="0"
-		 focusDiscardsChanges="0" fontname="Default font" fontsize="15"
-		 bold="0" italic="0" justification="33"/>
+         explicitFocusOrder="0" pos="24 424 88 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Gain" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
+         bold="0" italic="0" justification="33"/>
   <LABEL name="" id="df0c2bbfcc27d23b" memberName="prBehaviorLabel" virtualName=""
-		 explicitFocusOrder="0" pos="256 32 88 24" edTextCol="ff000000"
-		 edBkgCol="0" labelText="P/R Behavior" editableSingleClick="0"
-		 editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-		 fontsize="15" bold="0" italic="0" justification="33"/>
+         explicitFocusOrder="0" pos="256 32 88 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="P/R Behavior" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15" bold="0" italic="0" justification="33"/>
   <COMBOBOX name="" id="e3ce100f165f7ce9" memberName="prBehaviorComboBox"
-			virtualName="" explicitFocusOrder="0" pos="352 32 248 24" editable="0"
-			layout="33" items="Independent&#10;Linked&#10;Inverse" textWhenNonSelected=""
-			textWhenNoItems="(no choices)"/>
+            virtualName="" explicitFocusOrder="0" pos="352 32 248 24" editable="0"
+            layout="33" items="Independent&#10;Linked&#10;Inverse" textWhenNonSelected=""
+            textWhenNoItems="(no choices)"/>
   <TEXTBUTTON name="" id="ae50f5bf4f928bae" memberName="playButton" virtualName=""
-			  explicitFocusOrder="0" pos="400 272 56 24" buttonText="Play"
-			  connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              explicitFocusOrder="0" pos="400 272 56 24" buttonText="Play"
+              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="bc50acff95e14f9c" memberName="loopButton" virtualName=""
-			  explicitFocusOrder="0" pos="528 272 56 24" buttonText="Loop"
-			  connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              explicitFocusOrder="0" pos="528 272 56 24" buttonText="Loop"
+              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="ee7f76320bc5ba72" memberName="stopButton" virtualName=""
-			  explicitFocusOrder="0" pos="464 272 56 24" buttonText="Stop"
-			  connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              explicitFocusOrder="0" pos="464 272 56 24" buttonText="Stop"
+              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="458e93826aa283d" memberName="qDefaultButton" virtualName=""
-			  explicitFocusOrder="0" pos="56 520 56 24" buttonText="Default"
-			  connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              explicitFocusOrder="0" pos="56 520 56 24" buttonText="Default"
+              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <SLIDER name="" id="234c4909ac1ef82e" memberName="sSlider" virtualName=""
-		  explicitFocusOrder="0" pos="120 552 248 24" min="0" max="15"
-		  int="0.010000000000000000208" style="LinearHorizontal" textBoxPos="TextBoxLeft"
-		  textBoxEditable="1" textBoxWidth="40" textBoxHeight="20" skewFactor="1"
-		  needsCallback="1"/>
+          explicitFocusOrder="0" pos="120 552 248 24" min="0" max="15"
+          int="0.010000000000000000208" style="LinearHorizontal" textBoxPos="TextBoxLeft"
+          textBoxEditable="1" textBoxWidth="40" textBoxHeight="20" skewFactor="1"
+          needsCallback="1"/>
   <TEXTBUTTON name="" id="6b491d9785461117" memberName="sDefaultButton" virtualName=""
-			  explicitFocusOrder="0" pos="56 552 56 24" buttonText="Default"
-			  connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              explicitFocusOrder="0" pos="56 552 56 24" buttonText="Default"
+              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <SLIDER name="" id="2ccccb8c8ed630bf" memberName="nfftSlider" virtualName=""
-		  explicitFocusOrder="0" pos="120 488 248 24" min="0" max="24"
-		  int="1" style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
-		  textBoxWidth="40" textBoxHeight="20" skewFactor="1" needsCallback="1"/>
+          explicitFocusOrder="0" pos="120 488 248 24" min="0" max="24"
+          int="1" style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
+          textBoxWidth="40" textBoxHeight="20" skewFactor="1" needsCallback="1"/>
   <LABEL name="" id="9b09e8ab97220128" memberName="nfftLabel" virtualName=""
-		 explicitFocusOrder="0" pos="24 488 88 24" edTextCol="ff000000"
-		 edBkgCol="0" labelText="NFFT" editableSingleClick="0" editableDoubleClick="0"
-		 focusDiscardsChanges="0" fontname="Default font" fontsize="15"
-		 bold="0" italic="0" justification="33"/>
+         explicitFocusOrder="0" pos="24 488 88 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="NFFT" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
+         bold="0" italic="0" justification="33"/>
   <TEXTBUTTON name="" id="5349946cfc445d79" memberName="saveButton" virtualName=""
-			  explicitFocusOrder="0" pos="528 376 56 24" buttonText="Save"
-			  connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              explicitFocusOrder="0" pos="528 376 56 24" buttonText="Save"
+              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <LABEL name="" id="676135372bd3b95b" memberName="sLabel" virtualName=""
-		 explicitFocusOrder="0" pos="24 552 24 24" edTextCol="ff000000"
-		 edBkgCol="0" labelText="S" editableSingleClick="0" editableDoubleClick="0"
-		 focusDiscardsChanges="0" fontname="Default font" fontsize="15"
-		 bold="0" italic="0" justification="33"/>
+         explicitFocusOrder="0" pos="24 552 24 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="S" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
+         bold="0" italic="0" justification="33"/>
   <TEXTBUTTON name="" id="ce8360a29a7e1323" memberName="inputRemoveButton"
-			  virtualName="" explicitFocusOrder="0" pos="128 32 88 24" buttonText="Remove"
-			  connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              virtualName="" explicitFocusOrder="0" pos="128 32 88 24" buttonText="Remove"
+              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="dcb4b995c383b4ef" memberName="inputAddButton" virtualName=""
-			  explicitFocusOrder="0" pos="24 32 88 24" buttonText="Add" connectedEdges="0"
-			  needsCallback="1" radioGroupId="0"/>
+              explicitFocusOrder="0" pos="24 32 88 24" buttonText="Add" connectedEdges="0"
+              needsCallback="1" radioGroupId="0"/>
   <GENERICCOMPONENT name="" id="7617b55e4d758efa" memberName="inputFileListComponent"
-					virtualName="" explicitFocusOrder="0" pos="24 64 576 152" class="InputFileTableListBox"
-					params="InputFileTableListBox::PrBehavior::independent"/>
+                    virtualName="" explicitFocusOrder="0" pos="24 64 576 152" class="InputFileTableListBox"
+                    params="InputFileTableListBox::PrBehavior::independent"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
