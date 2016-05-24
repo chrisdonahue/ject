@@ -14,7 +14,7 @@ section div.text {
 }
 
 section#intro div.text {
-	margin-left: 320px;
+	margin-left: 340px;
 }
 
 section div#ss {
@@ -23,6 +23,6 @@ section div#ss {
 
 section div#ss img {
     display: block;
-    width: 300px;
-    height: 350px;
+    width: 320px;
+    height: 319px;
 }
