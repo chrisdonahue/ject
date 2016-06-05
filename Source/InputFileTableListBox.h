@@ -284,8 +284,8 @@ public:
 		getHeader().addColumn("ID", Column::id, 32, 32, -1, flags);
 		getHeader().addColumn("Name", Column::name, 128, 32, -1, flags);
 		getHeader().addColumn("Use", Column::include, 32, 32, -1, flags);
-		getHeader().addColumn("P", Column::pValue, 128, 32, -1, flags);
-		getHeader().addColumn("R", Column::rValue, 128, 32, -1, flags);
+		getHeader().addColumn("Mag", Column::pValue, 128, 32, -1, flags);
+		getHeader().addColumn("Phase", Column::rValue, 128, 32, -1, flags);
 		getHeader().addColumn("Preview", Column::preview, 64, 32, -1, flags);
 		model.addChangeListener(this);
 	};

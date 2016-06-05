@@ -68,7 +68,7 @@ MainContentComponent::MainContentComponent ()
     qSlider->setSkewFactor (0.4);
 
     addAndMakeVisible (qLabel = new Label (String(),
-                                           TRANS("Q")));
+                                           TRANS("Mag Scale")));
     qLabel->setFont (Font (15.00f, Font::plain));
     qLabel->setJustificationType (Justification::centredLeft);
     qLabel->setEditable (false, false, false);
@@ -106,7 +106,7 @@ MainContentComponent::MainContentComponent ()
     gainLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (prBehaviorLabel = new Label (String(),
-                                                    TRANS("P/R Behavior")));
+                                                    TRANS("Mag/Phase Link")));
     prBehaviorLabel->setFont (Font (15.00f, Font::plain));
     prBehaviorLabel->setJustificationType (Justification::centredLeft);
     prBehaviorLabel->setEditable (false, false, false);
@@ -168,7 +168,7 @@ MainContentComponent::MainContentComponent ()
     saveButton->addListener (this);
 
     addAndMakeVisible (sLabel = new Label (String(),
-                                           TRANS("S")));
+                                           TRANS("Phase Scale")));
     sLabel->setFont (Font (15.00f, Font::plain));
     sLabel->setJustificationType (Justification::centredLeft);
     sLabel->setEditable (false, false, false);
@@ -265,25 +265,25 @@ void MainContentComponent::resized()
     waveformComponent->setBounds (24, 264, 576, 152);
     inputGroupBox->setBounds (8, 8, 608, 224);
     convGroupBox->setBounds (8, 464, 608, 128);
-    qSlider->setBounds (120, 520, 248, 24);
-    qLabel->setBounds (24, 520, 24, 24);
-    convButton->setBounds (384, 488, 216, 56);
-    authorLabel->setBounds (416, 552, 160, 24);
+    qSlider->setBounds (168, 520, 232, 24);
+    qLabel->setBounds (24, 520, 80, 24);
+    convButton->setBounds (408, 488, 192, 56);
+    authorLabel->setBounds (424, 552, 160, 24);
     settingsButton->setBounds (480, 424, 120, 24);
-    gainSlider->setBounds (120, 424, 344, 24);
+    gainSlider->setBounds (112, 424, 352, 24);
     gainLabel->setBounds (24, 424, 88, 24);
-    prBehaviorLabel->setBounds (256, 32, 88, 24);
-    prBehaviorComboBox->setBounds (352, 32, 248, 24);
+    prBehaviorLabel->setBounds (296, 32, 112, 24);
+    prBehaviorComboBox->setBounds (416, 32, 184, 24);
     playButton->setBounds (400, 272, 56, 24);
     loopButton->setBounds (528, 272, 56, 24);
     stopButton->setBounds (464, 272, 56, 24);
-    qDefaultButton->setBounds (56, 520, 56, 24);
-    sSlider->setBounds (120, 552, 248, 24);
-    sDefaultButton->setBounds (56, 552, 56, 24);
-    nfftSlider->setBounds (120, 488, 248, 24);
+    qDefaultButton->setBounds (112, 520, 48, 24);
+    sSlider->setBounds (168, 552, 232, 24);
+    sDefaultButton->setBounds (112, 552, 48, 24);
+    nfftSlider->setBounds (112, 488, 288, 24);
     nfftLabel->setBounds (24, 488, 88, 24);
     saveButton->setBounds (528, 376, 56, 24);
-    sLabel->setBounds (24, 552, 24, 24);
+    sLabel->setBounds (24, 552, 88, 24);
     inputRemoveButton->setBounds (128, 32, 88, 24);
     inputAddButton->setBounds (24, 32, 88, 24);
     inputFileListComponent->setBounds (24, 64, 576, 152);
@@ -836,20 +836,20 @@ BEGIN_JUCER_METADATA
   <GROUPCOMPONENT name="" id="251b2a29053ccce1" memberName="convGroupBox" virtualName=""
                   explicitFocusOrder="0" pos="8 464 608 128" title="Convolution"/>
   <SLIDER name="" id="5d8042d5cba6f5af" memberName="qSlider" virtualName=""
-          explicitFocusOrder="0" pos="120 520 248 24" min="0" max="8" int="0.010000000000000000208"
+          explicitFocusOrder="0" pos="168 520 232 24" min="0" max="8" int="0.010000000000000000208"
           style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="40" textBoxHeight="20" skewFactor="0.4000000000000000222"
           needsCallback="1"/>
   <LABEL name="" id="8c32c3818b630f5" memberName="qLabel" virtualName=""
-         explicitFocusOrder="0" pos="24 520 24 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="Q" editableSingleClick="0" editableDoubleClick="0"
+         explicitFocusOrder="0" pos="24 520 80 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Mag Scale" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
          bold="0" italic="0" justification="33"/>
   <TEXTBUTTON name="" id="1b9a996260e602ac" memberName="convButton" virtualName=""
-              explicitFocusOrder="0" pos="384 488 216 56" buttonText="Convolve"
+              explicitFocusOrder="0" pos="408 488 192 56" buttonText="Convolve"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <LABEL name="" id="45a3ca5fc03eb3c6" memberName="authorLabel" virtualName=""
-         explicitFocusOrder="0" pos="416 552 160 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="424 552 160 24" edTextCol="ff000000"
          edBkgCol="0" labelText="&#169; Chris Donahue 2016" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
@@ -857,7 +857,7 @@ BEGIN_JUCER_METADATA
               explicitFocusOrder="0" pos="480 424 120 24" buttonText="Audio Settings"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <SLIDER name="" id="4e9f7543cb949220" memberName="gainSlider" virtualName=""
-          explicitFocusOrder="0" pos="120 424 344 24" min="0" max="1" int="0.010000000000000000208"
+          explicitFocusOrder="0" pos="112 424 352 24" min="0" max="1" int="0.010000000000000000208"
           style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="40" textBoxHeight="20" skewFactor="1" needsCallback="1"/>
   <LABEL name="" id="617675cab679ff64" memberName="gainLabel" virtualName=""
@@ -866,12 +866,12 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
          bold="0" italic="0" justification="33"/>
   <LABEL name="" id="df0c2bbfcc27d23b" memberName="prBehaviorLabel" virtualName=""
-         explicitFocusOrder="0" pos="256 32 88 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="P/R Behavior" editableSingleClick="0"
+         explicitFocusOrder="0" pos="296 32 112 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Mag/Phase Link" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
   <COMBOBOX name="" id="e3ce100f165f7ce9" memberName="prBehaviorComboBox"
-            virtualName="" explicitFocusOrder="0" pos="352 32 248 24" editable="0"
+            virtualName="" explicitFocusOrder="0" pos="416 32 184 24" editable="0"
             layout="33" items="Independent&#10;Linked&#10;Inverse" textWhenNonSelected=""
             textWhenNoItems="(no choices)"/>
   <TEXTBUTTON name="" id="ae50f5bf4f928bae" memberName="playButton" virtualName=""
@@ -884,18 +884,18 @@ BEGIN_JUCER_METADATA
               explicitFocusOrder="0" pos="464 272 56 24" buttonText="Stop"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="458e93826aa283d" memberName="qDefaultButton" virtualName=""
-              explicitFocusOrder="0" pos="56 520 56 24" buttonText="Default"
+              explicitFocusOrder="0" pos="112 520 48 24" buttonText="Default"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <SLIDER name="" id="234c4909ac1ef82e" memberName="sSlider" virtualName=""
-          explicitFocusOrder="0" pos="120 552 248 24" min="0" max="15"
+          explicitFocusOrder="0" pos="168 552 232 24" min="0" max="15"
           int="0.010000000000000000208" style="LinearHorizontal" textBoxPos="TextBoxLeft"
           textBoxEditable="1" textBoxWidth="40" textBoxHeight="20" skewFactor="1"
           needsCallback="1"/>
   <TEXTBUTTON name="" id="6b491d9785461117" memberName="sDefaultButton" virtualName=""
-              explicitFocusOrder="0" pos="56 552 56 24" buttonText="Default"
+              explicitFocusOrder="0" pos="112 552 48 24" buttonText="Default"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <SLIDER name="" id="2ccccb8c8ed630bf" memberName="nfftSlider" virtualName=""
-          explicitFocusOrder="0" pos="120 488 248 24" min="0" max="24"
+          explicitFocusOrder="0" pos="112 488 288 24" min="0" max="24"
           int="1" style="LinearHorizontal" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="40" textBoxHeight="20" skewFactor="1" needsCallback="1"/>
   <LABEL name="" id="9b09e8ab97220128" memberName="nfftLabel" virtualName=""
@@ -907,10 +907,10 @@ BEGIN_JUCER_METADATA
               explicitFocusOrder="0" pos="528 376 56 24" buttonText="Save"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <LABEL name="" id="676135372bd3b95b" memberName="sLabel" virtualName=""
-         explicitFocusOrder="0" pos="24 552 24 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="S" editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
-         bold="0" italic="0" justification="33"/>
+         explicitFocusOrder="0" pos="24 552 88 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Phase Scale" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15" bold="0" italic="0" justification="33"/>
   <TEXTBUTTON name="" id="ce8360a29a7e1323" memberName="inputRemoveButton"
               virtualName="" explicitFocusOrder="0" pos="128 32 88 24" buttonText="Remove"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
