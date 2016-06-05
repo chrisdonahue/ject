@@ -18,10 +18,20 @@
 	<div class="title">JECT</div>
 	<div id="ss"><img src="img/ss.png"/></div>
 	<div class="text">
-		<p><b>JECT</b> (<b>J</b>UCE <b>E</b>xtended <b>C</b>onvolution <b>T</b>echniques) is a simple, cross-platform demo application for experimenting with extended convolution techniques as described in the <a href="">Extended Convolution Techniques for Cross-Synthesis</a> ICMC 2016 paper. It supports WAV, AIFF and OGG files of arbitrary length.</p>
-		<p>To use JECT, drag two files (either separate or simultaneously) onto the window. Press <i>Convolve</i> to perform convolution on the two sounds with the current parameter configuration. Press <i>Play</i> or <i>Loop</i> to hear the results. Adjust the <i>Gain</i> or <i>NFFT</i> (output length) with the top sliders. <i>P/R Behavior</i> determines the strategy for coupling the <i>P</i> and <i>R</i> parameters in the UI. The <i>P</i>, <i>R</i>, <i>Q</i>, <i>S</i> sliders control algorithm behavior as defined in the <a href="">paper</a>. The algorithm is not real-time so you will need to press <i>Convolve</i> to hear the changes.
-		<p>You might be interested in <a href="http://rfs1k.ucsd.edu/">RFS1k</a>, a high-variety set of 1000 sounds collected for this research with permissive licensing. RFS1k is fun to use with JECT for timbre exploration!</p>
+		<p><b>JECT</b> (<b>J</b>UCE <b>E</b>xtended <b>C</b>onvolution <b>T</b>echniques) is a simple, cross-platform demo application for experimenting with cross-synthesis of sound files via extended convolution techniques as described in the (unreleased) <i>Extended Convolution Techniques for Cross-Synthesis</i> ICMC 2016 paper. It supports WAV, AIFF and OGG files of arbitrary length. The techniques were developed by <a href="http://cdonahue.me">Chris Donahue</a>, <a href="http://www.soundhack.com/">Tom Erbe</a> and <a href="http://msp.ucsd.edu/">Miller Puckette</a> at UCSD in 2016.</p>
+
+		<p>You might be interested in <a href="http://rfs1k.ucsd.edu/">RFS1k</a>, a set of 1,000 random sounds with permissive licenses collected for this research. RFS1k is a good starting point to experiment with timbre exploration using JECT.</p>
 	</div>
+</section>
+<section id="instructions">
+	<div class="title">How to use</div>
+	<div class="text">
+		<p>The <b>Input</b> section is a list of all sound files to include in cross-synthesis. Click <b>Add</b> (or drag) to add files to the list. Click <b>Remove</b> to remove selected rows from the list. For each sound file: the <b>Use</b> button includes it for cross-synthesis, the <b>Mag</b>/<b>Phase</b> sliders determines the sound file's influence on the hybrid magnitude/phase spectrum, and the <b>Preview</b> button allows you to hear the file. The <b>Mag/Phase Link</b> dropdown controls the linking behavior of the Mag/Phase sliders.</p>
+
+		<p>The <b>Waveform</b> section allows you to listen to either the input sound files (via the <b>Preview</b> buttons) or the most recent hybrid sound (via the <b>Convolve</b> button). The other controls should be self-explanatory.
+
+		<p>The <b>Convolution</b> section allows you to modify further cross-synthesis parameters. The <b>NFFT</b> slider allows you to determine the power of two used for the FFT (which will affect the length of the result). The <b>Mag Scale</b> slider allows you to manipulate a value which determines the spectral flatness of the result. The lower the value, the flatter the spectrum (noisier). The <b>Phase Scale</b> slider allows you to manipulate a value which nullifies or randomizes phase at low or high values respectively. The higher the value, the more ambient the result. The huge <b>Convolve</b> button recomputes the convolution (<b>NOTE: the Convolve button needs to be pressed every time you change parameters</b>).
+		</div>
 </section>
 <section id="installation">
 	<div class="title">Building</div>
@@ -32,8 +42,8 @@
 		<li>Compile the Projucer under extras/Projucer</li>
 		<li>Download <a href="https://github.com/chrisdonahue/ject/archive/master.zip">JECT</a>
 		<li>Open ject.jucer in Projucer</li>
-		<li>Under Config>JECT>Modules, change the module paths to point to the modules folder inside JUCE.</li>
-		<li>In Projucer, File>Save Project and Open in IDE</li>
+		<li>Under Config>JECT>Modules, change the module paths to point to the modules folder inside JUCE</li>
+		<li>In Projucer, File>Save Project and Open in IDE (this copies the JUCE module source files to the JECT directory)</li>
 		<li>Compile using your IDE or <code>make</code> if on Linux</li>
 	</ol>
 	</div>
