@@ -364,6 +364,8 @@ void MainContentComponent::buttonClicked (Button* buttonThatWasClicked)
 
 		unordered_set<int> includedSounds;
 		int maxChannels = 0;
+		float pSum = 0.0f;
+		float rSum = 0.0f;
 		for (const auto& iter : idToSound) {
 			int id = iter.first;
 			Sound* sound = iter.second.get();
@@ -371,9 +373,13 @@ void MainContentComponent::buttonClicked (Button* buttonThatWasClicked)
 			if (sound->isIncluded() && numChannels > 0) {
 				maxChannels = numChannels > maxChannels ? numChannels : maxChannels;
 				includedSounds.emplace(id);
+				pSum += static_cast<float>(sound->getPValue());
+				rSum += static_cast<float>(sound->getRValue());
 			}
 		}
 		float n = static_cast<float>(includedSounds.size());
+		float pScale = n * q / pSum;
+		float rScale = n * s / rSum;
 
 		if (maxChannels == 0) {
 			return;
@@ -385,18 +391,20 @@ void MainContentComponent::buttonClicked (Button* buttonThatWasClicked)
 
 		float max = -1.0f;
 
+		// convolve
 		for (int convChannel = 0; convChannel < maxChannels; ++convChannel) {
 			kiss_fft_cpx* CONVCHANNEL = CONV + (convChannel * fftOutputLen);
 
+			bool isFirstSound = true;
 			for (const auto& id : includedSounds) {
 				Sound* sound = idToSound[id].get();
 				jassert(sound != nullptr);
-				float p = static_cast<float>(sound->getPValue());
-				float r = static_cast<float>(sound->getRValue());
+				float p = pScale * static_cast<float>(sound->getPValue());
+				float r = rScale * static_cast<float>(sound->getRValue());
 				int soundNumChannels = sound->getBufferNumChannels();
 				int soundNumSamples = sound->getBufferNumSamples();
 				int soundChannel = convChannel >= soundNumChannels ? soundNumChannels - 1 : convChannel;
-				kiss_fft_cpx* SOUNDCHANNEL = sound->getSpectra(fftInputLen, soundChannel);
+				const kiss_fft_cpx* SOUNDCHANNEL = sound->getSpectra(fftInputLen, soundChannel);
 
 				for (int i = 0; i < fftOutputLen; ++i) {
 					float xr = SOUNDCHANNEL[i].r;
@@ -412,28 +420,21 @@ void MainContentComponent::buttonClicked (Button* buttonThatWasClicked)
 						convValid = false;
 					}
 
-					CONVCHANNEL[i].r += convr;
-					CONVCHANNEL[i].i += convi;
-				}
-			}
-
-			// convolve
-			for (int i = 0; i < fftOutputLen; ++i) {
-				float cr = CONVCHANNEL[i].r;
-				float ci = CONVCHANNEL[i].i;
-				float cMag = sqrtf((cr * cr) + (ci * ci));
-				float cPhs = atan2f(ci, cr);
-				float convMag = powf(cMag, n * q);
-				float convPhs = n * s * cPhs;
-				float convr = convMag * cosf(convPhs);
-				float convi = convMag * sinf(convPhs);
-
-				if (std::isnan(convr) || std::isnan(convi)) {
-					convValid = false;
+					if (isFirstSound) {
+						CONVCHANNEL[i].r = convr;
+						CONVCHANNEL[i].i = convi;
+					}
+					else {
+						float a = CONVCHANNEL[i].r;
+						float b = CONVCHANNEL[i].i;
+						float c = convr;
+						float d = convi;
+						CONVCHANNEL[i].r = a * c - b * d;
+						CONVCHANNEL[i].i = a * d + b * c;
+					}
 				}
 
-				CONVCHANNEL[i].r = convr;
-				CONVCHANNEL[i].i = convi;
+				isFirstSound = false;
 			}
 
 			// ifft

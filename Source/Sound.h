@@ -96,7 +96,7 @@ public:
 		rValue = rValueNew;
 	};
 
-	kiss_fft_cpx* getSpectra(int nfftNew, int channel) {
+	const kiss_fft_cpx* getSpectra(int nfftNew, int channel) {
 		int fftInputLen = nfftNew;
 		int fftOutputLen = fftInputLen / 2 + 1;
 
