@@ -711,13 +711,23 @@ void MainContentComponent::filesDropped(const StringArray& filePaths, int x, int
 void MainContentComponent::changeListenerCallback(ChangeBroadcaster* source) {
 	if (source == inputFileListComponent) {
 		const ScopedLock fl(soundListLock);
-		updateNfftSlider(sendNotificationSync);
+		InputFileTableListBox::FileListChangeMessage messageType = inputFileListComponent->getLastChangeMessageType();
 
-		int previewId = inputFileListComponent->getPreviewId();
-		if (previewId != -1) {
-			const auto& iter = idToSound.find(previewId);
-			jassert(iter != idToSound.end());
-			setPlayheadAudio(iter->second->getBufferPtr());
+		if (messageType == InputFileTableListBox::FileListChangeMessage::includeChange) {
+			updateNfftSlider(sendNotificationSync);
+		}
+		else if (messageType == InputFileTableListBox::FileListChangeMessage::previewChange) {
+			int previewId = inputFileListComponent->getPreviewId();
+			if (previewId != -1) {
+				const auto& iter = idToSound.find(previewId);
+				jassert(iter != idToSound.end());
+				setPlayheadAudio(iter->second->getBufferPtr());
+			}
+		}
+		else if (messageType == InputFileTableListBox::FileListChangeMessage::prValueChange) {}
+		else if (messageType == InputFileTableListBox::FileListChangeMessage::selectionChange) {}
+		else {
+			jassertfalse;
 		}
 	}
 }

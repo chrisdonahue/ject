@@ -22,6 +22,15 @@ Author:  Chris
 using std::unordered_map;
 
 class InputFileTableListBox : public TableListBox, public ChangeListener, public ChangeBroadcaster {
+public:
+	enum FileListChangeMessage {
+		noChange = 0,
+		includeChange,
+		previewChange,
+		prValueChange,
+		selectionChange
+	};
+
 private:
 	class SelectableLabel : public Label
 	{
@@ -182,6 +191,7 @@ private:
 		};
 
 		void selectedRowsChanged(int lastRowSelected) override {
+			table.lastChangeMessageType = FileListChangeMessage::selectionChange;
 			sendChangeMessage();
 		};
 
@@ -195,6 +205,7 @@ private:
 			if (isPreviewButton) {
 				int id = previewButtonItr->second;
 				table.previewId = id;
+				table.lastChangeMessageType = FileListChangeMessage::previewChange;
 			}
 			else if (isIncludeButton) {
 				int id = includeButtonItr->second;
@@ -205,6 +216,8 @@ private:
 				jassert(sound != nullptr);
 
 				sound->setInclude(button->getToggleState());
+
+				table.lastChangeMessageType = FileListChangeMessage::includeChange;
 			}
 			else {
 				jassertfalse;
@@ -253,6 +266,8 @@ private:
 
 			sound->setPValue(idToPSlider[id]->getValue());
 			sound->setRValue(idToRSlider[id]->getValue());
+
+			table.lastChangeMessageType = FileListChangeMessage::prValueChange;
 			sendChangeMessage();
 		};
 
@@ -275,7 +290,7 @@ public:
 
 	friend class InputFileTableListBoxModel;
 
-	InputFileTableListBox(PrBehavior prBehavior) : model(*this), prBehavior(prBehavior), previewId(-1) {
+	InputFileTableListBox(PrBehavior prBehavior) : model(*this), prBehavior(prBehavior), previewId(-1), lastChangeMessageType(FileListChangeMessage::noChange) {
 		setModel(&model);
 		setColour(ListBox::outlineColourId, Colours::grey);
 		setClickingTogglesRowSelection(true);
@@ -320,6 +335,10 @@ public:
 		return prBehavior;
 	};
 
+	FileListChangeMessage getLastChangeMessageType() const {
+		return lastChangeMessageType;
+	}
+
 	int getPreviewId() {
 		int result = previewId;
 		previewId = -1;
@@ -339,6 +358,7 @@ private:
 	unordered_map<int, Sound*> idToSound;
 	unordered_map<int, int> rowToId;
 	PrBehavior prBehavior;
+	FileListChangeMessage lastChangeMessageType;
 	int previewId;
 };
 
