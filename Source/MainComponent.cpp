@@ -809,7 +809,13 @@ void MainContentComponent::updateNfftSlider(NotificationType notificationType) {
 		int max2 = static_cast<int>(std::ceil(std::log2(maxSamplesNum)));
 		int total2 = static_cast<int>(std::ceil(std::log2(totalSamplesNum - (idToSound.size() - 1))));
 		nfftSlider->setRange(static_cast<double>(max2), 31, 1.0);
-		nfftSlider->setValue(static_cast<double>(total2), notificationType);
+		nfftSlider->setValue(static_cast<double>(total2), dontSendNotification);
+		// super weird bug. if you call setRange it clips value to bottom of range.
+		// then, setValue will set it to the bottom of range value occasionally
+		// JUCE will only call sliderValueChanged if oldValue != newValue... UGH
+		if (notificationType == NotificationType::sendNotificationSync) {
+			sliderValueChanged(nfftSlider);
+		}
 		nfftSlider->setEnabled(true);
 		convButton->setEnabled(true);
 	}
