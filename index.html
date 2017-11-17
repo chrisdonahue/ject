@@ -20,7 +20,9 @@
 	<div class="text">
 		<p><b>JECT</b> (<b>J</b>UCE <b>E</b>xtended <b>C</b>onvolution <b>T</b>echniques) is a simple, cross-platform demo application for experimenting with cross-synthesis of sound files via extended convolution techniques as described in the (unreleased) <i>Extended Convolution Techniques for Cross-Synthesis</i> ICMC 2016 paper. It supports WAV, AIFF and OGG files of arbitrary length. The techniques were developed by <a href="http://cdonahue.me">Chris Donahue</a>, <a href="http://www.soundhack.com/">Tom Erbe</a> and <a href="http://msp.ucsd.edu/">Miller Puckette</a> at UCSD in 2016.</p>
 
-		<p>You might be interested in <a href="http://rfs1k.ucsd.edu/">RFS1k</a>, a set of 1,000 random sounds with permissive licenses collected for this research. RFS1k is a good starting point to experiment with timbre exploration using JECT.</p>
+        <p><a href="bin/JECT.exe">Download for Windows</a><br><a href="bin/JECT.app.zip">Download for Mac OSX</a></p>
+
+		<p>This software can be used with <a href="http://rfs1k.ucsd.edu/">RFS1k</a>, a set of 1,000 random sounds with permissive licenses collected for this research. RFS1k is a good starting point to experiment with timbre exploration using JECT.</p>
 	</div>
 </section>
 <section id="instructions">
@@ -30,13 +32,12 @@
 
 		<p>The <b>Waveform</b> section allows you to listen to either the input sound files (via the <b>Preview</b> buttons) or the most recent hybrid sound (via the <b>Convolve</b> button). The other controls should be self-explanatory.
 
-		<p>The <b>Convolution</b> section allows you to modify further cross-synthesis parameters. The <b>NFFT</b> slider allows you to determine the power of two used for the FFT (which will affect the length of the result). The <b>Mag Scale</b> slider allows you to manipulate a value which determines the spectral flatness of the result. The lower the value, the flatter the spectrum (noisier). The <b>Phase Scale</b> slider allows you to manipulate a value which nullifies or randomizes phase at low or high values respectively. The higher the value, the more ambient the result. The huge <b>Convolve</b> button recomputes the convolution (<b>NOTE: the Convolve button needs to be pressed every time you change parameters</b>).
+		<p>The <b>Convolution</b> section allows you to modify further cross-synthesis parameters. The <b>NFFT</b> slider allows you to determine the power of two used for the FFT (which will affect the length of the result). The <b>Mag Scale</b> slider allows you to manipulate a value which determines the spectral flatness of the result. The lower the value, the flatter the spectrum (noisier). The <b>Phase Scale</b> slider allows you to manipulate a value which nullifies or randomizes phase at low or high values respectively. The higher the value, the more ambient the result. The <b>Convolve</b> button recomputes the convolution (<b>NOTE: the Convolve button needs to be pressed every time you change parameters</b>).
 		</div>
 </section>
 <section id="installation">
-	<div class="title">Building</div>
+	<div class="title">Build from source</div>
 	<div class="text">
-	<p>We are currently not distributing binaries for this software, though this may change in the future.</p>
 	<ol id="install-steps">
 		<li>Download <a href="https://github.com/julianstorer/JUCE/archive/4.2.1.zip">JUCE 4.2.1</a></li>
 		<li>Compile the Projucer under extras/Projucer</li>

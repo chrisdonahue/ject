@@ -1,3 +1,11 @@
+html {
+  background-color: #efefef;
+}
+
+body {
+    width: 800px;
+}
+
 section {
 	clear: both;
 }
